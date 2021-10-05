@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option csharp_namespace = "Scrips.Generated.Models";
+
+message Appointment{
+  string id=1;
+  any details=2;
+}
