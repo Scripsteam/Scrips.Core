@@ -3,5 +3,5 @@ syntax = "proto3";
 option csharp_namespace = "Scrips.Generated.Models";
 
 message Id {
-  string id=1;
+  string value=1;
 }
