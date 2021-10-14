@@ -9,12 +9,12 @@ message AppointmentEntity{
   google.protobuf.Any details=2;
 }
 
-message GetAppointmentParticipants{
+message GetAppointmentParticipantsResponse{
 	string providerId = 1;
 	string patientId = 2;
 	string isPatient = 3;
 }
 
-message GetAppointmentCustomNote{
+message GetAppointmentCustomNoteResponse{
 	string customNote = 1;
 }
