@@ -8,3 +8,15 @@ message IdentityEntity{
   google.protobuf.Any details=1;
 }
 
+message GetUserDeviceInfoResponse{
+	string userId = 1;
+	string deviceId = 2;
+	string deviceToken = 3;
+	string deviceType = 4;
+	string userName = 5;
+	string email = 6;
+	string firstName = 7;
+	string lastName = 8;
+	string mobileNumber = 9;
+	string timeZone = 10;
+}
