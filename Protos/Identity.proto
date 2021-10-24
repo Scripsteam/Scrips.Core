@@ -24,11 +24,3 @@ message GetUserDeviceInfoResponse{
 	string mobileNumber = 9;
 	string timeZone = 10;
 }
-
-message GetUserOrganizationRoleResponse{
-	string userId = 1;
-	string organizationId = 2;
-	string scripsRole = 3;
-	string entityId = 4;
-	string practitionerRoleId = 5;
-}
