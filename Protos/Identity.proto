@@ -23,4 +23,5 @@ message GetUserDeviceInfoResponse{
 	string lastName = 8;
 	string mobileNumber = 9;
 	string timeZone = 10;
+	string isOnBoard = 11;
 }
