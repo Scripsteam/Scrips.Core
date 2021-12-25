@@ -8,6 +8,10 @@ namespace Scrips.Core.Models.Patient
 {
     public class UpdatePatientContactRequest
     {
+        public UpdatePatientContactRequest()
+        {
+            PatientAddress = new List<PatientContactAddressModel>();
+        }
         public string PatientId { get; set; }
 
         public string Ownership { get; set; }

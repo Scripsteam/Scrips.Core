@@ -4,6 +4,10 @@ namespace Scrips.Core.Models.Patient
 {
     public class ProviderInsuranceModel
     {
+        public ProviderInsuranceModel()
+        {
+            RelatedTpa = new List<ThirdPartyAdministrator>();
+        }
         public string Id { get; set; }
         public string ImageUrl { get; set; }
         public string PayerName { get; set; }
