@@ -5,6 +5,13 @@ namespace Scrips.Core.Models.Patient
 {
     public class EditPatientResponse
     {
+        public EditPatientResponse()
+        {
+            EmergencyContactResponse = new List<EmergencyContactResponse>();
+            HealthInsuranceResponse = new List<HealthInsuranceResponse>();
+            CorporateAgreementResponse = new List<PatientCorporateResponse>();
+        }
+
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public bool IsAdult { get; set; }
@@ -32,8 +39,8 @@ namespace Scrips.Core.Models.Patient
         public UpdateIdenitification Identification { get; set; }
         public UpdateGuardianIdenitification GuardianIdenitification { get; set; }
         public UpdatePatientContactRequest UpdatePatientContactRequest { get; set; }
-        public List<EmergencyContactResponse> EmergencyContactResponse { get; set; } //
-        public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; } //
+        public List<EmergencyContactResponse> EmergencyContactResponse { get; set; }
+        public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }
         public List<PatientCorporateResponse> CorporateAgreementResponse { get; set; }
     }
 }
