@@ -5,6 +5,10 @@ namespace Scrips.Core.Models.Patient
 {
     public class HealthInsuranceResponse
     {
+        public HealthInsuranceResponse()
+        {
+            BillingGroups = new List<PatientBillingGroupModel>();
+        }
         public string HealthInsuranceId { get; set; }
         public string PatientId { get; set; }
         public ProviderInsuranceModel InsuranceProvider { get; set; }

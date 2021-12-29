@@ -18,6 +18,6 @@ namespace Scrips.Core.Models.Patient
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string Note { get; set; }
-        public List<ThirdPartyAdministrator> RelatedTpa { get; set; } = new();
+        public List<ThirdPartyAdministrator> RelatedTpa { get; set; }
     }
 }
