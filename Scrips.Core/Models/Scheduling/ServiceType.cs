@@ -1,5 +1,8 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     This value set defines an example set of codes of service-types.
+    /// </summary>
     public class ServiceType
     {
         /// <summary>

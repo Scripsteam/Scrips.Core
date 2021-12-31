@@ -1,6 +1,12 @@
-﻿namespace Scrips.Core.Models.Scheduling
+﻿using System.Text.Json.Serialization;
+
+namespace Scrips.Core.Enums.Scheduling
 {
-    public enum ParticipantRequiredEnum
+    /// <summary>
+    ///     Is the Participant required to attend the appointment.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ParticipantRequired
     {
         /// <summary>
         ///     The participant is required to attend the appointment.

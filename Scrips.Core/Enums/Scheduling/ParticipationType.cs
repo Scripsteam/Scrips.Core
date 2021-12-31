@@ -1,6 +1,12 @@
-﻿namespace Scrips.Core.Models.Scheduling
+﻿using System.Text.Json.Serialization;
+
+namespace Scrips.Core.Enums.Scheduling
 {
-    public enum ParticipationTypeEnum
+    /// <summary>
+    ///     Role of participant in the appointment
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ParticipationType
     {
         /// <summary>
         ///     The practitioner who is responsible for admitting a patient to a patient encounter.

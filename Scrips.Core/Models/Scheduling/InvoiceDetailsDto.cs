@@ -3,6 +3,9 @@ using System;
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    /// Invoice Details
+    /// </summary>
     public class InvoiceDetailsDto
     {
 

@@ -2,6 +2,10 @@
 
 namespace Scrips.Core.Models.Scheduling
 {
+
+    /// <summary>
+    ///     Patient Response
+    /// </summary>
     public class PatientResponse
     {
         /// <summary>

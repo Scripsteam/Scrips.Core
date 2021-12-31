@@ -1,6 +1,12 @@
-﻿namespace Scrips.Core.Models.Scheduling
+﻿using System.Text.Json.Serialization;
+
+namespace Scrips.Core.Enums.Scheduling
 {
-    public enum AppointmentCancellationReasonEnum
+    /// <summary>
+    ///     This example value set defines a set of reasons for the cancellation of an appointment.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum AppointmentCancellationReason
     {
         /// <summary>
         ///     Patient

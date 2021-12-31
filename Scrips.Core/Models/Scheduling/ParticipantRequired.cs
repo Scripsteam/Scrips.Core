@@ -1,11 +1,14 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     Is the Participant required to attend the appointment.
+    /// </summary>
     public class ParticipantRequired
     {
         /// <summary>
         ///     Code defined by a terminology system
         /// </summary>
-        public ParticipantRequiredEnum Code { get; set; }
+        public Enums.Scheduling.ParticipantRequired Code { get; set; }
 
         /// <summary>
         ///     An explanation of the meaning of the concept

@@ -1,9 +1,12 @@
-﻿namespace Scrips.Core.Models.Scheduling
+﻿using System.Text.Json.Serialization;
+
+namespace Scrips.Core.Enums.Scheduling
 {
     /// <summary>
     ///     The free/busy status of the slot.
     /// </summary>
-    public enum SlotStatusEnum
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum SlotStatus
     {
         /// <summary>
         ///     Indicates that the time interval is busy because one or more events have been scheduled for that interval.

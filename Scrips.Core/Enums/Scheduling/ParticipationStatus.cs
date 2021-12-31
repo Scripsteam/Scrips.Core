@@ -1,6 +1,12 @@
-﻿namespace Scrips.Core.Models.Scheduling
+﻿using System.Text.Json.Serialization;
+
+namespace Scrips.Core.Enums.Scheduling
 {
-    public enum ParticipationStatusEnum
+    /// <summary>
+    ///     The Participation status of an appointment.
+    /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum ParticipationStatus
     {
         /// <summary>
         ///     The participant has accepted the appointment.

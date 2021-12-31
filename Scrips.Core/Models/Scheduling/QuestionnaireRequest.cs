@@ -22,6 +22,6 @@ namespace Scrips.Core.Models.Scheduling
         /// <summary>
         /// Questionnaire Status
         /// </summary>
-        public QuestionnaireStatusEnum Status { get; set; }
+        public Enums.Scheduling.QuestionnaireStatus Status { get; set; }
     }
 }

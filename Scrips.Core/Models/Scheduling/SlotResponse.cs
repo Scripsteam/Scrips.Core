@@ -2,6 +2,9 @@
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     Response for slots.
+    /// </summary>
     public class SlotResponse
     {
         /// <summary>

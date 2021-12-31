@@ -3,6 +3,9 @@ using System;
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     Request body for appointment Profile
+    /// </summary>
     public class CreateAppointmentProfileRequest
     {
         /// <summary>

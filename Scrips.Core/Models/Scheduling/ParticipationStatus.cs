@@ -1,11 +1,14 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     The Participation status of an appointment.
+    /// </summary>
     public class ParticipationStatus
     {
         /// <summary>
         ///     Code defined by a terminology system
         /// </summary>
-        public ParticipationStatusEnum Code { get; set; }
+        public Enums.Scheduling.ParticipationStatus Code { get; set; }
 
         /// <summary>
         ///     An explanation of the meaning of the concept

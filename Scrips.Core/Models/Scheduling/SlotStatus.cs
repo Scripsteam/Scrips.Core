@@ -5,7 +5,7 @@
         /// <summary>
         ///     Code defined by a terminology system
         /// </summary>
-        public SlotStatusEnum Code { get; set; }
+        public Enums.Scheduling.SlotStatus Code { get; set; }
 
         /// <summary>
         ///     An explanation of the meaning of the concept

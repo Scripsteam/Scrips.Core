@@ -1,11 +1,16 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     The coded reason for the appointment being cancelled.
+    ///     This is often used in reporting/billing/further processing to determine if further actions are required,
+    ///     or specific fees apply.
+    /// </summary>
     public class AppointmentCancellationReason
     {
         /// <summary>
         ///     Code defined by a terminology system
         /// </summary>
-        public AppointmentCancellationReasonEnum Code { get; set; }
+        public Enums.Scheduling.AppointmentCancellationReason Code { get; set; }
 
         /// <summary>
         ///     An explanation of the meaning of the concept
