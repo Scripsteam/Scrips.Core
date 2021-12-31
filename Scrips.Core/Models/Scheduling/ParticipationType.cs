@@ -1,11 +1,14 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     Role of participant in the appointment
+    /// </summary>
     public class ParticipationType
     {
         /// <summary>
         ///     Code defined by a terminology system
         /// </summary>
-        public ParticipationTypeEnum Code { get; set; }
+        public Enums.Scheduling.ParticipationType Code { get; set; }
 
         /// <summary>
         ///     Definition

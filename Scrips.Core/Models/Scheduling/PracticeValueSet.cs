@@ -2,6 +2,9 @@
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PracticeValueSet
     {
         /// <summary>

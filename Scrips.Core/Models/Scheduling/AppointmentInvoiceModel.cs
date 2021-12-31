@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    /// invoice object link with appointment
+    /// </summary>
     public class AppointmentInvoiceModel
     {
         public AppointmentInvoiceModel()

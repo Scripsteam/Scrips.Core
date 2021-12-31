@@ -1,5 +1,8 @@
 ﻿namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     This value set defines an example set of codes that can be used to classify groupings of service-types/specialties.
+    /// </summary>
     public class ServiceCategory
     {
         /// <summary>

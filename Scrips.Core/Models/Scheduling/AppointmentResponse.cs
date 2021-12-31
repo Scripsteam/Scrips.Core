@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace Scrips.Core.Models.Scheduling
 {
+    /// <summary>
+    ///     Appointment response.
+    /// </summary>
     public class AppointmentResponse
     {
         /// <summary>
