@@ -28,16 +28,16 @@ namespace Scrips.Core.Models.Patient
         public string TimeZone { get; set; }
         public string Language { get; set; }
         public string MaritalStatus { get; set; }
-        public string PhotoURL { get; set; }
-        public string IDFrontImage { get; set; }
-        public string IDBackImage { get; set; }
+        public string PhotoUrl { get; set; }
+        public string IdFrontImage { get; set; }
+        public string IdBackImage { get; set; }
         public bool IsActive { get; set; }
         public DateTime LastUpdated { get; set; }
-        public string PatientMRN { get; set; }
-        public string FrontIdCardURL { get; set; }
-        public string BackIdCardURL { get; set; }
+        public string PatientMrn { get; set; }
+        public string FrontIdCardUrl { get; set; }
+        public string BackIdCardUrl { get; set; }
         public UpdateIdenitification Identification { get; set; }
-        public UpdateGuardianIdenitification GuardianIdenitification { get; set; }
+        public UpdateGuardianIdenitification GuardianIdentification { get; set; }
         public UpdatePatientContactRequest UpdatePatientContactRequest { get; set; }
         public List<EmergencyContactResponse> EmergencyContactResponse { get; set; }
         public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }

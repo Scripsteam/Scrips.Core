@@ -6,11 +6,11 @@ namespace Scrips.Core.Models.Patient
     {
         public string Id { get; set; }
 
-        public string IDType { get; set; }
+        public string IdType { get; set; }
 
-        public string IDNumber { get; set; }
+        public string IdNumber { get; set; }
 
-        public DateTime? IDExpirationDate { get; set; }
+        public DateTime? IdExpirationDate { get; set; }
 
         public bool IsReviewed { get; set; }
 

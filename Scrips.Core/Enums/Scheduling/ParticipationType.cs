@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+// ReSharper disable InconsistentNaming
 
 namespace Scrips.Core.Enums.Scheduling
 {
