@@ -37,7 +37,7 @@ namespace Scrips.Core.Models.Patient
         public string FrontIdCardUrl { get; set; }
         public string BackIdCardUrl { get; set; }
         public UpdateIdenitification Identification { get; set; }
-        public UpdateGuardianIdenitification GuardianIdentification { get; set; }
+        public UpdateGuardianIdenitification GuardianIdenitification { get; set; }
         public UpdatePatientContactRequest UpdatePatientContactRequest { get; set; }
         public List<EmergencyContactResponse> EmergencyContactResponse { get; set; }
         public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }
