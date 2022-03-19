@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Scrips.Core.Models.Scheduling
 {
@@ -93,6 +96,10 @@ namespace Scrips.Core.Models.Scheduling
         /// 
         /// </summary>
         public bool IsInsuranceAdded { get; set; }
+        
+        [JsonExtensionData]
+        public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
+
     }
 
 }
