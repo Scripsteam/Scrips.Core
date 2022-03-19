@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Scrips.Core.Models.Patient
 {
@@ -42,5 +44,8 @@ namespace Scrips.Core.Models.Patient
         public List<EmergencyContactResponse> EmergencyContactResponse { get; set; }
         public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }
         public List<PatientCorporateResponse> CorporateAgreementResponse { get; set; }
+                
+        [JsonExtensionData]
+        public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
     }
 }
