@@ -244,6 +244,11 @@ namespace Scrips.Core.Models.Scheduling
         /// </summary>
         public List<InvoiceDetailsDto> AddedIndividualServices { get; set; }
 
+        /// <summary>
+        /// Recurring base details
+        /// </summary>
+        public RecurringDto Recurring { get; set; }
+
     }
 
 }
