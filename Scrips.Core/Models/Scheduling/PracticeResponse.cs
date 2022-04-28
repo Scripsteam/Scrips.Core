@@ -58,5 +58,11 @@ namespace Scrips.Core.Models.Scheduling
         /// Longitude
         /// </summary>
         public string Longitude { get; set; }
+
+        public string NabidhAssigningAuthority { get; set; }
+
+        public string LicenseNumber { get; set; }
+
+        public Guid LicenseAuthority { get; set; }
     }
 }
