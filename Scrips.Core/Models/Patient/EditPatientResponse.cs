@@ -38,6 +38,7 @@ namespace Scrips.Core.Models.Patient
         public string PatientMrn { get; set; }
         public string FrontIdCardUrl { get; set; }
         public string BackIdCardUrl { get; set; }
+        public bool? IsMissingData { get; set; }
         public UpdateIdenitification Identification { get; set; }
         public UpdateGuardianIdenitification GuardianIdenitification { get; set; }
         public UpdatePatientContactRequest UpdatePatientContactRequest { get; set; }
