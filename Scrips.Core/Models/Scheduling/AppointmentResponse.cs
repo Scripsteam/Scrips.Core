@@ -249,6 +249,11 @@ namespace Scrips.Core.Models.Scheduling
         /// </summary>
         public RecurringDto Recurring { get; set; }
 
+        /// <summary>
+        /// IsBlock
+        /// </summary>
+        public bool IsBlock { get; set; }
+
     }
 
 }
