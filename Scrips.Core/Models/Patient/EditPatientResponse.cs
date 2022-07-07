@@ -45,8 +45,39 @@ namespace Scrips.Core.Models.Patient
         public List<EmergencyContactResponse> EmergencyContactResponse { get; set; }
         public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }
         public List<PatientCorporateResponse> CorporateAgreementResponse { get; set; }
-                
+        public bool IsMerged { get; set; }
+        public List<PatientDetail> ChildPatients { get; set; }
+        public PatientDetail ParentPatient { get; set; }
+
         [JsonExtensionData]
         public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
+    }
+
+    public class PatientDetail
+    {
+        public Guid PatientId { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public Guid Gender { get; set; }
+        public string EmailAddress { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime BirthDate { get; set; }
+        public Guid? MaritalStatus { get; set; }
+        public Guid? LanguageId { get; set; }
+        public string Photo { get; set; }
+        public Guid OrganizationId { get; set; }
+        public Guid PracticeId { get; set; }
+        public string Umpid { get; set; }
+        public string Mrn { get; set; }
+        public string TimeZone { get; set; }
+        public Guid? Ssn { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool? IsActive { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreatedTs { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedTs { get; set; }
+
     }
 }
