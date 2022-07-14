@@ -35,7 +35,6 @@ namespace Scrips.Core.Models.Patient
         public string IdBackImage { get; set; }
         public bool IsActive { get; set; }
         public DateTime LastUpdated { get; set; }
-
         public string UpdatedBy { get; set; }
         public string PatientMrn { get; set; }
         public string FrontIdCardUrl { get; set; }
@@ -48,6 +47,7 @@ namespace Scrips.Core.Models.Patient
         public List<HealthInsuranceResponse> HealthInsuranceResponse { get; set; }
         public List<PatientCorporateResponse> CorporateAgreementResponse { get; set; }
         public bool IsMerged { get; set; }
+        public bool? IsArchived { get; set; }
         public List<PatientDetail> ChildPatients { get; set; }
         public PatientDetail ParentPatient { get; set; }
 
