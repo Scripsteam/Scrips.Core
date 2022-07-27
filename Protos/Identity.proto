@@ -25,3 +25,13 @@ message GetUserDeviceInfoResponse{
 	string timeZone = 10;
 	string isOnBoard = 11;
 }
+
+message Permission {
+   string key = 1;
+   string name = 2;
+   string description = 3;
+} 
+
+message PermissionCollection {
+   repeated Permission items = 1;
+} 
