@@ -7,5 +7,6 @@ namespace Scrips.Core.Models.Billing
         public Guid? BillingProfileId { get; set; }
         public Guid LocationId { get; set; }
         public Guid ProviderId { get; set; }
+        public Guid? PatientId { get; set; }
     }
 }
