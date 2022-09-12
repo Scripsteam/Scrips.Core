@@ -24,6 +24,7 @@ namespace Scrips.Core.Models.Patient
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public DateTime? BirthDate { get; set; }
+        public string Age { get; set; }
         public string Gender { get; set; }
         public MasterResponse GenderName { get; set; }
         public MasterResponse LanguageName { get; set; }
