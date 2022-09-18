@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Scrips.Core\Scrips.Core.csproj" />
+      <ProjectReference Include="..\Scrips.Core\Scrips.Core\Scrips.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NewId" Version="4.0.0-develop.44" />
+    </ItemGroup>
+
+</Project>
