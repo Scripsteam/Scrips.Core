@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Scrips.Core\Scrips.Core.csproj" />
-      <ProjectReference Include="..\Scrips.Core\Scrips.Core\Scrips.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
