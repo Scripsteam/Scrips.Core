@@ -31,6 +31,8 @@ public class CurrentUser : ICurrentUser, ICurrentUserInitializer
     public IEnumerable<Claim>? GetUserClaims() =>
         _user?.Claims;
 
+    public bool IsSSA() => _user?.HasClaim("sa", "1") == true;
+
     public string? GetTenant() =>
         IsAuthenticated() ? _user?.GetTenant() : string.Empty;
 
