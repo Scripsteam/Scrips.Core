@@ -1,3 +1,4 @@
+using IdentityModel;
 using System;
 using System.Security.Claims;
 
@@ -24,7 +25,7 @@ public static class ClaimsPrincipalExtensions
         => principal.FindFirstValue(ClaimTypes.MobilePhone);
 
     public static string? GetUserId(this ClaimsPrincipal principal)
-       => principal.FindFirstValue(ClaimTypes.NameIdentifier);
+       => principal.FindFirstValue(JwtClaimTypes.Subject);
 
     public static string? GetImageUrl(this ClaimsPrincipal principal)
        => principal.FindFirstValue(ScripsClaims.ImageUrl);

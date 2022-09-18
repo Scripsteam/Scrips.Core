@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrips.Infrastructure.Auth;
 using Scrips.Infrastructure.Persistence;
+using System.Reflection;
 
 namespace Scrips.Infrastructure;
 public static class Startup
@@ -20,13 +22,15 @@ public static class Startup
             // .AddExceptionMiddleware()
             // .AddHealthCheck()
             // .AddPOLocalization(config)
+            .AddLocalization()
             // .AddMailing(config)
-            // .AddMediatR(Assembly.GetExecutingAssembly())
+            .AddMediatR(Assembly.GetExecutingAssembly())
+
             // .AddMultitenancy(config)
             // .AddNotifications(config)
             // .AddOpenApiDocumentation(config)
-
             .AddPersistence(config)
+
             // .AddRequestLogging(config)
             // .AddRouting(options => options.LowercaseUrls = true)
             // .AddServices()

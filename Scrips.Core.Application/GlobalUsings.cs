@@ -1,0 +1,16 @@
+﻿global using Ardalis.Specification;
+global using FluentValidation;
+global using MediatR;
+global using Microsoft.Extensions.Localization;
+global using Microsoft.Extensions.Logging;
+global using Scrips.Core.Application.Common.Events;
+global using Scrips.Core.Application.Common.Exceptions;
+global using Scrips.Core.Application.Common.FileStorage;
+global using Scrips.Core.Application.Common.Interfaces;
+global using Scrips.Core.Application.Common.Models;
+global using Scrips.Core.Application.Common.Persistence;
+global using Scrips.Core.Application.Common.Specification;
+global using Scrips.Core.Application.Common.Validation;
+global using Scrips.Core.Domain.Common;
+global using Scrips.Core.Domain.Common.Contracts;
+global using Scrips.Core.Shared.Notifications;

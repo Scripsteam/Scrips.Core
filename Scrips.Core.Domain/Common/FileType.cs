@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace FSH.Starter.Domain.Common;
+namespace Scrips.Core.Domain.Common;
 
 public enum FileType
 {
