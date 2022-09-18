@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrips.Infrastructure.Auth;
+using Scrips.Infrastructure.Persistence;
 
 namespace Scrips.Infrastructure;
 public static class Startup
@@ -24,7 +25,8 @@ public static class Startup
             // .AddMultitenancy(config)
             // .AddNotifications(config)
             // .AddOpenApiDocumentation(config)
-            // .AddPersistence(config)
+
+            .AddPersistence(config)
             // .AddRequestLogging(config)
             // .AddRouting(options => options.LowercaseUrls = true)
             // .AddServices()
