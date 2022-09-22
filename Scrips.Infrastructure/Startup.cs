@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using MediatR.Behaviors.Authorization.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrips.Infrastructure.Auth;
@@ -12,8 +14,9 @@ public static class Startup
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
         return services
+                    
 
-            // .AddApiVersioning()
+            .AddApiVersioning()
             .AddCurrentUser()
 
             // .AddBackgroundJobs(config)
@@ -21,18 +24,16 @@ public static class Startup
             // .AddCorsPolicy(config)
             // .AddExceptionMiddleware()
             // .AddHealthCheck()
-            // .AddPOLocalization(config)
             .AddLocalization()
             // .AddMailing(config)
             .AddMediatR(Assembly.GetExecutingAssembly())
-
+            .AddMediatorAuthorization(Assembly.GetExecutingAssembly())
             // .AddMultitenancy(config)
             // .AddNotifications(config)
             // .AddOpenApiDocumentation(config)
             .AddPersistence(config)
-
             // .AddRequestLogging(config)
-            // .AddRouting(options => options.LowercaseUrls = true)
+            //.AddRouting(options => options.LowercaseUrls = true)
             // .AddServices()
             ;
     }
@@ -56,4 +57,12 @@ public static class Startup
                 // .UseHangfireDashboard(config)
                 // .UseOpenApiDocumentation(config)
                 ;
+
+    private static IServiceCollection AddApiVersioning(this IServiceCollection services) =>
+    services.AddApiVersioning(config =>
+    {
+        config.DefaultApiVersion = new ApiVersion(1, 0);
+        config.AssumeDefaultVersionWhenUnspecified = true;
+        config.ReportApiVersions = true;
+    });
 }
