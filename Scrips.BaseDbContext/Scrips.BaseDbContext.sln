@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scrips.BaseDbContext", "Scrips.BaseDbContext\Scrips.BaseDbContext.csproj", "{D82E4A40-B8A8-452F-8FE1-BD403928954A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D82E4A40-B8A8-452F-8FE1-BD403928954A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D82E4A40-B8A8-452F-8FE1-BD403928954A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D82E4A40-B8A8-452F-8FE1-BD403928954A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D82E4A40-B8A8-452F-8FE1-BD403928954A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCAA4AAB-BE01-4F95-9F80-1DAFD70EFF03}
+	EndGlobalSection
+EndGlobal
