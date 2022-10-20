@@ -10,14 +10,14 @@ using System.Data;
 
 namespace Scrips.BaseDbContext
 {
-    public class ApplicationDbContext : DbContext
+    public class AuditableBaseDbContext : DbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _connectionSting;
-        public ApplicationDbContext()
+        public AuditableBaseDbContext()
         { }
 
-        public ApplicationDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, string connectionString) : base(option)
+        public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, string connectionString) : base(option)
         {
             _httpContextAccessor = httpContextAccessor;
             _connectionSting = connectionString;
