@@ -1,27 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dapper;
+using IdentityModel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Scrips.BaseDbContext.Dtos;
 using Scrips.BaseDbContext.Entities;
-using System.Data;
-using Microsoft.Data.SqlClient;
 using Serilog;
-using Dapper;
-using IdentityModel;
+using System.Data;
 
 namespace Scrips.BaseDbContext
 {
     public class ApplicationDbContext : DbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        //private readonly string _connectionString = "Server=tcp:scripsdevsqlserver.public.886104d238d3.database.windows.net,3342;Persist Security Info=False;User ID=;Password=;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Database=ScripsAuditLog;";
-        private ConnectionString _connection;
+        private string _connectionSting;
         public ApplicationDbContext()
         { }
 
-        public ApplicationDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor) : base(option)
+        public ApplicationDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, string connectionString) : base(option)
         {
             _httpContextAccessor = httpContextAccessor;
-            
+            _connectionSting = connectionString;
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -119,7 +118,7 @@ namespace Scrips.BaseDbContext
                              VALUES('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}');", DateTime.UtcNow, change.Tenant, change.User, change.Ip, change.Entity, change.Action, change.KeyValues, change.OldValues, change.NewValues);
             }
 
-            using IDbConnection connection = new SqlConnection(_connection.DefaultConnection);
+            using IDbConnection connection = new SqlConnection(_connectionSting);
             connection.Query(sql);
         }
     }
