@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Scrips.BaseDbContext
 {
-    public class AuditIngore : Attribute
+    public class MaskValueAuditAttribute : Attribute
     {
-        public AuditIngore()
+        public MaskValueAuditAttribute()
         { }
     }
 }

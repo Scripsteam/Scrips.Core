@@ -72,6 +72,8 @@ namespace Scrips.BaseDbContext
 
             //list of logs to be saved
             var logs = new List<LogAudit>();
+            var maskedValue = "*";//default value to save instead of masked
+            var maskValue = false;
 
             foreach (var change in changes)
             {
@@ -84,28 +86,31 @@ namespace Scrips.BaseDbContext
 
                 foreach (var prop in change.Properties)
                 {
+                    maskValue = false;
+                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is not null)
+                        maskValue = true;
+
                     if (prop.Metadata.IsPrimaryKey())
                         entry.KeyValues[prop.Metadata.Name] = prop.CurrentValue;
                     else switch (change.State)
                         {
                             case EntityState.Deleted:
                                 entry.AuditActionType = AuditActionType.Deleted;
-                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
-                                    entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
+                                entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
                                 break;
                             case EntityState.Added:
                                 entry.AuditActionType = AuditActionType.Added;
-                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
-                                    entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
+                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is null)
+                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
                                 if (prop.IsModified)
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
-                                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
+                                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is null)
                                     {
-                                        entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
-                                        entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
+                                        entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
+                                        entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                     }
                                 }
                                 break;
