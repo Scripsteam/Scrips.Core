@@ -107,11 +107,8 @@ namespace Scrips.BaseDbContext
                                 if (prop.IsModified)
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
-                                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is null)
-                                    {
-                                        entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
-                                        entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
-                                    }
+                                    entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
+                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 }
                                 break;
                         }
