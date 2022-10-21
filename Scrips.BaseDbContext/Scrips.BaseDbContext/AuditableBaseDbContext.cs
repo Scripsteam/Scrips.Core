@@ -7,6 +7,7 @@ using Scrips.BaseDbContext.Dtos;
 using Scrips.BaseDbContext.Entities;
 using Serilog;
 using System.Data;
+using System.Reflection;
 
 namespace Scrips.BaseDbContext
 {
@@ -80,6 +81,7 @@ namespace Scrips.BaseDbContext
                 entry.Entity = change.Entity.GetType().Name;
                 entry.Ip = ip;
                 entry.Tenant = tenant;
+
                 foreach (var prop in change.Properties)
                 {
                     if (prop.Metadata.IsPrimaryKey())
@@ -88,18 +90,23 @@ namespace Scrips.BaseDbContext
                         {
                             case EntityState.Deleted:
                                 entry.AuditActionType = AuditActionType.Deleted;
-                                entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
+                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
+                                    entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
                                 break;
                             case EntityState.Added:
                                 entry.AuditActionType = AuditActionType.Added;
-                                entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
+                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
+                                    entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
                                 if (prop.IsModified)
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
-                                    entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
-                                    entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
+                                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<AuditIngore>() is null)
+                                    {
+                                        entry.OldValues[prop.Metadata.Name] = prop.OriginalValue;
+                                        entry.NewValues[prop.Metadata.Name] = prop.CurrentValue;
+                                    }
                                 }
                                 break;
                         }
