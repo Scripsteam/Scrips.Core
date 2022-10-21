@@ -100,8 +100,7 @@ namespace Scrips.BaseDbContext
                                 break;
                             case EntityState.Added:
                                 entry.AuditActionType = AuditActionType.Added;
-                                if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is null)
-                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
+                                entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
                                 if (prop.IsModified)
