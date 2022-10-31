@@ -1,4 +1,6 @@
-﻿namespace Scrips.BaseDbContext.Dtos
+﻿using System;
+
+namespace Scrips.Core.Models.Audit
 {
     public class LogAudit
     {
