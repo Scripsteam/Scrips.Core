@@ -1,10 +1,9 @@
-﻿using Dapper;
+﻿using Dapr.Client;
 using IdentityModel;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Scrips.BaseDbContext.Dtos;
 using Scrips.BaseDbContext.Entities;
+using Scrips.Core.Models.Audit;
 using Serilog;
 using System.Data;
 using System.Reflection;
@@ -14,31 +13,32 @@ namespace Scrips.BaseDbContext
     public class AuditableBaseDbContext : DbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private string _connectionSting;
+        private readonly DaprClient _daprClient;
+
         public AuditableBaseDbContext()
         { }
 
-        public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, string connectionString) : base(option)
+        public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
         {
             _httpContextAccessor = httpContextAccessor;
-            _connectionSting = connectionString;
+            _daprClient = daprClient;
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             try
             {
                 var changes = DetectChanges();
                 if (changes != null && changes.Any())
                 {
-                    SaveAudit(changes);
+                    await SaveAudit(changes);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
             }
-            return base.SaveChangesAsync(cancellationToken);
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
         public override int SaveChanges()
@@ -48,7 +48,7 @@ namespace Scrips.BaseDbContext
                 var changes = DetectChanges();
                 if (changes != null && changes.Any())
                 {
-                    SaveAudit(changes);
+                    _ = SaveAudit(changes).Result;
                 }
             }
             catch (Exception ex)
@@ -117,17 +117,12 @@ namespace Scrips.BaseDbContext
             return logs;
         }
 
-        private void SaveAudit(List<LogAudit> changes)
+        private async Task<bool> SaveAudit(List<LogAudit> changes)
         {
-            string sql = "";
-            foreach (var change in changes)
-            {
-                sql = sql + string.Format(@"INSERT INTO[dbo].[LogAudit]([Timestamp],[Tenant],[User],[Ip],[Entity],[Action],[KeyValue],[OldValue],[NewValue])
-                             VALUES('{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}');", DateTime.UtcNow, change.Tenant, change.User, change.Ip, change.Entity, change.Action, change.KeyValues, change.OldValues, change.NewValues);
-            }
 
-            using IDbConnection connection = new SqlConnection(_connectionSting);
-            connection.Query(sql);
+            if (await _daprClient.CheckHealthAsync())
+                await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
+            return true;          
         }
     }
 }

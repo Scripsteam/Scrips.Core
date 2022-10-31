@@ -26,7 +26,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Scrips.Core\Scrips.Core\Scrips.Core.csproj" />
+	  <Reference Include="Scrips.Core">
+	    <HintPath>..\..\Scrips.Core\bin\Debug\net6.0\Scrips.Core.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 </Project>
