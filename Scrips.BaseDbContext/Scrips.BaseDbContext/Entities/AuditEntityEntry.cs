@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Scrips.BaseDbContext.Dtos;
+using Scrips.Core.Models.Audit;
 
 namespace Scrips.BaseDbContext.Entities
 {
