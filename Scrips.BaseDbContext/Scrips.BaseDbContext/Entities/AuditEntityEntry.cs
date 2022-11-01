@@ -24,14 +24,14 @@ namespace Scrips.BaseDbContext.Entities
         {
             var log = new LogAudit();
             log.Timestamp = DateTime.Now;
-            log.User = User;
+            log.User = User.ToString();
             log.Ip = Ip;
             log.Tenant = Tenant;
             log.Entity = Entity;
             log.Action = AuditActionType.ToString();
-            log.KeyValues = JsonConvert.SerializeObject(KeyValues);
-            log.OldValues = OldValues.Count == 0 ? null : JsonConvert.SerializeObject(OldValues);
-            log.NewValues = NewValues.Count == 0 ? null : JsonConvert.SerializeObject(NewValues);
+            log.KeyValue = JsonConvert.SerializeObject(KeyValues);
+            log.OldValue = OldValues.Count == 0 ? null : JsonConvert.SerializeObject(OldValues);
+            log.NewValue = NewValues.Count == 0 ? null : JsonConvert.SerializeObject(NewValues);
             return log;
         }
 
