@@ -1,4 +1,5 @@
-﻿namespace Scrips.Core.Shared.Notifications;
+﻿#nullable enable
+namespace Scrips.Core.Shared.Notifications;
 
 public class BasicNotification : INotificationMessage
 {

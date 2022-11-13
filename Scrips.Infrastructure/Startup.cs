@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MediatR.Behaviors.Authorization.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,8 +13,6 @@ public static class Startup
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
         return services
-                    
-
             .AddApiVersioning()
             .AddCurrentUser()
 
@@ -27,7 +24,6 @@ public static class Startup
             .AddLocalization()
             // .AddMailing(config)
             .AddMediatR(Assembly.GetExecutingAssembly())
-            .AddMediatorAuthorization(Assembly.GetExecutingAssembly())
             // .AddMultitenancy(config)
             // .AddNotifications(config)
             // .AddOpenApiDocumentation(config)
