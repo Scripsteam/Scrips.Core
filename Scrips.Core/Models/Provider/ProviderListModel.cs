@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Application.Abstractions.Dtos
+namespace Scrips.Core.Models.Provider
 {
     public class ProviderListModel
     {
