@@ -1,7 +1,6 @@
-﻿namespace Scrips.Core.Models.Patient
+﻿namespace Scrips.Core.Models.Patient;
+
+public class PatientEmergencyContactResponse
 {
-    public class PatientEmergencyContactResponse
-    {
-        public bool Status { get; set; }
-    }
+    public bool Status { get; set; }
 }

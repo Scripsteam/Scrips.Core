@@ -1,17 +1,16 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Scrips.Core.Models.Practice
+namespace Scrips.Core.Models.Practice;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum AppointmentProfileTypeEnum
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum AppointmentProfileTypeEnum
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        ROUTINE,
-        /// <summary>
-        /// 
-        /// </summary>
-        FOLLOWUP
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    ROUTINE,
+    /// <summary>
+    /// 
+    /// </summary>
+    FOLLOWUP
 }

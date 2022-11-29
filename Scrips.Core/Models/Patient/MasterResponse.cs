@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace Scrips.Core.Models.Patient
+namespace Scrips.Core.Models.Patient;
+
+public class MasterResponse
 {
-    public class MasterResponse
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Scrips.Core.Models.Patient
+namespace Scrips.Core.Models.Patient;
+
+public class PatientBillingGroupModel
 {
-    public class PatientBillingGroupModel
-    {
-        public Guid BillingGroupId { get; set; }
-        public string Category { get; set; }
-        public decimal Value { get; set; }
-    }
+    public Guid BillingGroupId { get; set; }
+    public string Category { get; set; }
+    public decimal Value { get; set; }
 }

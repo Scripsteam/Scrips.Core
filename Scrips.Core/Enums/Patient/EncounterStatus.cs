@@ -1,18 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Scrips.Core.Enums.Patient
+namespace Scrips.Core.Enums.Patient;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum EncounterStatus
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum EncounterStatus
-    {
-        [Display(Name = "Initial")]
-        Initial,
+    [Display(Name = "Initial")]
+    Initial,
 
-        [Display(Name = "Draft")]
-        Draft,
+    [Display(Name = "Draft")]
+    Draft,
 
-        [Display(Name = "Completed")]
-        Completed
-    }
+    [Display(Name = "Completed")]
+    Completed
 }

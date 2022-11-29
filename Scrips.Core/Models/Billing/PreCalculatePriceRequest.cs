@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Scrips.Core.Models.Billing
+namespace Scrips.Core.Models.Billing;
+
+public class PreCalculatePriceRequest : BaseCalculatePrice
 {
-    public class PreCalculatePriceRequest : BaseCalculatePrice
-    {
-        public Guid InvoiceId { get; set; }
-    }
+    public Guid InvoiceId { get; set; }
 }

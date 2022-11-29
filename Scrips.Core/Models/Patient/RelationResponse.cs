@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Scrips.Core.Models.Patient
+namespace Scrips.Core.Models.Patient;
+
+public class RelationResponse
 {
-    public class RelationResponse
-    {
-        [JsonProperty("Id")]
-        public Guid Id { get; set; }
-        [JsonProperty("Name")]
-        public string Name { get; set; }
-    }
+    [JsonProperty("Id")]
+    public Guid Id { get; set; }
+    [JsonProperty("Name")]
+    public string Name { get; set; }
 }

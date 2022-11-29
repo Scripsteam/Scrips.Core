@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Scrips.Core.Models.Practice
+namespace Scrips.Core.Models.Practice;
+
+public class StaffListResponse
 {
-    public class StaffListResponse
-    {
-        public string RoleName { get; set; }
-        public List<StaffSetupDetails> StaffList { get; set; }
-    }
+    public string RoleName { get; set; }
+    public List<StaffSetupDetails> StaffList { get; set; }
 }

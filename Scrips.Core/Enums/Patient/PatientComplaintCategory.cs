@@ -1,8 +1,7 @@
-﻿namespace Scrips.Core.Enums.Patient
+﻿namespace Scrips.Core.Enums.Patient;
+
+public enum PatientComplaintCategory
 {
-    public enum PatientComplaintCategory
-    {
-        ChiefComplaint,
-        AssociatedChiefComplaint
-    }
+    ChiefComplaint,
+    AssociatedChiefComplaint
 }
