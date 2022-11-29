@@ -23,8 +23,7 @@
 
 	<ItemGroup>
 		<Folder Include="Dtos\" />
-	</ItemGroup>
-	
+	</ItemGroup>	
 	<ItemGroup>
 		<ProjectReference Include="..\Scrips.Core\Scrips.Core.csproj" />
 	</ItemGroup>
