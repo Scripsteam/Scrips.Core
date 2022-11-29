@@ -23,12 +23,9 @@
 
 	<ItemGroup>
 		<Folder Include="Dtos\" />
-	</ItemGroup>
-
+	</ItemGroup>	
 	<ItemGroup>
-	  <Reference Include="Scrips.Core">
-	    <HintPath>..\..\Scrips.Core\bin\Debug\net6.0\Scrips.Core.dll</HintPath>
-	  </Reference>
+		<ProjectReference Include="..\Scrips.Core\Scrips.Core.csproj" />
 	</ItemGroup>
 
 </Project>
