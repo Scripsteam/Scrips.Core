@@ -1,12 +1,11 @@
 ﻿using Dapr.Client;
-using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Scrips.BaseDbContext.Entities;
 using Scrips.Core.Models.Audit;
 using Serilog;
-using System.Data;
 using System.Reflection;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Scrips.BaseDbContext
 {
@@ -65,7 +64,7 @@ namespace Scrips.BaseDbContext
                     .Where(x => x.State != EntityState.Unchanged && x.State != EntityState.Detached && x.Entity is not LogAudit).ToList();
 
             //Get the user and other related identities, preferred to have an extension methods like GetUserId(), GetTenantId(), ...
-            var user = _httpContextAccessor?.HttpContext?.User?.FindFirst(JwtClaimTypes.Subject)?.Value;
+            var user = _httpContextAccessor?.HttpContext?.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             var tenant = _httpContextAccessor?.HttpContext?.User?.FindFirst("tenant")?.Value;
 
             string ip = _httpContextAccessor?.HttpContext.Request.Headers["ipaddress"];
