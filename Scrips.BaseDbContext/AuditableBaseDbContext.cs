@@ -103,7 +103,8 @@ namespace Scrips.BaseDbContext
                                 entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
-                                if (prop.IsModified && prop.OriginalValue != prop.CurrentValue)
+                                if (prop.IsModified && (prop.OriginalValue != null && !prop.OriginalValue.Equals(prop.CurrentValue)
+                                                                    || (prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue))))
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
                                     entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
