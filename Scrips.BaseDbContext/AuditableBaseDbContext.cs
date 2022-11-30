@@ -105,6 +105,9 @@ namespace Scrips.BaseDbContext
                             case EntityState.Modified:
                                 if (prop.IsModified)
                                 {
+                                    //to only log changed values
+                                    if (prop.OriginalValue.Equals(prop.CurrentValue))
+                                        continue;
                                     entry.AuditActionType = AuditActionType.Updated;
                                     entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
                                     entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
@@ -112,6 +115,9 @@ namespace Scrips.BaseDbContext
                                 break;
                         }
                 }
+                //to only log changed values
+                if (entry.OldValues?.Count == 0 && entry.NewValues?.Count == 0)
+                    continue;
                 logs.Add(entry.ToLogAudit());
             }
             return logs;
