@@ -103,7 +103,7 @@ namespace Scrips.BaseDbContext
                                 entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
-                                if (prop.IsModified)
+                                if (prop.IsModified && prop.OriginalValue != prop.CurrentValue)
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
                                     entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
@@ -122,7 +122,7 @@ namespace Scrips.BaseDbContext
 
             if (await _daprClient.CheckHealthAsync())
                 await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
-            return true;          
+            return true;
         }
     }
 }
