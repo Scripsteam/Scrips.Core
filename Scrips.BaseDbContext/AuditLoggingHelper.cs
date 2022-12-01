@@ -1,5 +1,4 @@
-﻿using IdentityModel;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
 using Scrips.BaseDbContext.Entities;
@@ -10,22 +9,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Scrips.BaseDbContext
 {
     public class AuditLoggingHelper
     {
-        public static List<LogAudit> DetectChanges(ChangeTracker changeTracker, IHttpContextAccessor _httpContextAccessor)
+        public static List<LogAudit> DetectChanges(ChangeTracker changeTracker, IHttpContextAccessor httpContextAccessor)
         {
             //Get all changed records excluding Audit records themselves
             var changes = changeTracker.Entries()
                     .Where(x => x.State != EntityState.Unchanged && x.State != EntityState.Detached && x.Entity is not LogAudit).ToList();
 
             //Get the user and other related identities, preferred to have an extension methods like GetUserId(), GetTenantId(), ...
-            var user = _httpContextAccessor?.HttpContext?.User?.FindFirst(JwtClaimTypes.Subject)?.Value;
-            var tenant = _httpContextAccessor?.HttpContext?.User?.FindFirst("tenant")?.Value;
+            var user = httpContextAccessor?.HttpContext?.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var tenant = httpContextAccessor?.HttpContext?.User?.FindFirst("tenant")?.Value;
 
-            string ip = _httpContextAccessor?.HttpContext.Request.Headers["ipaddress"];
+            string ip = httpContextAccessor?.HttpContext.Request.Headers["ipaddress"];
 
             //list of logs to be saved
             var logs = new List<LogAudit>();
@@ -60,7 +60,8 @@ namespace Scrips.BaseDbContext
                                 entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
                                 break;
                             case EntityState.Modified:
-                                if (prop.IsModified && prop.OriginalValue != prop.CurrentValue)
+                                if (prop.IsModified && (prop.OriginalValue != null && !prop.OriginalValue.Equals(prop.CurrentValue)
+                                                                    || (prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue))))
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
                                     entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
