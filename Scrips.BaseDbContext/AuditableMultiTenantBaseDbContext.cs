@@ -1,23 +1,30 @@
 ﻿using Dapr.Client;
+using Finbuckle.MultiTenant;
+using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Scrips.BaseDbContext.Entities;
 using Scrips.Core.Models.Audit;
 using Serilog;
+using System.Data;
 using System.Reflection;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Scrips.BaseDbContext
 {
-    public class AuditableBaseDbContext : DbContext
+    public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DaprClient _daprClient;
 
-        public AuditableBaseDbContext()
-        { }
+        public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) 
+            : base(tenantInfo)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _daprClient = daprClient;
+        }
 
-        public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
+        public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) 
+            : base(tenantInfo, option)
         {
             _httpContextAccessor = httpContextAccessor;
             _daprClient = daprClient;
