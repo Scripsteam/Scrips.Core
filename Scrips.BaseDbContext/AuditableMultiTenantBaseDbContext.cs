@@ -1,6 +1,5 @@
 ﻿using Dapr.Client;
 using Finbuckle.MultiTenant;
-using IdentityModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Scrips.BaseDbContext.Entities;
