@@ -70,6 +70,8 @@ namespace Scrips.BaseDbContext
                                 break;
                         }
                 }
+                if (entry.OldValues == null && entry.NewValues == null)
+                    continue;
                 logs.Add(entry.ToLogAudit());
             }
             return logs;
