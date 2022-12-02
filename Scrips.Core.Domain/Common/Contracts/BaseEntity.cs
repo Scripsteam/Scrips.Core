@@ -3,7 +3,7 @@ using MassTransit;
 
 namespace Scrips.Core.Domain.Common.Contracts;
 
-public abstract class BaseEntity : BaseEntity<DefaultIdType>
+public abstract class BaseEntity : BaseEntity<Guid>
 {
     protected BaseEntity() => Id = NewId.Next().ToGuid();
 }

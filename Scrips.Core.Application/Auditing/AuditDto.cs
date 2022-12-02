@@ -2,8 +2,8 @@ namespace Scrips.Core.Application.Auditing;
 
 public class AuditDto
 {
-    public DefaultIdType Id { get; set; }
-    public DefaultIdType UserId { get; set; }
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     public string? Type { get; set; }
     public string? TableName { get; set; }
     public DateTime DateTime { get; set; }
