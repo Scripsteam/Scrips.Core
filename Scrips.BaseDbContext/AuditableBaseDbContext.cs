@@ -1,11 +1,8 @@
 ﻿using Dapr.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Scrips.BaseDbContext.Entities;
 using Scrips.Core.Models.Audit;
 using Serilog;
-using System.Reflection;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace Scrips.BaseDbContext
 {
