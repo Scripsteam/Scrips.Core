@@ -3,7 +3,7 @@
 namespace Scrips.Core.Models.Practice;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum AppointmentProfileTypeEnum
+public enum EnumAppointmentProfileType
 {
     /// <summary>
     /// 

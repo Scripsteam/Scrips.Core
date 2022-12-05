@@ -35,7 +35,7 @@ public class ProviderSearchRequest
 
     public bool SearchSlot { get; set; }
 
-    public AppointmentProfileTypeEnum? AppointmentProfileType { get; set; }
+    public EnumAppointmentProfileType? AppointmentProfileType { get; set; }
 
     public IList<string> Location { get; set; }
 

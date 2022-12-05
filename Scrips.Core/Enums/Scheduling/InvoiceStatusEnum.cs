@@ -7,7 +7,7 @@ namespace Scrips.Core.Enums.Scheduling;
 /// Invoice Enum
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum InvoiceStatusEnum
+public enum EnumInvoiceStatus
 {
     [Display(Name = "Draft")]
     Draft,
