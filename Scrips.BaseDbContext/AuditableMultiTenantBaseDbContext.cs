@@ -2,11 +2,8 @@
 using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Scrips.BaseDbContext.Entities;
 using Scrips.Core.Models.Audit;
 using Serilog;
-using System.Data;
-using System.Reflection;
 
 namespace Scrips.BaseDbContext
 {
