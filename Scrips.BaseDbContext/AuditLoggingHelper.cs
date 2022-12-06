@@ -43,7 +43,7 @@ namespace Scrips.BaseDbContext
                         maskValue = true;
 
                     if (prop.Metadata.IsPrimaryKey())
-                        entry.KeyValues[prop.Metadata.Name] = prop.CurrentValue?? string.Empty;
+                        entry.KeyValues[prop.Metadata.Name] = prop.CurrentValue ?? string.Empty;
                     else switch (change.State)
                         {
                             case EntityState.Deleted:
@@ -52,20 +52,20 @@ namespace Scrips.BaseDbContext
                                 break;
                             case EntityState.Added:
                                 entry.AuditActionType = AuditActionType.Added;
-                                entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty ;
+                                entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty;
                                 break;
                             case EntityState.Modified:
                                 if (prop.IsModified && (prop.OriginalValue != null && !prop.OriginalValue.Equals(prop.CurrentValue)
                                                                     || (prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue))))
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
-                                    entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue ?? string.Empty ;
-                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty ;
+                                    entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue ?? string.Empty;
+                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty;
                                 }
                                 break;
                         }
                 }
-                if (entry.OldValues == null && entry.NewValues == null)
+                if (entry.AuditActionType == 0)
                     continue;
                 logs.Add(entry.ToLogAudit());
             }
