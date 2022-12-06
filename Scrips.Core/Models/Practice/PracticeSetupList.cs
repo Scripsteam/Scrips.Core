@@ -30,6 +30,7 @@ public class PracticeWorkingHourSlotList
 
 public class PracticeWorkingSlots
 {
+    public string Weekday { get; set; }
     public int WeedayId { get; set; }
     public string StartWeekDay { get; set; }
     public string EndWeekDay { get; set; }
