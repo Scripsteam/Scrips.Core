@@ -20,7 +20,7 @@ namespace Scrips.BaseDbContext
             var user = httpContextAccessor?.HttpContext?.User?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             var tenant = httpContextAccessor?.HttpContext?.User?.FindFirst("tenant")?.Value;
 
-            string ip = httpContextAccessor?.HttpContext.Request.Headers["ipaddress"];
+            var ip = httpContextAccessor?.HttpContext?.Request.Headers["ipaddress"];
 
             //list of logs to be saved
             var logs = new List<LogAudit>();
@@ -39,28 +39,28 @@ namespace Scrips.BaseDbContext
                 foreach (var prop in change.Properties)
                 {
                     maskValue = false;
-                    if (prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is not null)
+                    if (prop.Metadata.PropertyInfo != null && prop.Metadata.PropertyInfo.GetCustomAttribute<MaskValueAuditAttribute>() is not null)
                         maskValue = true;
 
                     if (prop.Metadata.IsPrimaryKey())
-                        entry.KeyValues[prop.Metadata.Name] = prop.CurrentValue;
+                        entry.KeyValues[prop.Metadata.Name] = prop.CurrentValue?? string.Empty;
                     else switch (change.State)
                         {
                             case EntityState.Deleted:
                                 entry.AuditActionType = AuditActionType.Deleted;
-                                entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
+                                entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue ?? string.Empty;
                                 break;
                             case EntityState.Added:
                                 entry.AuditActionType = AuditActionType.Added;
-                                entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
+                                entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty ;
                                 break;
                             case EntityState.Modified:
                                 if (prop.IsModified && (prop.OriginalValue != null && !prop.OriginalValue.Equals(prop.CurrentValue)
                                                                     || (prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue))))
                                 {
                                     entry.AuditActionType = AuditActionType.Updated;
-                                    entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue;
-                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue;
+                                    entry.OldValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.OriginalValue ?? string.Empty ;
+                                    entry.NewValues[prop.Metadata.Name] = maskValue ? maskedValue : prop.CurrentValue ?? string.Empty ;
                                 }
                                 break;
                         }

@@ -11,9 +11,6 @@ namespace Scrips.BaseDbContext
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DaprClient _daprClient;
 
-        public AuditableBaseDbContext()
-        { }
-
         public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
         {
             _httpContextAccessor = httpContextAccessor;
