@@ -5,6 +5,7 @@ namespace Scrips.Core.Models.Practice;
 
 public class PracticeWorkingHourNew
 {
+    public string Weekday { get; set; }
     public int WeekdayId { get; set; }
     public string StartWeekDay { get; set; }
     public string EndWeekDay { get; set; }
