@@ -95,7 +95,24 @@ public class PatientResponse
     /// 
     /// </summary>
     public bool IsInsuranceAdded { get; set; }
-        
+
+    /// <summary>
+    /// </summary>
+    public string City { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string Country { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string Address { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string FullAddress => ((!string.IsNullOrWhiteSpace(Address)) ? Address.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(City)) ? City.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(Country)) ? Country.Trim() : string.Empty);
+
+
     [JsonExtensionData]
     public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
 
