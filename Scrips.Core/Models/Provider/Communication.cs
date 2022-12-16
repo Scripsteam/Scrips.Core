@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Provider;
+﻿namespace Scrips.Core.Models.Provider;
 
 public class Communication
 {

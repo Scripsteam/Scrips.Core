@@ -1,7 +1,4 @@
-﻿using Ardalis.Specification;
-using Scrips.Core.Domain.Common.Contracts;
-
-namespace Scrips.Core.Application.Common.Persistence;
+﻿namespace Scrips.Core.Application.Common.Persistence;
 
 // The Repository for the Application Db
 // I(Read)RepositoryBase<T> is from Ardalis.Specification

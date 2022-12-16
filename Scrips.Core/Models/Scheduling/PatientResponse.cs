@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Scrips.Core.Models.Scheduling;
@@ -11,7 +9,7 @@ namespace Scrips.Core.Models.Scheduling;
 public class PatientResponse
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public PatientResponse()
     {
@@ -63,39 +61,56 @@ public class PatientResponse
     public string Email { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string TimeZone { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string IdentificationId { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public GuardianDetails GuardianDetails { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string Age { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsOnboarding { get; set; }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string Name => FirstName.Trim() +
                           $"{(!string.IsNullOrWhiteSpace(MiddleName) ? " " + MiddleName.Trim() : string.Empty)}" + " " + LastName.Trim();
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsInsuranceAdded { get; set; }
-        
+
+    /// <summary>
+    /// </summary>
+    public string City { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string Country { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string Address { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public string FullAddress => ((!string.IsNullOrWhiteSpace(Address)) ? Address.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(City)) ? City.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(Country)) ? Country.Trim() : string.Empty);
+
+
     [JsonExtensionData]
     public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Scrips.Core.Models.Practice;
 
@@ -79,18 +77,18 @@ public class CreateAppointmentProfileRequest
     public Guid? BillingProfileId { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool InAppBooking { get; set; }
 
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsUpdated { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsPreferred { get; set; }
 }

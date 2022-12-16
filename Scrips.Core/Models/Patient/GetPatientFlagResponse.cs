@@ -1,5 +1,4 @@
 ﻿using Scrips.Core.Models.Scheduling;
-using System;
 
 namespace Scrips.Core.Models.Patient;
 

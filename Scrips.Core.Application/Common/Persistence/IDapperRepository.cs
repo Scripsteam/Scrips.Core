@@ -1,6 +1,4 @@
 using System.Data;
-using Scrips.Core.Application.Common.Interfaces;
-using Scrips.Core.Domain.Common.Contracts;
 
 namespace Scrips.Core.Application.Common.Persistence;
 
