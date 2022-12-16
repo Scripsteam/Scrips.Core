@@ -1,6 +1,4 @@
-﻿using Scrips.Core.Application.Common.Models;
-using Scrips.Core.Application.Common.Specification;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 

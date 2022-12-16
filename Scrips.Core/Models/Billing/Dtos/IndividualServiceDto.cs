@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Billing.Dtos;
+﻿namespace Scrips.Core.Models.Billing.Dtos;
 
 public class IndividualServiceDto
 {

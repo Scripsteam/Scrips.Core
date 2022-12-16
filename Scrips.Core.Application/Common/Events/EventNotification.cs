@@ -1,4 +1,3 @@
-using MediatR;
 using Scrips.Core.Shared.Events;
 
 namespace Scrips.Core.Application.Common.Events;

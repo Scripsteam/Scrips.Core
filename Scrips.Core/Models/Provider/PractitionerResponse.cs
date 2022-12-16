@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Scrips.Core.Models.Provider;
+﻿namespace Scrips.Core.Models.Provider;
 
 public class PractitionerResponse
 {

@@ -1,6 +1,4 @@
-﻿using Scrips.Core.Shared.Notifications;
-
-namespace Scrips.Core.Application.Common.Interfaces;
+﻿namespace Scrips.Core.Application.Common.Interfaces;
 
 public interface INotificationSender : ITransientService
 {

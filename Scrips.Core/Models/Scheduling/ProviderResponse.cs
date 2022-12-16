@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Scheduling;
+﻿namespace Scrips.Core.Models.Scheduling;
 
 public class ProviderResponse
 {
@@ -25,12 +23,12 @@ public class ProviderResponse
     public string TimeZone { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public Guid OrganizationId { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string UserId { get; set; }
 

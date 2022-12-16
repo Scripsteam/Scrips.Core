@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Scrips.Core.Models.Practice;
 
@@ -15,7 +13,7 @@ public class UpdateExamRoomApiRequest
     [Required]
     public int NoOfExamHours { get; set; }
 
-    public List<ExamRooms> ExamRooms { get; set; } = new();     
+    public List<ExamRooms> ExamRooms { get; set; } = new();
 
     public List<Guid> DeletedId { get; set; }
 }

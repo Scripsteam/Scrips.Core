@@ -1,6 +1,3 @@
-using Scrips.Core.Application.Common.Interfaces;
-using Scrips.Core.Domain.Common;
-
 namespace Scrips.Core.Application.Common.FileStorage;
 
 public interface IFileStorageService : ITransientService

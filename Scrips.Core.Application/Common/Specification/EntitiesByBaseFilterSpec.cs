@@ -1,6 +1,4 @@
-﻿using Scrips.Core.Application.Common.Models;
-
-namespace Scrips.Core.Application.Common.Specification;
+﻿namespace Scrips.Core.Application.Common.Specification;
 
 public class EntitiesByBaseFilterSpec<T, TResult> : Specification<T, TResult>
 {

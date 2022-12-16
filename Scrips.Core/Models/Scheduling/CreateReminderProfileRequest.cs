@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Scrips.Core.Models.Scheduling;
+﻿namespace Scrips.Core.Models.Scheduling;
 
 /// <summary>
 ///     Request to create reminder profile for appointment

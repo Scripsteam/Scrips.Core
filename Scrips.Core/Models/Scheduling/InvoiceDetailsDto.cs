@@ -1,5 +1,4 @@
 ﻿using Scrips.Core.Models.Practice;
-using System;
 
 namespace Scrips.Core.Models.Scheduling;
 

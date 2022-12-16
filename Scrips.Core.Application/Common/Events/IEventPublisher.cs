@@ -1,4 +1,3 @@
-using Scrips.Core.Application.Common.Interfaces;
 using Scrips.Core.Shared.Events;
 
 namespace Scrips.Core.Application.Common.Events;
