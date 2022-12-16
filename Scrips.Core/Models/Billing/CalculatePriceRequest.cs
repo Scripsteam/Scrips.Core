@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Billing;
+﻿using System;
+
+namespace Scrips.Core.Models.Billing;
 
 public class CalculatePriceRequest : BaseCalculatePrice
 {

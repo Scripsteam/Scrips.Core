@@ -1,4 +1,7 @@
-﻿namespace Scrips.Core.Models.Scheduling;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Scheduling;
 
 public class RecurringDto
 {

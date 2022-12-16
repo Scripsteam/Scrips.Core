@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Billing.Dtos;
+﻿using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Billing.Dtos;
 
 public class PatientCoPaymentDto
 {

@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Scheduling;
+﻿using System;
+
+namespace Scrips.Core.Models.Scheduling;
 
 /// <summary>
 ///     Response for slots.

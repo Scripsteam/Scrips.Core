@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Billing.Dtos;
+﻿using System;
+
+namespace Scrips.Core.Models.Billing.Dtos;
 
 public class BillingGroupDto
 {

@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Practice;
+﻿using System;
+
+namespace Scrips.Core.Models.Practice;
 
 public class LocationDto
 {

@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Audit;
+﻿using System;
+
+namespace Scrips.Core.Models.Audit;
 
 public class LogAudit
 {

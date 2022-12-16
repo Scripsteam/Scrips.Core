@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Security.Claims;
 
 namespace Scrips.Core.Shared.Authorization;

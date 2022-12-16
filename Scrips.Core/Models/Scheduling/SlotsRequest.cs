@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Scheduling;
+﻿using System;
+
+namespace Scrips.Core.Models.Scheduling;
 
 /// <summary>
 ///     Request to get available slots based on the filters to book an appointment.

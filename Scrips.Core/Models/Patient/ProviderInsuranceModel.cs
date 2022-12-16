@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Patient;
+﻿using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Patient;
 
 public class ProviderInsuranceModel
 {

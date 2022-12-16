@@ -1,4 +1,7 @@
-﻿namespace Scrips.Core.Models.Practice;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Practice;
 
 /// <summary>
 /// Response for slots.

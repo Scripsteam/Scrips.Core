@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Provider;
+﻿using System;
+
+namespace Scrips.Core.Models.Provider;
 
 public class ProviderListModel
 {

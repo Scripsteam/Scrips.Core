@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Practice;
+﻿using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Practice;
 
 public class StaffListResponse
 {

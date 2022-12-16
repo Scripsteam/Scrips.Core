@@ -1,4 +1,6 @@
-﻿namespace Scrips.Core.Models.Patient;
+﻿using System;
+
+namespace Scrips.Core.Models.Patient;
 
 public class MasterResponse
 {

@@ -1,4 +1,7 @@
-﻿namespace Scrips.Core.Models.Patient;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Scrips.Core.Models.Patient;
 
 public class HealthInsuranceResponse
 {
