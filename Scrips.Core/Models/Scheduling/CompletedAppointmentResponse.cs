@@ -1,5 +1,5 @@
-﻿using Scrips.Core.Models.Practice;
-using System;
+﻿using System;
+using Scrips.Core.Models.Practice;
 
 namespace Scrips.Core.Models.Scheduling;
 
@@ -23,7 +23,7 @@ public class CompletedAppointmentResponse
     /// </summary>
     public ReasonCode ReasonCode { get; set; }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public AppointmentInvoiceModel Invoice { get; set; }
 }

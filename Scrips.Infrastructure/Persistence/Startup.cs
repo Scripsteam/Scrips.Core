@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrips.Core.Application.Common.Persistence;
-using Scrips.Core.Domain.Common.Contracts;
 using Scrips.Infrastructure.Persistence.ConnectionString;
 using Serilog;
 

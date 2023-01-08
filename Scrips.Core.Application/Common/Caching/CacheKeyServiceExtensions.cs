@@ -1,6 +1,4 @@
-﻿using Scrips.Core.Domain.Common.Contracts;
-
-namespace Scrips.Core.Application.Common.Caching;
+﻿namespace Scrips.Core.Application.Common.Caching;
 
 public static class CacheKeyServiceExtensions
 {

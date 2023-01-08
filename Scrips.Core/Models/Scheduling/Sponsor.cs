@@ -1,5 +1,5 @@
-﻿using Scrips.Core.Models.Patient;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Scrips.Core.Models.Patient;
 
 namespace Scrips.Core.Models.Scheduling;
 

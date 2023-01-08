@@ -20,5 +20,5 @@ public class PracticeValueSet
     /// <summary>
     /// 
     /// </summary>
-    public string System { get; set; } = "http://snomed.info/sct";
+    public string System { get; set; } = "https://snomed.info/sct";
 }

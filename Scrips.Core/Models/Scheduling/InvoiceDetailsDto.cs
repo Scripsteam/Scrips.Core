@@ -1,5 +1,5 @@
-﻿using Scrips.Core.Models.Practice;
-using System;
+﻿using System;
+using Scrips.Core.Models.Practice;
 
 namespace Scrips.Core.Models.Scheduling;
 

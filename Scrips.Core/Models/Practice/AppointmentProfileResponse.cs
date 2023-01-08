@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Scrips.Core.Models.Practice;
 
 /// <summary>
-/// 
+///
 /// </summary>
 public class AppointmentProfileResponse
 {
@@ -44,7 +44,7 @@ public class AppointmentProfileResponse
     public int? MinutesDuration { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string Color { get; set; }
 
@@ -71,22 +71,22 @@ public class AppointmentProfileResponse
 
     public BillingProfileDto BillingProfile { get; set; }
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool InAppBooking { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsDefault { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsUpdated { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool? IsPreferred { get; set; }
 

@@ -15,7 +15,7 @@ public class UpdateExamRoomApiRequest
     [Required]
     public int NoOfExamHours { get; set; }
 
-    public List<ExamRooms> ExamRooms { get; set; } = new();     
+    public List<ExamRooms> ExamRooms { get; set; } = new();
 
     public List<Guid> DeletedId { get; set; }
 }

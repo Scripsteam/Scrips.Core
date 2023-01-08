@@ -18,7 +18,7 @@ public class ProviderSearchRequest
     public Guid? PracticeId { get; set; }
 
     public List<string> Weekdays { get; set; } = new();
-        
+
     /// <summary>
     /// Start date to filter the provider
     /// </summary>
@@ -46,7 +46,7 @@ public class ProviderSearchRequest
     /// Practitioners ids.
     /// </summary>
     public List<Guid> Practitioners { get; set; }
-        
+
     public Guid? SpecialitySkillId { get; set; }
 
     public int PageNumber { get; set; }

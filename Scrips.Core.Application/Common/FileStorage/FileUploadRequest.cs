@@ -1,7 +1,3 @@
-using FluentValidation;
-using Microsoft.Extensions.Localization;
-using Scrips.Core.Application.Common.Validation;
-
 namespace Scrips.Core.Application.Common.FileStorage;
 
 public class FileUploadRequest

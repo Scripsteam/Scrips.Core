@@ -79,18 +79,18 @@ public class CreateAppointmentProfileRequest
     public Guid? BillingProfileId { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool InAppBooking { get; set; }
 
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsUpdated { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public bool IsPreferred { get; set; }
 }

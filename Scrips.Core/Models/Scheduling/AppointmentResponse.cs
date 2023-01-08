@@ -1,7 +1,7 @@
-﻿using Scrips.Core.Models.Patient;
-using Scrips.Core.Models.Practice;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Scrips.Core.Models.Patient;
+using Scrips.Core.Models.Practice;
 
 namespace Scrips.Core.Models.Scheduling;
 
@@ -195,22 +195,22 @@ public class AppointmentResponse
     public string UpdatedPerson { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public PatientAppointmentPayerDetailModel PatientAppointmentPayerDetail { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public string SponsorType { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public BillingTotal BillingTotal { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public AppointmentInvoiceModel Invoice { get; set; }
 
