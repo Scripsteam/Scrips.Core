@@ -1,0 +1,310 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcBillingManagement";
+
+package Billing;
+
+service BillingManagement {
+	rpc InitiateOrganization(InitiateOrganizationRequest) returns (InitiateOrganizationResponse);
+	rpc GetAgreements(AgreementRequest) returns (AgreementsReponse);
+	rpc GetBillingProfile (BillingProfileRequest) returns (BillingProfileResponse);
+	rpc GetBillingGroupByOrganizationId (BillingGroupRequest) returns (BillingGroupResponse);
+	rpc UpdateBillingProfileServiceAddedDateByEncounterId (UpdateBillingProfileByEncounterIdRequest) returns (UpdateBillingProfileResponse);
+	rpc GetOrganizationBillingCurrency (IdRequest) returns (Currency);
+	rpc GetInsurancePayerDetail(InsurancePayerDetailsRequest) returns (InsurancePayerDetailsResponse);
+	rpc CreateInvoice(InvoiceRequest) returns (InvoiceResponse);
+	rpc CreateInvoice2(InvoiceRequest2) returns (InvoiceResponse);
+	rpc GetAgreementByCompanyId(AgreementIdRequest) returns (AgreementIdResponse);
+	rpc GetInvoiceByAppointmentId(GetInvoiceByAppointmentIdRequest) returns (GetInvoiceByAppointmentIdResponse);
+	rpc UpdateBillingProfile(UpdateBillingProfileRequest) returns (UpdateBillingProfileResponse);
+	rpc UpdateInvoiceEncounter(UpdateInvoiceEncounterRequest) returns (UpdateInvoiceEncounterResponse);
+	rpc GetCashierShiftDetails(GetCashierShiftDetailsRequest) returns (GetCashierShiftDetailsResponse);
+	rpc UpdateInvoice(InvoiceRequest) returns (InvoiceResponse);
+	rpc CreateClaim(CreateClaimRequest) returns (CreateClaimResponse);
+	rpc SetIsResivedTrueInClaim(SetIsResivedTrueInClaimRequest) returns (BaseResponse);
+	rpc GetInvoiceClaimValidationData(GetInvoiceClaimValidationDataRequest) returns (GetInvoiceClaimValidationDataResponse);
+	rpc GetAgreementDataByCompanyId(GetAgreementByCompanyIdRequest) returns (AgreementReponse);
+}
+
+message GetAgreementByCompanyIdRequest{
+	string payerCompanyId = 1;
+    string organizationId = 2;
+}
+
+message GetInvoiceClaimValidationDataRequest{
+    string encounterId = 1;
+}
+
+message GetInvoiceClaimValidationDataResponse{
+    string invoiceClaimStatus = 1;
+    string invoiceClaimRequestResubmissionType = 2;
+}
+
+message BaseResponse {
+	bool success = 1;
+}
+
+message SetIsResivedTrueInClaimRequest {
+	string userId=1;
+	string patientId=2;
+	string encounterId=3;
+}
+
+message InitiateOrganizationRequest {
+	string organizationId = 1;
+	string country = 2;
+}
+
+message InitiateOrganizationResponse {
+	bool success = 1;
+}
+
+message AgreementRequest{ 
+	string ids=1;
+}
+
+message AgreementsReponse{
+	repeated AgreementReponse listOfAgreements=1;
+}
+
+message AgreementReponse{
+	string id=1;
+	string organizationId = 2;
+	string companyName=3;
+	string companyId=4;
+	string ImageUrl=5;
+	string website=6;
+	string phoneNumber=7;
+	string email=8;
+	string address=9;
+	string startDate=10;
+	string endDate=11;  
+	string office=12;
+	string note=13;
+	repeated RelatedTpa listOfRelatedTpa=14;
+	string agreementId=15;
+}
+
+message RelatedTpa{
+	string id=1;
+	string code = 2;
+	string companyName=3;
+	string note=4;
+	string imageUrl=5;
+	bool isCustom=6;
+	bool isArchived=7;
+}
+
+message BillingProfileRequest {
+	string id=1;
+}
+
+message BillingProfileResponse {
+	string id=1;
+	string providerId=2;
+	string name=3;
+	repeated Service Services=4;
+}
+
+message BillingGroupRequest {
+	string id=1;
+}
+
+message BillingGroupResponse {
+	repeated BillingGroup billingGroups=1;
+}
+
+message BillingGroup {
+	string id=1;
+	string category=2;
+	string system=3;
+	string organisationId=4;
+}
+
+message Service {
+	string id=1;
+	ProcedureCode ProcedureCode=2;
+	repeated VisitFee VisitFees=3;
+}
+
+message ProcedureCode {
+	string code=1;
+	string displayName=2;
+	string system=3;
+}
+
+message Location {
+	string id=1;
+	string name=2;
+	string description=3;
+}
+
+message VisitFee {
+	string id=1;
+	double fee=2;
+	string serviceId=3;
+	Location location=4;
+}
+
+message IdRequest{
+	string id=1;
+}
+message Currency {
+	string code=1;
+	string currencyName=2;
+	string symbol=3;
+	string country=4;
+}
+
+message InsurancePayerDetailsRequest{
+	string orgId=1;
+	string search=2;
+}
+message InsurancePayerDetailsResponse{
+	repeated InsurancePayerDetail listOfInsurancePayerDetail=1;	
+}
+
+message InsurancePayerDetail{
+   string payerName=1;
+   string payerCompanyId=2; 
+   string office=3; 
+   string address=4; 
+   string website=5; 
+   string email=6;
+   string phoneNumber=7;
+   string note=8; 	
+}
+message InvoiceRequest{
+	string invoiceId=1;
+	string billingProfileId=2;
+	string appointmentProfileId=3;
+	string providerId=4;
+	string patientId=5;
+	string organizationId=6;
+	string sponsorType=7;
+	string sponsorId=8;
+	string appointmentId=9;
+	string createdById=10;
+	string LocationId=11;
+	string PracticeId=12;
+	string SponsorDetails=13;
+	string policyNo=14;
+	string addedServices=15;
+	string tenantId=16;
+}
+message InvoiceRequest2{
+	string invoiceId=1;
+	string billingProfileId=2;
+	string appointmentProfileId=3;
+	string providerId=4;
+	string patientId=5;
+	string organizationId=6;
+	string sponsorType=7;
+	string sponsorId=8;
+	string appointmentId=9;
+	string createdById=10;
+	string LocationId=11;
+	string PracticeId=12;
+	string SponsorDetails=13;
+	string policyNo=14;
+	string addedServices=15;
+	string practiceName=16;
+	string practicePhoto=17;
+	string providerName=18;
+	string providerPhoto=19;
+	string tenantId=20;
+}
+message InvoiceResponse{
+	string invoiceId=1;
+}
+message AgreementIdRequest{ 
+	string payerCompanyId=1;
+	string organisationId=2;
+}
+message AgreementIdResponse{
+	string id=1;
+}
+message GetInvoiceByAppointmentIdRequest{ 
+	string appointmentId=1;
+}
+message GetInvoiceByAppointmentIdResponse{ 
+	string id=1;
+	string invoiceNumber=2;
+	string invoiceStatus=3;
+	string invoiceDate=4;
+	string patientPaymentStatus=5;
+	double grossTotal=6;
+	double discountTotal=7;
+	double netTotal=8;
+	double patientPayable=9;
+	double deposited=10;
+	double sponsorOutstanding=11;
+	double patientOutstanding=12;
+	string SponsorDetails=13;
+	string policyNo=14;
+	string draftedOn=15;
+	repeated InvoiceDetails Services=16;
+}
+
+message InvoiceDetails {
+	string id=1;
+	ProcedureCode ProcedureCode=2;
+	string IsIndividualAdded = 3;
+	string serviceId=4;
+}
+
+message UpdateBillingProfileRequest{
+	string id=1;
+	string appointmentId=2;
+}
+message UpdateBillingProfileResponse{
+	bool success = 1;
+}
+message UpdateInvoiceEncounterRequest{	
+	string appointmentId=1;
+	string encounterId=2;
+	string encounterDate=3;
+	string encounterNumber=4;
+}
+message UpdateInvoiceEncounterResponse{
+	bool success = 1;
+}
+
+message GetCashierShiftDetail{
+	string ReceiptNumber=1;
+	string RefundNumber=2;
+	string EncounterNumber=3;
+	string InvoiceNumber=4;
+	string Patient=5;
+	string Doctor=6;
+	string Cash=7;
+	string Card=8;
+	string TransactionType=9;
+	string VoidReason=10;
+	string MRN = 11;
+	string TransactionDate = 12;
+	string Currency = 13;
+	string Location = 14;
+}
+
+message GetCashierShiftDetailsRequest{
+	string cashierShiftId=1;
+	string organizationId=2;
+}
+
+message GetCashierShiftDetailsResponse{
+	repeated GetCashierShiftDetail GetCashierShiftDetails=1;	
+}
+
+message CreateClaimRequest{
+	string userId=1;
+}
+
+message CreateClaimResponse{
+	string claimId=1;
+}
+
+message UpdateBillingProfileByEncounterIdRequest{
+    string encounterId=1;
+	string userId=2;
+}

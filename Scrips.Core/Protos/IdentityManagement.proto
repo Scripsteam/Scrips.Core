@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcIdentityManagement";
+
+package Identity;
+
+service IdentityManagement {
+
+  rpc GetUserDetailsById (GetUserDetailsByIdRequest) returns (GetUserDetailsByIdResponse);
+  rpc GetUserTimezoneById (GetUserTimezoneByIdRequest) returns (GetUserTimezoneByIdResponse);
+  rpc GetUserTimezoneByEmail (GetUserTimezoneByEmailRequest) returns (GetUserTimezoneByEmailResponse);
+  rpc SignUpUser (SignUpUserRequest) returns (SignUpUserResponse);
+
+  rpc LoginByCode (LoginByCodeRequest) returns (LoginByCodeResponse);
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse);
+
+  rpc CheckUserEmailExistorNot (UserExistRequest) returns (UserExistResponse);
+  rpc GetUserDetailsByUserName (GetUserDetailsByUserNameRequest) returns (GetUserDetailsByUserNameResponse);
+  rpc GetUserDetailsByEmail (GetUserDetailsByEmailRequest) returns (GetUserDetailsByEmailResponse);
+  rpc GetTenantRoles (GetTenantRolesByIdRequest) returns (GetTenantRolesByIdResponse);
+  rpc GetUserDetails (GetUserDetailsRequest) returns (GetUserDetailsResponse);
+  rpc GetUserAccesCodeByEmail(GetUserAccesCodeByEmailRequest) returns (GetUserAccesCodeByEmailResponse);
+  rpc CreateRolesPermissionForOrganization(CreateRolesPermissionForOrganizationRequest) returns (CreateRolesPermissionForOrganizationResponse);
+  rpc GetUserDeviceTokenList (GetUserDeviceTokenListRequest) returns (GetUserDeviceTokenListResponse);
+  rpc GetUsersByIds (GetUsersByIdsRequest) returns (GetUsersByIdsResponse);
+  rpc GetExtendUserDetailsByIds(GetExtendUserDetailsByIdsRequest) returns (GetExtendUserDetailsByIdsResponse);
+  rpc CheckUserIsOnBoard(CheckUserIsOnBoardRequest) returns (CheckUserIsOnBoardResponse);
+  rpc LogOutUserByUserId(LogOutUserByUserIdRequest) returns (LogOutUserByUserIdResponse);
+}
+
+message LogOutUserByUserIdResponse{
+    bool success = 1;
+}
+
+message LogOutUserByUserIdRequest{
+    repeated string userId = 1;
+}
+
+message CheckUserIsOnBoardRequest{
+    string email=1;
+}
+
+message CheckUserIsOnBoardResponse{
+    bool status=1;
+}
+
+message GetExtendUserDetailsByIdsRequest{
+    repeated string userIds=1;
+}
+
+message GetExtendUserDetails{
+    string id=1;
+    string firstName=2;
+    string lastName=3;
+}
+
+message GetExtendUserDetailsByIdsResponse{
+    repeated GetExtendUserDetails users=1;
+}
+
+message GetUserDeviceTokenListRequest {
+	 string userId=1;
+}
+message GetUserDeviceTokenListResponse {
+	repeated GetUserDeviceTokenResponse userTokens=1;
+}
+
+message GetUserDeviceTokenResponse {
+        string id = 1;
+        string deviceToken=2;
+        string deviceType=3;
+}
+
+message CreateRolesPermissionForOrganizationRequest{
+    string organizationId=1;
+}
+
+message CreateRolesPermissionForOrganizationResponse{
+    string adminId=1;
+}
+
+message GetUserAccesCodeByEmailRequest{
+    string email=1;
+}
+
+message GetUserAccesCodeByEmailResponse{
+    string accessCode=1;
+}
+
+message UserExistRequest{
+    string emailId=1;
+}
+
+message UserExistResponse{
+    bool status=1;
+}
+
+message GetUserDetailsByIdRequest {
+  string id = 1;
+}
+
+message GetUserDetailsByIdResponse {
+        string id = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string email = 4;
+        string mobileNumber = 5;
+        string tenantId = 6;
+        string roleInTenant = 7;
+        string timeZone = 8;
+        string role =9;
+}
+
+message GetUserTimezoneByIdRequest {
+    string id = 1;
+}
+
+message GetUserTimezoneByIdResponse {
+    string timeZone = 1;
+}
+
+message GetUserTimezoneByEmailRequest {
+    string email = 1;
+}
+
+message GetUserTimezoneByEmailResponse {
+    string timeZone = 1;
+}
+
+message SignUpUserRequest {
+        string email = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string mobileNumber = 4;
+        string timeZone = 5;
+        string tenantId = 6;
+        string roleInTenant = 7;
+        string organizationId = 8;
+        string scripsRole = 9;
+        string entityId = 10;
+        string entityDetails=11;
+        string practitionerRole = 12;
+}
+
+message SignUpUserResponse {
+        string id = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string email = 4;
+        string mobileNumber = 5;
+        string tenantId = 6;
+        string roleInTenant = 7;
+        string timeZone = 8;
+        bool alreadyExist = 9;
+}
+
+message LoginByCodeRequest {
+        string email = 1;
+        string code = 2;
+}
+
+message LoginByCodeResponse {
+        string id = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string email = 4;
+        string mobileNumber = 5;
+        string tenantId = 6;
+        string roleInTenant = 7;
+        string timeZone = 8;
+        string passwordResetToken = 9;
+}
+
+message UpdateUserRequest {
+        string userId = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string mobileNumber = 4;
+        string timeZone = 5;
+}
+
+
+message UpdateUserResponse {
+        string id = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string email = 4;
+        string mobileNumber = 5;
+        string tenantId = 6;
+        string roleInTenant = 7;
+        string timeZone = 8;
+}
+
+message GetUserDetailsByUserNameRequest {
+  string userName = 1;
+}
+
+message GetUserDetailsByEmailRequest {
+  string Email = 1;
+}
+
+message GetUserDetailsByUserNameResponse {
+        string id = 1;
+        string firstName = 2;
+        string lastName = 3;
+        string email = 4;        
+}
+
+message GetUserDetailsByEmailResponse {
+       repeated userIds userIds=1;      
+}
+
+message userIds {
+        string userId = 1;                
+}
+
+message GetTenantRolesByIdRequest {
+  string organizationId = 1;
+}
+
+message GetTenantRolesByIdResponse{
+    repeated GetTenantRolesById GetTenantRolesById = 1;
+}
+message GetTenantRolesById {
+        string RoleId = 1;
+        string RoleName = 2;
+        string RoleDescription = 3;
+        bool IsArchived = 4;
+        string TenantId = 5;
+        string OrganizationId = 6;
+        bool IsNurse = 7;        
+}
+message GetUserDetailsRequest {
+	repeated string userIds=1;
+}
+message GetUserDetailsResponse {
+	repeated GetUserDetailsByIdResponse users=1;
+}
+message GetUsersByIdsRequest {
+	repeated string userIds=1;
+}
+message GetUsersByIdsResponse {
+	repeated GetUserByIdResponse list=1;
+}
+message GetUserByIdResponse{
+    string id=1;
+    string name=2;
+}
