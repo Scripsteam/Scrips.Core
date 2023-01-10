@@ -173,6 +173,7 @@ message InsurancePayerDetail{
    string email=6;
    string phoneNumber=7;
    string note=8; 	
+   string imageUrl=9;
 }
 message InvoiceRequest{
 	string invoiceId=1;

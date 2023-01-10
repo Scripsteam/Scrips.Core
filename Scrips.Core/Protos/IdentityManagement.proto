@@ -33,7 +33,7 @@ message LogOutUserByUserIdResponse{
 }
 
 message LogOutUserByUserIdRequest{
-    repeated string userId = 1;
+    string userId = 1;
 }
 
 message CheckUserIsOnBoardRequest{
