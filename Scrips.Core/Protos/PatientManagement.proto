@@ -1,0 +1,821 @@
+syntax = "proto3";
+
+
+option csharp_namespace = "GrpcPatientManagement";
+
+package Patient;
+
+// The patient service definition.
+service PatientManagement {
+  // Sends a patient information
+  rpc GetPatientById (GetPatientByIdRequest) returns (GetPatientByIdResponse);
+
+  //check patient information is added or not
+  rpc CheckPatientById (CheckPatientByIdRequest) returns (CheckPatientByIdResponse);
+
+    // get only a patient information
+  rpc GetPatientNameById (GetPatientNameByIdRequest) returns (GetPatientNameByIdResponse);
+
+  // Sends a patient information
+  rpc GetPatientPreferredModeById (GetPatientPreferredModeByIdRequest) returns (GetPatientPreferredModeByIdResponse);
+
+  // Get Patient details
+  rpc GetPatientDetailsById (GetPatientDetailsByIdRequest) returns (GetPatientDetailsByIdResponse);
+  rpc GetPatientIDNumberById(GetPatientIDNumberRequest) returns (GetPatientIDNumberResponse);
+  rpc GetPatientIDNumbersByIds(GetPatientIDNumbersRequest) returns (GetPatientIDNumbersResponse);
+  rpc GetPatientInsurances(GetPatientInsurancesRequest) returns (GetPatientInsurancesResponse);
+
+  // Get Patient flag details
+  rpc GetPatientFlagById (GetPatientFlagByIdRequest) returns (GetPatientFlagListByIdResponse);
+
+  //
+  rpc CountTotalNumberOfUsersById (CountUerByIdRequest) returns (CountUerByIdResponse);
+
+  //
+  rpc GetAllergyList (GetAllergyListRequest) returns (GetAllergyListResponse);
+  rpc GetPatients (GetPatientsRequest) returns (GetPatientsResponse);
+  rpc GetPatientFlagsByIds (GetPatientFlagsByIdsRequest) returns (GetPatientFlagsListByIdsResponse);
+  rpc GetAssessmentPlan(GetAssessmentPlanRequest) returns (GetAssessmentPlanResponse);
+  rpc GetAssessmentPlans(GetAssessmentPlansRequest) returns (GetAssessmentPlansResponse);
+  rpc UpdatePatientInsurance(UpdatePatientInsuranceRequest) returns (UpdatePatientInsuranceResponse);
+  rpc GetPatientInsurance(GetPatientInsuranceRequest) returns (GetPatientInsuranceResponse);
+
+  rpc GetClaimIdfromEncounterByAppointmentId(GetClaimIdfromEncounterByAppointmentIdRequest) returns (GetClaimIdfromEncounterByAppointmentIdResponse);
+
+  rpc GetEncounterByClaimId(GetEncounterByClaimIdRequest) returns (GetEncounterByClaimIdResponse);
+  rpc GetEncounterNumberById(GetEncounterNumberByIdRequest) returns (GetEncounterNumberByIdResponse);
+  rpc GetEncountersBaseInfoByIds(EncountersBaseInfoRequest) returns (EncountersBaseInfoResponse);
+
+  //Get patient contact details by ResidentialAddressId
+  rpc GetPatientAddresByResidentialAddressId (GetPatientAddresByResidentialAddressIdRequest) returns (GetPatientAddresByResidentialAddressIdResponce);
+
+  //Get patient callback contract details by CallBackContractId
+  rpc GetPatientCallBackContractByCallBackContractId (GetPatientCallBackContractByCallBackContractIdRequest) returns (GetPatientCallBackContractByCallBackContractIdResponce);
+
+   //Get patient coordinates by ResidentialAddressId
+  rpc GetPatientCoordinatesByResidentialAddressId (GetPatientCoordinatesByResidentialAddressIdRequest) returns (GetPatientCoordinatesByResidentialAddressIdResponce);
+
+  rpc IsEncounterCreated(Id) returns (Bool);
+  rpc GetVitalsDetialsByEncounter(GetVitalsDetialsByEncounterRequest) returns (GetVitalsDetialsByEncounterResponse);
+  rpc GetSocialHistoryByPatientId(GetSocialHistoryByPatientIdRequest) returns (GetSocialHistoryByPatientIdResponse);
+  rpc GetPatientAllergyList(GetPatientAllergyListRequest) returns (GetPatientAllergyListResponse);
+  rpc GetEncounterInfoByEncounterId(GetEncounterInfoByEncounterIdRequest) returns (GetEncounterInfoByEncounterIdResponse);
+  rpc GetPatientDocumentsByEncounter(GetPatientDocumentsByEncounterRequest) returns (GetPatientDocumentsByEncounterResponse);
+  rpc GetPatientvaccinationList(GetPatientvaccinationListRequest) returns (GetPatientvaccinationListResponse);
+  rpc GetConditionStatusListData(GetConditionStatusListDataRequest) returns (GetConditionStatusListDataResponse);
+  rpc GetLastTwoSignLockByPatientAndEncounter(GetLastTwoSignLockByPatientAndEncounterRequest) returns (GetLastTwoSignLockByPatientAndEncounterResponse);
+  rpc GetAssessmentPlanById(GetAssessmentPlanByIdRequest) returns (GetAssessmentPlanByIdResponse);
+  rpc GetConditionByPatientId(GetConditionByPatientIdRequest) returns (GetConditionStatusListDataResponse);
+  rpc GetPostVisitSummary(GetPostVisitSummaryRequest) returns (GetPostVisitSummaryResponse);
+  rpc GetPatientExtensions(GetPatientExtensionsRequest) returns (GetPatientExtensionsResponse);
+  rpc GetPatientComplaints(GetPatientComplaintsRequest) returns (GetPatientComplaintsResponse);
+  rpc GetPatientMedicationByPatientAssessmentPlan(GetPatientMedicationByPatientAssessmentPlanRequest) returns (GetPatientMedicationByPatientAssessmentPlanResponse);
+  rpc GetPrescriptionOrderDetails(GetPrescriptionOrderDetailsRequest) returns (GetPrescriptionOrderDetailsResponse);
+  rpc GetFamilyMedicalHistoryByPatientId(GetFamilyMedicalHistoryByPatientIdRequest) returns (GetFamilyMedicalHistoryByPatientIdResponse);
+  rpc UpdatePatientEncounterClaim(UpdatePatientEncounterClaimRequest) returns (UpdatePatientEncounterClaimResponse);
+}
+
+message GetFamilyMedicalHistoryByPatientIdRequest{
+    string patientId = 1;
+}
+
+message GetFamilyMedicalHistoryByPatientIdResponse{
+    repeated FamilyHistory familyHistoryList = 1;
+}
+
+message FamilyHistory{
+    string identifier = 1;
+    repeated FHConditionCode code = 2;
+    string status = 3;
+    string dataAbsentReason = 4;
+    string fullName = 5;
+    Code relationship = 6;
+    string gender = 7;
+    string age = 8;
+    string dob = 9;
+    string outCome = 10;
+    string note = 11;
+    string statusReason = 12;
+    string isDeleted = 13;
+    string createdDate = 14;
+    string createdBy = 15;
+    string encounter = 16;
+    string patient = 17;
+}
+
+message FHConditionCode {
+    string system = 1;
+    string code = 2;
+    string display = 3;
+    string description = 4;
+    string isDeleted = 5;
+    string updatedby = 6;
+    string updatedDate = 7;
+    string fromTime = 8;
+    string toTime = 9;
+    string isActive = 10;
+    PerformerResponse performerDetails = 11;
+}
+
+message GetPrescriptionOrderDetailsRequest{
+    string patientId = 1;
+    string encounterId = 2;
+    string patientAssessmentPlanId = 3;
+}
+
+message GetPrescriptionOrderDetailsResponse{
+    string response=1;
+}
+
+message GetPatientMedicationByPatientAssessmentPlanRequest{
+    string assessmentPlanId=1;
+}
+
+message GetPatientMedicationByPatientAssessmentPlanResponse{
+    repeated PatientMedication medicationList = 1;
+}
+
+message PatientMedication {
+    string Id = 1;
+    string OnSetDate = 2;
+    string Code = 3;
+    string Display = 4;
+    string Duration = 5;
+    string DurationUnit = 6;
+    string Refill = 7;
+    string Count = 8;
+    string Period = 9;
+    string Notes = 10;
+    string Frequency = 11;
+    string Dispense = 12;
+    string Days = 13;
+    string PeriodUnit = 14;
+    string OrderId = 15;
+    string UnitOfMeasurement = 16;
+    string Route = 17;
+}
+
+message GetPatientComplaintsRequest{
+    string patientId=1;
+    string encounterId=2;
+}
+
+message GetPatientComplaintsResponse {
+    repeated PatientComplaints patientComplaintsList = 1;
+}
+
+message PatientComplaints {
+    string id = 1;
+    string templateId = 2;
+    string itemId = 3;
+    string code = 4;
+    string display = 5;
+    string system = 6;
+    string status = 7;
+    string category = 8;
+    string encounter = 9;
+    string subject = 10;
+    string comment = 11;
+    string note = 12;
+    string type = 13;
+    string effectiveDateTime = 14;
+    string quantityValue = 15;
+    string quantityUnit = 16;
+    string quantitySystem = 17;
+    string quantityCode = 18;
+    string isActive = 19;
+    string isDeleted = 20;
+    string createdBy = 21;
+    string createdDate = 22;
+    string updatedby = 23;
+    string updatedDate = 24;
+    string parentId = 25;
+}
+
+message GetPatientExtensionsRequest{
+    string patientId=1;
+}
+
+message GetPatientExtensionsResponse{
+    string extensions=1;
+}
+
+message GetPostVisitSummaryRequest{
+    string encounterId=1;
+}
+
+message GetPostVisitSummaryResponse{
+    string pdfBase64=1;
+}
+
+message GetConditionByPatientIdRequest{
+    string patientId=1;
+}
+
+message GetAssessmentPlanByIdRequest{
+    string assessmentPlanId=1;
+}
+message GetAssessmentPlanByIdResponse{
+    string response=1;
+}
+
+message GetLastTwoSignLockByPatientAndEncounterRequest{
+    string encounterId=1;
+}
+
+message GetLastTwoSignLockByPatientAndEncounterResponse{
+    repeated SignLock signLockList = 1;
+}
+
+message SignLock{
+    string id =1;
+    string subject =2;
+    string encounter =3;
+    string performer =4;
+    string sign =5;
+    string lock =6;
+    string digitalSignature =7;
+    string note =8;
+    string createdBy =9;
+    string createdDate =10;
+    string updateddate =11;
+    string updatedBy =12;
+    string patientAssessmentPlanId =13;
+}
+
+message GetEncounterInfoByEncounterIdRequest{
+    string encounterId=1;
+}
+
+message GetEncounterInfoByEncounterIdResponse{
+    string id =1;
+    string encounterNumber =2;
+    string status =3;
+    string class =4;
+    string type =5;
+    string serviceType =6;
+    string subject =7;
+    string reasonForVisitName =8;
+    string basedOn =9;
+    string appointment =10;
+    string startDate =11;
+    string endDate =12;
+    string reasonForVisit =13;
+    string duration =14;
+    string account =15;
+    string serviceProvider =16;
+    string partOf =17;
+    string locationName =18;
+    string location =19;
+    string claimId =20;
+    string isActive =21;
+    string isDeleted =22;
+    string createdBy =23;
+    string createdDate =24;
+    string updatedby =25;
+    string updatedDate =26;
+    string isEncounterNotesModified =27;
+}
+
+message GetPatientDocumentsByEncounterRequest{
+    string patientId=1;
+    string encounterId=2;
+}
+
+message GetPatientDocumentsByEncounterResponse{
+    repeated Document documentList = 1;
+}
+
+message Document{
+    string id =1;
+    string patientId = 2;
+    string encounterId = 3;
+    string name = 4;
+    string type = 5;
+    string documentDate = 6;
+    string doctorName = 7;
+    string facilityName = 8;
+    string tags = 9;
+    string reviewedById = 10;
+    string reviewedByName = 11;
+    string reviewedOn = 12;
+    Code data = 13;
+    string createdById = 14;
+    string createdByName = 15;
+    string createdOn = 16;
+    string updatedById = 17;
+    string updatedByName = 18;
+    string updatedOn = 19;
+    string isDeleted = 20;
+    repeated DocumentFile patientDocumentFiles = 21;
+    repeated DocumentLab patientDocumentLabs = 22;
+}
+
+message DocumentFile {
+    string id=1;
+    string patientDocumentId=2;
+    string url=3;
+    string fileName=4;
+    string fileType=5;
+    string isDeleted=6;
+}
+
+message DocumentLab {
+     string id=1;
+     string patientDocumentId=2;
+     Code labName=3;
+     string result=4;
+     Code unitType=5;
+     string isDeleted=6;
+}
+
+message GetPatientvaccinationListRequest{
+    string patientId=1;
+}
+
+message GetPatientvaccinationListResponse{
+    repeated Vaccination vaccinationList = 1;
+}
+
+message Vaccination{
+    string identifier = 1;
+    Code vaccine = 2;
+    string status = 3;
+    string patient = 4;
+    string encounter = 5;
+    string dataAbsentReason = 6;
+    string performer = 7;
+    string administratedDate = 8;
+    Code quantity = 9;
+    string statusReason = 10;
+    string isDeleted = 11;
+    string createdDate = 12;
+}
+
+message GetConditionStatusListDataRequest{
+    string patientId=1;
+    string status=2;
+}
+
+message GetConditionStatusListDataResponse{
+    repeated Condition conditionList=1;
+}
+
+message Condition{
+    string identifier = 1;
+    string clinicalStatus = 2;
+    Code code = 3;
+    Code bodySite = 4;
+    string subject = 5;
+    string dataAbsentReason = 6;
+    string encounter = 7;
+    string asserter = 8;
+    string OnsetDateTime = 9;
+    string endDate = 10;
+    string note = 11;
+    string severity = 12;
+    string isDeleted = 13;
+    string createdDate = 14;
+    string wasDiagnosis = 15;
+}
+
+message GetPatientAllergyListRequest{
+    string patientId=1;
+}
+
+message GetPatientAllergyListResponse{
+    repeated Allergy AllergyList=1;
+}
+
+message Allergy{
+    string identifire = 1;
+    string subject = 2;
+    string type = 3;
+    Code category = 4;
+    string dataAbsentReason = 5;
+    Code criticality = 6;
+    string isDeleted = 7;
+    Code code= 8;
+    Reaction reaction= 9;
+    string createdDate = 10;
+    string clinicalStatus = 11;
+    string encounter = 12;
+    string onset = 13;
+    string recordedDate = 14;
+    string recorder = 15;
+    string asserter = 16;
+    string note = 17;
+    PerformerResponse performerDetails = 18;
+}
+ 
+message PerformerResponse{
+  string id = 1;
+  string name = 2;
+  string photo = 3;
+  string timeZone = 4;
+  string organizationid = 5;
+}
+
+message Reaction{
+    Code substance =1;
+    string onset  = 2;
+    string severity = 3;
+}
+
+message GetSocialHistoryByPatientIdRequest{
+    string patientId=1;
+}
+
+message GetSocialHistoryByPatientIdResponse{
+    repeated SocialHistory socialHistoryList=1;
+}
+
+message SocialHistory{
+    string identifire = 1;
+    string subject = 2;
+    string status = 3;
+    Code category = 4;
+    string dataAbsentReason = 5;
+    string effectiveDateTime = 6;
+    string isDeleted = 7;
+    Code code= 8;
+    Code historyCode= 9;
+    string createdBy = 10;
+    string createdDate = 11;
+    string updatedby = 12;
+    string updatedDate = 13;
+    PerformerResponse performerDetails = 14;
+    string fromTime = 15;
+    string toTime = 16;
+    string comment = 17;
+}
+
+message GetVitalsDetialsByEncounterRequest{
+    string patientId=1;
+    string encounterId=2;
+}
+
+message GetVitalsDetialsByEncounterResponse{
+    repeated Vital vitalList=1;
+}
+
+message Vital{
+    string identifire = 1;
+    string subject = 2;
+    string status = 3;
+    string category = 4;
+    string encounter = 5;
+    string vitalNormalStatus = 6;
+    string vitalAbnormalPercentage = 7;
+    string dataAbsentReason = 8;
+    string hcm = 9;
+    string lmp = 10;
+    string isMenstrual = 11;
+    string effectiveDateTime = 12;
+    string isDeleted = 13;
+    Code code = 14;
+    QuantityCode quantity = 15;
+}
+
+message Code{
+    string system = 1;
+    string code = 2;
+    string display = 3;
+}
+
+message QuantityCode{
+    string system = 1;
+    string code = 2;
+    string display = 3;
+    string unit = 4;
+}
+
+message Id{
+    string value=1;
+}
+message Bool{
+    bool value=1;
+}
+
+message GetAllergyListRequest{
+    string search=1;
+}
+
+message GetAllergyListResponse{
+     repeated AllergyResponse allergylist=1;
+}
+
+message AllergyResponse{
+    string code=1;
+    string display=2;
+    string system=3;
+}
+
+message CountUerByIdRequest{
+    string id=1;
+}
+
+
+message CountUerByIdResponse{
+    int32 totalUser=1;
+}
+
+message GetPatientFlagByIdRequest{
+    string patientId=1;
+}
+
+message GetPatientFlagListByIdResponse{
+    repeated GetPatientFlagByIdResponse listOfFlags=1;
+}
+
+message GetPatientFlagByIdResponse{
+    string code=1;
+    string display=2;
+}
+message GetPatientFlagsByIdsResponse{
+	string code=1;
+	string display=2;
+    string subject=3;
+}
+message GetPatientFlagsListByIdsResponse{
+	repeated GetPatientFlagsByIdsResponse listOfFlags=1;
+}
+
+message GetPatientDetailsByIdRequest{
+    string patientId=1;
+}
+
+message GetPatientDetailsByIdResponse{
+    string organizationId=1;
+    string practiceId=2;
+    string imageURL=3;
+    string isActive =4;
+}
+
+message GetPatientPreferredModeByIdRequest{
+    string id=1;
+}
+
+message GetPatientPreferredModeByIdResponse{
+  string id = 1;
+  string firstName = 2;
+  string mrn=3;
+  string dob=4;
+  string photo=5;
+  string contact=6;
+  string middleName=7;
+  string lastName=8;
+  string email=9;
+  int32 PrefeeredMode =10;
+  string emailAddress=11;
+  string primaryContact=12;
+  string secondaryContact=13;
+}
+
+message GetPatientNameByIdRequest{
+    string id=1;
+}
+
+message GetPatientNameByIdResponse{
+  string id = 1;
+  string firstName = 2;
+  string photo=3;
+  string middleName=4;
+  string lastName=5;
+}
+
+
+// The request message containing the patient id.
+message GetPatientByIdRequest {
+  string id = 1;
+}
+
+// The response message containing the patient information.
+message GetPatientByIdResponse {
+  string id = 1;
+  string firstName = 2;
+  string mrn=3;
+  string dob=4;
+  string gender=5;
+  string photo=6;
+  string contact=7;
+  string middleName=8;
+  string lastName=9;
+  string email=10;
+  string genderId=11;
+  string timeZone = 12;
+  string guardianFirstName =13;
+  string guardianMidddleName =14;
+  string guardianLastName=15;
+  string guardianBirthDate=16;
+  string guardianGenderId =17;
+  string guardianId =18;
+  string relationId =19;
+  string guardianGenderName=20;
+  string relationName=21;
+  string identificationID=22;
+  string guardianIdenitificationId=23;
+  bool isOnboarding =24;
+  string building=25;
+  string apartment =26;
+  string address=27;
+  string city=28;
+  string country=29;
+  bool isInsuranceAdded =30;
+  string LanguageId =31;
+  string MaritalStatus =32;
+  string IdentificationType =33;
+  string extensions=34;
+  string guardianIdentificationIDNumber=35;
+  string guardianIdentificationType=36;
+  string secondaryPhoneNumber=37;
+}
+message CheckPatientByIdRequest{
+    string id=1;
+}
+
+message CheckPatientByIdResponse{
+   bool status=1;
+}
+message GetPatientsRequest {
+	repeated string patientIds=1;
+}
+message GetPatientsResponse{
+    repeated GetPatientByIdResponse patients=1;
+}
+message GetPatientFlagsByIdsRequest {
+	repeated string patientIds=1;
+}
+message GetAssessmentPlanRequest{
+    string patientId=1;
+    string appointmentId=2;
+    string encounterId=3;
+}
+message GetAssessmentPlanResponse{
+    string response=1;
+}
+
+message UpdatePatientInsuranceRequest {
+    string patientId=1;
+    string sponsorId=2;
+    string frontPhoto=3;
+    string backPhoto=4;
+    string copaymentType=5;
+    string eligibilityStartDate=6;
+    string eligibilityEndDate=7;
+    repeated BillingGroupModel billingGroups=8;
+}
+message BillingGroupModel {
+    string id=1;
+    string category=2;
+    string value=3;
+}
+message UpdatePatientInsuranceResponse {
+    bool response=1;
+}
+
+
+message GetClaimIdfromEncounterByAppointmentIdRequest{
+    string appointmentId=1;
+}
+
+message GetClaimIdfromEncounterByAppointmentIdResponse{
+    string claimId=1;
+}
+
+message GetPatientInsuranceRequest {
+    string patientId=1;
+    string sponsorId=2;
+}
+
+message GetPatientInsurancesRequest {
+   repeated GetPatientInsuranceRequest request=1;
+}
+
+message GetPatientInsuranceResponse {
+    string patientId=1;
+    string sponsorId=2;
+    string eligibilityStartDate=3;
+    string eligibilityEndDate=4;
+    string copaymentType=5;
+    string policyNumber=6;
+    repeated BillingGroupModel billingGroups=7;
+}
+
+message GetPatientInsurancesResponse {
+   repeated GetPatientInsuranceResponse patientInsurances=1;
+}
+
+message GetEncounterByClaimIdRequest {
+    string claimId=1;
+}
+message GetEncounterByClaimIdResponse {
+    string encounterId=1;
+    string type=2;
+    string start=3;
+    string end=4;
+}
+
+message GetEncounterNumberByIdRequest{
+    string encounterId=1;
+}
+
+message GetEncounterNumberByIdResponse{
+    string encounterNumber=1;
+}
+
+message GetPatientIDNumberRequest{
+    string patientId=1;
+}
+message GetPatientIDNumberResponse{
+    string patientId=1;
+    string IDNumber=2;
+    string MRN=3;
+}
+
+message GetPatientIDNumbersRequest{
+    repeated string patientIds=1;
+}
+
+message DiagnosisByEncounterId{
+    string encounterId=1;
+    string diagnosisCode=2;
+    string diagnosisDisplay=3;
+}
+
+message GetPatientIDNumbersResponse{
+    repeated GetPatientIDNumberResponse patients=1;
+}
+
+message EncounterBaseInfoResponse {
+   string Id=1;
+   string EncounterNumber=2;
+   string Status=3;
+   string StartDate=4;
+   string EndDate=5;
+   string ClaimId=6;
+   repeated DiagnosisByEncounterId diagnosis=7;
+}
+message EncountersBaseInfoRequest{
+    repeated string EncounterIds=1;
+}
+
+message EncountersBaseInfoResponse{
+    repeated EncounterBaseInfoResponse encounters=1;
+}
+message GetPatientAddresByResidentialAddressIdRequest{
+    string residentialAddressId=1;
+}
+message GetPatientAddresByResidentialAddressIdResponce{
+    string id=1;
+    string location=2;
+    string apartment=3;
+    string notes=4;
+    string latitude=5;
+    string longitude=6;
+    string fullLocation=7;
+}
+message GetPatientCallBackContractByCallBackContractIdRequest{
+    string id=1;
+}
+message GetPatientCallBackContractByCallBackContractIdResponce{
+    string id=1;
+    string name=2;
+    string middleName=3;
+    string lastName=4;
+    string phonenumber=5;
+    string relationship=6;
+    string photo=7;
+}
+message GetPatientCoordinatesByResidentialAddressIdRequest{
+    string id=1;
+}
+message GetPatientCoordinatesByResidentialAddressIdResponce{
+    string latitude=1;
+    string longitude=2;
+}
+
+message AssessmentPlansRequest {
+    string invoiceId=1;
+    string patientId=2;
+    string encounterId=3;
+}
+message GetAssessmentPlansRequest {
+    repeated AssessmentPlansRequest request=1;
+}
+
+message AssessmentPlansResponse {
+    string invoiceId=1;
+    string response=2;
+}
+message GetAssessmentPlansResponse {
+    repeated AssessmentPlansResponse response=1;
+}
+
+message UpdatePatientEncounterClaimRequest {
+    string appointmentId=1;
+    string claimId=2;
+}
+message UpdatePatientEncounterClaimResponse {
+    bool Success=1;
+}

@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcOrganizationConfiguration";
+
+
+service OrganizationConfiguration {
+  // Sends a patient information
+  rpc GetOrganizationImage (OrganizationImageRequest) returns (OrganizationImageReply);
+  rpc GetOrganizationDetails (OrganizationDetailRequest) returns (OrganizationDetailResponse);
+  rpc GetOrganizationTimeZone (OrganizationTimeZoneRequest) returns (OrganizationTimeZoneReply);
+  rpc UpdateAndGetOrganization (OrganizationInfoRequest) returns (OrganizationInfoResponse);
+  rpc GetOrganizationDetail (GetOrganizationDetailRequest) returns (GetOrganizationDetailResponse);
+  rpc GetOrganizationUserInfo (OrganizationInfoRequest) returns (OrganizationUserInfoResponse);
+  rpc GetOrganizationById(GetOrganizationByIdRequest) returns (GetOrganizationByIdResponse);
+  rpc CheckOrganizationHasPatientCommunication(CheckOrganizationHasPatientCommunicationRequest) returns (CheckOrganizationHasPatientCommunicationResponse);
+  rpc GetDepartmentIdsByTenantId(GetDepartmentIdsByTenantIdRequest) returns (GetDepartmentIdsByTenantIdResponse);
+}
+
+message CheckOrganizationHasPatientCommunicationRequest {
+    string orgId = 1;
+}
+
+message CheckOrganizationHasPatientCommunicationResponse {
+    string hasPatientCommunication = 1;
+}
+
+message GetOrganizationDetailRequest{
+    string id=1;
+}
+
+message GetOrganizationDetailResponse{
+    string CountryName=1;
+    string TimeZone=2;
+    string Locations=3;
+}
+message OrganizationDetailRequest{
+    string organizationId=1;
+}
+
+message OrganizationDetailResponse{
+    string name=1;
+    string medicationSystem=2;
+}
+
+message OrganizationImageRequest {
+  string orgId = 1;
+}
+
+
+message OrganizationImageReply {
+string photoURL = 1;
+}
+message OrganizationTimeZoneRequest {
+  string OrganizationId = 1;
+}
+
+
+message OrganizationTimeZoneReply {
+string TimeZone = 1;
+}
+
+message OrganizationInfoRequest{
+    string UserId=1;
+}
+message OrganizationInfoResponse{
+        string Id =1;
+        string Name =2;
+        string CountryName =3;
+        bool Status =4;
+        bool IsOnboarded =5;
+        string ImageURL =6;
+}
+
+message OrganizationUserInfoResponse{
+        string Id =1;
+        string FirstName =2;
+        string LastName =3;
+        string ImageURL =6;
+}
+
+message GetOrganizationByIdRequest{
+    string id=1;
+}
+
+message GetOrganizationByIdResponse{
+    string Id =1;
+    string UserId =2;
+    string OrganizationName =3;
+    string BrandingUrl =4;
+}
+
+message GetDepartmentIdsByTenantIdRequest{
+    string TenantId =1;
+}
+
+message GetDepartmentIdsByTenantIdResponse{
+    repeated DepartmentId DepartmentIds =1;
+}
+
+message DepartmentId{
+    string Id =1;
+}

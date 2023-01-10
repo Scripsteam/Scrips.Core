@@ -1,0 +1,438 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcAppointmentManagement";
+
+package Appointment;
+
+import "google/protobuf/timestamp.proto";
+
+// The practice service definition.
+service AppointmentManagement {  
+  rpc GetAppointmentsListByPatientIds (GetAppointmentsListByPatientIdsRequest) returns (GetAppointmentsListByPatientIdsResponse);
+  rpc GetAppointmentById (GetAppointmentByIdRequest) returns (GetAppointmentByIdResponse);
+  rpc GetFlagByPatientId (GetFlagByPatientIdRequest) returns (GetListFlagByPatientIdResponse);
+  rpc GetAppointmentListForProvider (GetAppointmentListForProviderRequest) returns (GetAppointmentListForProviderResponse);
+  rpc GetAppointmentSponsorTypeById (AppointmentSponsorTypeRequest) returns (AppointmentSponsorTypeResponse);  
+  rpc UpdateAppointmentStatus (UpdateAppointmentStatusRequest) returns (UpdateAppointmentStatusResponse);
+  rpc UpdateAppointmentStatusRealtime (UpdateAppointmentRealTimeRequest) returns (UpdateAppointmentRealTimeResponse);  
+  rpc UpdateQuestionnireStatus (UpdateQuestionnireStatusRequest) returns (UpdateQuestionnireStatusResponse);
+  rpc GetDashboardSlotForProviders (GetSlotForProvidersRequest) returns (GetSlotForProvidersResponse);
+  rpc CreateFollowUpRequests (FollowUpRequest) returns (FollowUpResponse);
+  rpc RealTimeUpdate (RealTimeUpdateRequest) returns (RealTimeUpdateResponse);
+  rpc GetAppointmentBasicInfo (GetAppointmentBasicInfoRequest) returns (GetAppointmentBasicInfoResponse);
+  rpc GetPractitionerAvailability(GetPractitionerAvailabilityRequest) returns (TimePeriodCollectionMessage);
+  rpc GetDynamicSlots(GetDynamicSlotsRequest) returns (TimePeriodCollectionMessage);
+  rpc GetAppointmentStatusById (GetAppointmentStatusByIdRequest) returns (GetAppointmentStatusByIdResponse);
+  rpc CreateScheduleForActor(V2Schedule) returns (V2Schedule);
+  rpc UpdateScheduleForActor(V2Schedule) returns (V2Schedule);
+  rpc GetAppointmentParticipants (GetAppointmentParticipantsRequest) returns (GetAppointmentParticipantsResponse);
+  rpc GetAppointmentCustomNote (GetAppointmentCustomNoteRequest) returns (GetAppointmentCustomNoteResponse);
+  rpc GetAppointmentDateById (GetAppointmentByIdRequest) returns (GetAppointmentDateByIdResponse);
+  rpc GetPractitionersAvailability(GetPractitionersAvailabilityRequest) returns (TimePeriodCollectionMessages);
+}
+
+message GetAppointmentDateByIdResponse {
+	string startDate = 1;
+}
+
+message GetAppointmentParticipantsRequest {
+  string appointmentId=1;
+}
+
+message GetAppointmentParticipantsResponse{
+	string providerId = 1;
+	string patientId = 2;
+	string isPatient = 3;
+}
+
+message GetAppointmentCustomNoteRequest {
+  string appointmentId=1;
+}
+
+message GetAppointmentCustomNoteResponse{
+	string customNote = 1;
+}
+
+message V2Schedule {
+  string name = 1;
+  string actorId = 2;
+  string locationId = 3;
+  string practiceId = 4;
+  bool isDefault = 5;
+  string organizationId = 6;
+  string createdById = 7;
+  string updatedById = 8;
+  bool isArchive =9;
+}
+
+message GetAppointmentStatusByIdRequest{
+  string appointmentId = 1;
+}
+
+message GetAppointmentStatusByIdResponse{
+  string appointmentStatus = 1;
+}
+
+message GetDynamicSlotsRequest {
+  string duration = 1;
+  TimePeriodCollectionMessage timeCollection = 2;
+  int32 topSlots = 3;
+}
+
+message GetPractitionerAvailabilityRequest{
+  string practitionerId = 1;
+  TimePeriodCollectionMessage timeCollection = 2;
+  string practiceId = 3;
+}
+
+message TimePeriodCollectionMessage{
+  repeated TimePeriodMessage value = 1;
+}
+
+message TimePeriodMessage
+{
+  string start = 1;
+  string end = 2;
+}
+
+message GetAppointmentBasicInfoRequest{
+  string appointmentId = 1;
+}
+
+message GetAppointmentBasicInfoResponse{
+  string practiceId = 1;
+  string ProviderId = 2;
+  string PatientId = 3;
+  string sponsorType = 4;
+  string PayerName = 5;
+  string PayerCompanyId = 6;
+  string tpaCode = 7;
+  string tpaCompanyName = 8;
+  string PolicyNo = 9;
+  string sponsorId = 10;
+}
+
+message FollowUpRequest{
+  string appointmentId = 1;
+  int32 followUpCount = 2;
+  string followUpCountUnit = 3;
+  bool folowUp = 4;
+}
+
+message FollowUpResponse{
+  bool status = 1;
+}
+
+message UpdateQuestionnireStatusRequest{
+  string appointmentId = 1;
+}
+
+message UpdateQuestionnireStatusResponse{
+  bool status = 1;
+}
+
+message UpdateAppointmentRealTimeRequest{
+  string appointmentId = 1;
+}
+
+message UpdateAppointmentRealTimeResponse{
+  string status = 1;
+}
+
+message UpdateAppointmentStatusRequest{
+  string appointmentId = 1;
+  string patientId = 2;
+}
+message UpdateAppointmentStatusResponse{
+  bool status = 1;
+}
+message GetTotalSlotCountRequest{
+  string practitionerId = 1;
+  string practiceId = 2;
+  google.protobuf.Timestamp start = 3;
+  google.protobuf.Timestamp end = 4;
+  repeated string appointmentProfileId = 5;
+  string userId = 6;
+}
+message GetTotalSlotCountResponse{
+  int32 count = 1;
+}
+
+message GetListFlagByPatientIdResponse {
+  repeated GetFlagByPatientIdResponse listOfFlag = 1;
+}
+
+message GetListOfSlotByProviderIdResponse {
+  repeated GetSlotByProviderIdResponse listOfSlots = 1;
+  int32 slotCount = 2;
+}
+
+
+message GetSlotByProviderIdRequest{
+  string practitionerId = 1;
+  string practiceId = 2;
+  google.protobuf.Timestamp start = 3;
+  google.protobuf.Timestamp end = 4;
+  int32 count = 5;
+  repeated string appointmentProfileId = 6;
+  string userId = 7;
+}
+message GetSlotForProvidersRequest{
+  map<string, GetSlotByProviderIdRequest> providerSlotRequest = 1;
+}
+
+message GetFlagByPatientIdRequest{
+  string patientid = 1;
+  string Code = 2;
+  string Display = 3;
+  // string CategoryName=4;
+}
+
+message GetFlagByPatientIdResponse{
+  string Code = 1;
+  string Display = 2;
+  // string CategoryName=3;
+}
+
+message GetFlagByPatientIdResponsetest{
+  string code = 1;
+}
+
+
+message GetAppointmentListForProviderRequest{
+  string providerId = 1;
+  google.protobuf.Timestamp start = 2;
+  google.protobuf.Timestamp end = 3;
+}
+
+message GetAppointmentListForProviderResponse{
+  repeated Appointment Appointments = 1;
+}
+
+message GetAppointmentByIdRequest{
+  string appointmentId = 1;
+}
+
+message GetAppointmentByIdResponse{
+  Appointment appointment = 1;
+}
+
+message GetSlotByProviderIdResponse{
+  string id = 1;
+  AppointmentType  appointmentType = 2;
+  google.protobuf.Timestamp start = 3;
+  google.protobuf.Timestamp end = 4;
+  string scheduleId = 5;
+  string comment = 6;
+  SlotStatus status = 7;
+  bool  overbooked = 8;
+  string practiceId = 9;
+  string practiceName = 10;
+}
+message GetSlotForProvidersResponse{
+  map<string, GetListOfSlotByProviderIdResponse> providerSlotResponse = 1;
+}
+message GetAppointmentsListByPatientIdsRequest {
+  repeated string patientIds = 1;
+}
+
+
+message SlotStatus{
+  string code = 1;
+  string display = 2;
+  string definition = 3;
+}
+
+message AppointmentType{
+  string code = 1;
+  string display = 2;
+  string definition = 3;
+}
+
+
+
+message GetAppointmentsListByPatientIdsResponse {
+  repeated Appointment Appointments = 1;
+}
+
+message ValueSet {
+  string code = 1;
+  string definition = 2;
+  string display = 3;
+}
+
+message Room {
+  string id = 1;
+  string name = 2;
+}
+
+message Slot {
+  string id = 1;
+  AppointmentType appointmentType = 2;
+  string scheduleId = 3;
+  ValueSet status = 4;
+  google.protobuf.Timestamp start = 5;
+  google.protobuf.Timestamp end = 6;
+  string comment = 7;
+  bool overbooked = 8;
+  string practiceId = 9;
+  string practiceName = 10;
+}
+
+message ParticipationType{
+  string code = 1;
+  string definition = 2;
+  string display = 3;
+  string system = 4;
+}
+
+message Period{
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+}
+
+message Patient {
+  string id = 1;
+  string firstName = 2;
+  string middleName = 3;
+  string lastName = 4;
+  string mrn = 5;
+  string birthDate = 6;
+  string genderName = 7;
+  string gender = 8;
+  string photoURL = 9;
+  string phoneNumber = 10;
+  string email = 11;
+}
+
+message PracticeValueSet{
+  string code = 1;
+  string displayName = 2;
+  string system = 3;
+}
+
+message Speciality{
+  string specialitySkillId = 1;
+  PracticeValueSet code = 2;
+}
+
+message Provider {
+  string id = 1;
+  string name = 2;
+  string photo = 3;
+  Speciality speciality = 4;
+  string timeZone = 5;
+}
+
+message Participant {
+  string id = 1;
+  ValueSet required = 2;
+  ValueSet status = 3;
+  //ParticipationType type = 4;
+  Period period = 4;
+  string identifier = 5;
+  string reference = 6;
+  string display = 7;
+  string referenceType = 8;
+  Patient patient = 9;
+  Provider provider = 10;
+}
+
+message AppointmentProfile {
+  string id = 1;
+  string organizationId = 2;
+  string practionerId = 3;
+  string practiceId = 4;
+  string profileName = 5;
+  string location = 6;
+  string minutesDuration = 7;
+  string color = 8;
+  ValueSet reasonCode = 9;
+  ValueSet appointmentType = 10;
+  string roomId = 11;
+  string billingProfile = 12;
+  string referenceId = 13;
+}
+
+message FlagList {
+  double code = 1;
+  string display = 2;
+  string categoryName = 3;
+}
+
+// The response message containing the practice(location).
+message Practice{
+  string id = 1;
+  string name = 2;
+  string phone = 3;
+  string address = 4;
+  string country = 5;
+  string city = 6;
+  string office = 7;
+  string faxNumber = 8;
+  string photo = 9;
+  string latitude = 10;
+  string longitude = 11;
+  string nabidhAssigningAuthority = 12;
+  string licenseNumber = 13;
+  string licenseAuthority = 14;
+
+}
+
+message Questionnaire{
+  string questionnaireId = 1;
+  string questionnaireName = 2;
+  bool answered = 3;
+}
+
+message Appointment {
+  string id = 1;
+  ValueSet status = 2;
+  string location = 3;
+  Room room = 4;
+  AppointmentType appointmentType = 5;
+  ValueSet reasonCode = 6;
+  string description = 7;
+  Slot slot = 8;
+  string comment = 9;
+  repeated Participant participant = 10;
+  //AppointmentProfile appointmentProfile = 11;
+  //repeated FlagList flagList = 12;
+  Practice practice = 11;
+  Questionnaire questionnaire = 12;
+  string organizationId = 13;
+  string referenceCode = 14;
+  bool waitForAppointment = 15;
+  google.protobuf.Timestamp start = 16;
+  google.protobuf.Timestamp end = 17;
+}
+
+message RealTimeUpdateRequest{
+  string appointmentId = 1;
+}
+
+message RealTimeUpdateResponse{
+  bool status = 1;
+}
+
+message AppointmentSponsorTypeRequest{
+  string appointmentId = 1;
+}
+
+message AppointmentSponsorTypeResponse{
+  string sponsorType = 1;
+}
+
+message GetPractitionersAvailabilityRequest{
+  TimePeriodCollectionMessages data = 1;
+  string practiceId = 2;
+}
+
+message Pair {
+   string key = 1;
+   TimePeriodCollectionMessage data = 2;
+}
+
+message TimePeriodCollectionMessages {
+   repeated Pair pairs = 1;
+}
