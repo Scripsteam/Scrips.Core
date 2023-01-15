@@ -82,6 +82,7 @@ public class SlotResponseList
     {
         SlotResponses = new List<SlotResponse>();
     }
+
     public IList<SlotResponse> SlotResponses { get; set; }
 
     public int SlotCount { get; set; }

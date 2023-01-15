@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcMasterManagement";
+
+package Master;
+
+// The master service definition.
+service MasterManagement {
+  // Sends a master information
+  rpc GetSpecialityById (GetSpecialityByIdRequest) returns (GetValueSetResponse);
+
+  //
+  rpc GetGenderById (GetGenderByIdRequest) returns (GetGenderResponse);
+  rpc GetAllGenders(GetAllGendersRequest) returns (GetAllGendersResponse);
+
+  //
+  rpc GetInsuranceById (GetInsuranceByIdRequest) returns (GetInsuranceResponse);
+
+   // service category
+  rpc GetServiceCategoryByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+   // service type
+  rpc GetServiceTypeByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+   // appointment type
+  rpc GetAppointmentStatusByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+  // speciality
+  rpc GetSpecialityByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+  // appointment cancellation
+  rpc GetAppointmentCancellationByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+  // appointmentType
+  rpc GetAppointmentTypeByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+
+  // appointmentType by codes
+  rpc GetAppointmentTypesByCodes (GetValueSetByCodesRequest) returns (GetValuesSetResponse);
+
+  //appointment book reason
+   rpc GetAppointmentReasonByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+  //appointment book reasons by codes
+  rpc GetAppointmentReasonsByCodes (GetValueSetByCodesRequest) returns (GetValuesSetResponse);
+
+   rpc GetIdentityVerificationById (GetVerificationByIdRequest) returns (GetVerificationByIdResponse);
+
+   rpc GetLanguageById (GetLanguageByIdRequest) returns (GetLanguageByIdResponse);
+
+   rpc GetRelationById (GetRelationByIdRequest) returns (GetRelationByIdResponse);
+
+   ///
+    rpc GetDegreeById (GetDegreeByIdRequest) returns (GetDegreeByIdResponse);
+
+     rpc GetUniverisytById (GeUniversityByIdRequest) returns (GetUniversityByIdResponse);
+
+     rpc GetRelationionList (GetRelationionListRequest) returns (GetRelationionListResponse);
+
+     rpc GetServiceByCodeAndSystem(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
+     rpc GetLocations(GetLocationsRequest) returns (GetLocationsResponse);
+     rpc GetLocation(GetLocationRequest) returns (GetLocationResponse);
+     rpc GetAllLocations(GetLocationRequest) returns (GetLocationsResponse);
+     rpc GetSpecialitiesByName(GetSpecialitiesByNameRequest) returns (GetValuesSetResponse);
+     rpc GetLicenseAuthorityById(GetLicenseAuthorityByIdRequest) returns (GetLicenseAuthorityByIdResponse);
+     rpc GetMaritalStatusById(GetMaritalStatusByIdRequest) returns (GetMaritalStatusByIdResponse);
+     rpc GetCountryIsoByCountryName(GetCountryIsoByCountryNameRequest) returns (GetCountryIsoByCountryNameResponse);
+     rpc GetAllDepartmentList(GetLocationRequest) returns (GetAllDepartmentListResponse);
+     rpc GetMedicationRouteByDisplay(GetMedicationRouteByDisplayRequest) returns (GetMedicationRouteByDisplayResponse);
+     rpc GetSpecialityByIds (GetSpecialityByIdsRequest) returns (GetValuesSetResponse);
+     rpc GetServiceCategoryByCodes (GetByCodesRequest) returns (GetValuesSetResponse);
+     rpc GetServiceTypeByCodes (GetByCodesRequest) returns (GetValuesSetResponse);
+}
+
+message GetMedicationRouteByDisplayRequest{
+    string display=1;
+}
+
+message GetMedicationRouteByDisplayResponse{
+    string code=1;
+	string system=2;
+	string display=3;
+}
+
+message GetAllDepartmentListResponse{
+    repeated DepartmentListResponse listResponse=1;
+}
+
+message DepartmentListResponse{
+    string code=1;
+    string description = 2;
+}
+
+message GetCountryIsoByCountryNameRequest{
+    string countryName=1;
+}
+
+message GetCountryIsoByCountryNameResponse{
+    string Id=1;
+    string CountryName=2;
+    string Alpha2Code=3;
+    string Alpha3Code=4;
+    string UNNo=5;
+}
+
+message GetMaritalStatusByIdRequest{
+    string id=1;
+}
+
+message GetMaritalStatusByIdResponse{
+    string name=1;
+    string code=2;
+}
+
+message GetLicenseAuthorityByIdRequest{
+    string id=1;
+}
+
+message GetLicenseAuthorityByIdResponse{
+    string name=1;
+}
+
+message GetSpecialitiesByNameRequest{
+    string searchText=1;
+}
+
+
+message GetRelationionListRequest{
+    string name=1;
+}
+
+message GetRelationionListResponse{
+    repeated GetRelationionResponse listOfRelations=1;
+}
+
+message GetRelationionResponse{
+    string id=1;
+    string name=2;
+}
+
+message GeUniversityByIdRequest{
+    string id=1;
+}
+
+message GetUniversityByIdResponse{
+    string id=1;
+    string medicalSchool=2;
+}
+
+message GetDegreeByIdRequest{
+    string id=1;
+}
+message GetDegreeByIdResponse{
+ string degree=1;
+ string code=2;
+ string displayName=3;
+}
+
+
+// The request message containing the master id.
+message GetSpecialityByIdRequest {
+  string id = 1;
+}
+
+// The request message containing the master id.
+message GetSpecialityByCodeRequest {
+  string code = 1;
+}
+
+// The response message containing the master information.
+message GetSpecialityResponse {
+  string name = 1;
+}
+
+
+// The request message containing the master id.
+message GetGenderByIdRequest {
+  string id = 1;
+}
+
+// The response message containing the master information.
+message GetGenderResponse {
+  string name = 1;
+}
+
+message GetInsuranceByIdRequest {
+  string id = 1;
+}
+
+// The response message containing the master information.
+message GetInsuranceResponse {
+  string name = 1;
+}
+
+message GetValueSetByCodeRequest{
+ string code=1;
+}
+
+message GetValueSetResponse{
+ string code=1;
+ string display=2;
+ string definition=3;
+ string id=4;
+}
+message GetValueSetByCodesRequest{
+	string codes=1;
+}
+message GetValuesSetResponse{
+	repeated GetValueSetResponse listOfValueSet=1;
+}
+
+message GetVerificationByIdRequest{
+string id=1;
+}
+
+message GetVerificationByIdResponse{
+    string name=1;
+}
+
+message GetLanguageByIdRequest{
+string id=1;
+}
+
+message GetLanguageByIdResponse{
+    string name=1;
+    string code=2;
+}
+
+message GetRelationByIdRequest{
+    string id=1;
+}
+
+message GetRelationByIdResponse{
+    string name=1;
+}
+
+message GetServiceByCodeAndSystemRequest {
+	string code = 1;
+    string system = 2;
+}
+
+message GetServiceByCodeAndSystemResponse {
+	string code=1;
+	string system=2;
+	string display=3;
+}
+message GetLocationsRequest{
+    string ids=1;
+}
+message GetLocationsResponse{
+    repeated GetLocationResponse locationList=1;
+}
+message GetLocationRequest{
+    string id=1;
+}
+message GetLocationResponse{
+    string id=1;
+    string name=2;
+    string description=3;
+    string imageUrl=4;
+}
+
+message GetAllGendersRequest{
+    bool do=1;    
+}
+message GendersModel{
+    string id=1;
+    string name=2;
+}
+message GetAllGendersResponse{
+    repeated GendersModel items=1;
+}
+
+message GetSpecialityByIdsRequest {
+  repeated string ids = 1;
+}
+
+message GetByCodesRequest {
+   repeated string codes = 1;
+}

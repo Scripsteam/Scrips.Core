@@ -1,0 +1,460 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcPracticeManagement";
+import "google/protobuf/timestamp.proto";
+
+package Practice;
+
+// The practice service definition.
+service PracticeManagement {
+  // Sends a room
+  rpc GetRoomById (GetRoomByIdRequest) returns (GetRoomByIdResponse);
+
+  //send a practice(location)
+  rpc GetPracticeById (GetPracticeByIdRequest) returns (GetPracticeByIdResponse);
+
+  //send a provider
+  rpc GetProviderById (GetProviderByIdRequest) returns (GetProviderByIdResponse);
+
+  //Check org admin onboarding
+  rpc CheckOrgAdminOnboardingById (GetOrgAminIdReqest) returns (GetOrgAdminIdReponse);
+
+  // Check if questionnaire already answered
+  rpc CheckIfQuestionnaireAnsweredByAppointmentId (CheckIfQuestionnaireAnsweredByAppointmentIdRequest) returns (CheckIfQuestionnaireAnsweredByAppointmentIdResponse);
+
+  //
+  rpc CountTotalNumberOfUsersById (CountUerByIdRequest) returns (CountUerByIdResponse);
+
+   //
+  rpc GetAppointmentProfileByProviderId (GetAppointmentProfileByProviderIdRequest) returns (GetAppointmentProfileByProviderIdResponse);
+
+  //get practicename
+  rpc GetPracticeNameById (GetPracticeNameByIdRequest) returns (GetPracticeNameByIdResponse);
+  
+  rpc GetStaffByUserId (GetStaffRequest) returns (GetStaffResponse);
+  rpc GetStaffsByUserIds (GetStaffsByUserIdsRequest) returns (GetStaffsByUserIdsResponse);
+  rpc GetStaffsByIds (GetStaffsByIdsRequest) returns (GetStaffsByIdsResponse);
+
+  rpc GetDoctorByUserId (DoctorDataRequest) returns (DoctorDataResponse);
+  rpc GetDoctorsByIds (GetDoctorsByIdsRequest) returns (GetDoctorsByIdsResponse);
+
+  rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
+  rpc GetProviders(.Practice.GetProvidersRequest) returns (.Practice.GetProvidersResponse);
+  rpc GetProviderBaseInfos(.Practice.GetProvidersRequest) returns (GetProviderBaseInfosResponse);
+  rpc GetPractices (GetPracticesRequest) returns (GetPracticesResponse);
+  rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
+  rpc GetRooms (GetRoomsRequest) returns (GetRoomsResponse);
+
+  rpc GetLocationBasedOnAppointmentProfile(AppointmentProfileLocationRequest) returns (AppointmentProfileLocationResponse);
+  rpc DeactivateLocations(DeactivateLocationsRequest) returns(.Practice.DeactivateLocationsResponse);
+  
+  rpc UpdateCashierShiftBalance(UpdateCashierShiftBalanceRequest) returns(UpdateCashierShiftBalanceResponse);
+  rpc GetCashierShiftStatusByUserId(GetCashierShiftStatusRequest) returns(GetCashierShiftStatusResponse);
+  rpc GetCashierShiftOpenByUserId(GetCashierShiftOpenByUserIdRequest) returns(GetCashierShiftOpenByUserIdResponse);
+
+  rpc GetProviderPracticeEPrescriptionCredentials(GetProviderPracticeEPrescriptionCredentialsRequest) returns(GetProviderPracticeEPrescriptionCredentialsResponse);
+  rpc GetProviderPracticeEPrescriptionCredentialsList(GetProviderPracticeEPrescriptionCredentialsBatchRequest) returns(GetProviderPracticeEPrescriptionCredentialsBatchResponse);
+  rpc GetPracticeEClaimCredential(Id) returns(GetPracticeEClaimCredentialResponse);
+  rpc GetDoctorDistanceDetailsById (GetDoctorDistanceDetailsByIdRequest) returns (GetDoctorDistanceDetailsByIdResponse);
+  rpc GetAllEnabledEClaimCredentials(EmptyParameter) returns (GetAllEnabledEClaimCredentialsResponse);
+
+  rpc RemovePracticePatientDistance (RemovePracticePatientDistanceRequest) returns (RemovePracticePatientDistanceResponse);
+  rpc RemoveAppointmentProfilesByBillingProfileId(Id) returns(Boolean);
+
+  rpc GetPracticeTrnNumbersByIds(Ids) returns (TrnNumberResponse);
+  rpc GetPractitionerPresence (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
+  rpc GetPractitionerPresence2 (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
+
+  rpc GetAppointmentProfileDuration (GetAppointmentProfileDurationRequest) returns (GetAppointmentProfileDurationResponse);
+  
+  rpc GetPractitionerOverbookCalendarSettings (GetPractitionerOverbookCalendarSettingsRequest) 
+      returns (GetPractitionerOverbookCalendarSettingsResponse);
+
+  rpc UpdateRFVInAppoinmentProfile (Ids) returns (Ids);
+}
+
+message GetPractitionerOverbookCalendarSettingsRequest {
+  string  practitionerId = 1;
+  string  practiceId = 2;
+}
+message GetPractitionerOverbookCalendarSettingsResponse {
+  int32 maxOverBookingsPerSlot = 1;
+  int32 defaultCalendarIncrements = 2;
+  int32 availableSlotsToPatient = 3;
+  int32 availableSlotsToPractice = 4;
+}
+
+
+message GetAppointmentProfileDurationResponse {
+  int32  minutes = 1;
+}
+message GetAppointmentProfileDurationRequest{
+  string appointmentProfileId=1;
+}
+message GetPractitionerPresenceRequest{
+    string practitionerId =1;
+    string practiceId =2;
+    string from =3;
+    string to = 4;
+}
+
+message GetPractitionerPresenceResponse{
+    repeated DateTimePeriod value=1;
+}
+
+message DateTimePeriod
+{
+    string start = 1;
+    string end = 2;
+}
+
+message TrnNumber{
+    string id=1;
+    string number=2;
+}
+
+message TrnNumberResponse{
+    repeated TrnNumber value=1;
+}
+
+message Id{
+    string value=1;
+}
+
+message Ids{
+    repeated string value=1;
+}
+
+
+message Boolean{
+    bool value=1;
+}
+
+message GetPracticeEClaimCredentialResponse{
+    string password=1;
+    string userName=2;
+    string licenseNumber=3;
+    string organizationId=4;
+}
+
+message GetAllEnabledEClaimCredentialsResponse{
+    repeated GetPracticeEClaimCredentialResponse value=1;
+}
+
+message EmptyParameter {}
+
+message ExtendUserDto{
+    string id=1;
+    string firstName=2;
+    string lastName=3;
+    string middleName=4;
+    string photo=5;
+    string organizationid=6;
+}
+
+message GetProviderBaseInfosResponse{
+    repeated ExtendUserDto providers=1;
+}
+
+message RemovePracticePatientDistanceRequest{
+    string id=1;
+    string type=2;
+}
+message RemovePracticePatientDistanceResponse{
+    bool status=1;
+}
+
+message GetProviderPracticeEPrescriptionCredentialsRequest{
+  string providerId = 1;
+  string practiceId = 2;
+}
+
+message GetProviderPracticeEPrescriptionCredentialsBatchRequest{
+  repeated GetProviderPracticeEPrescriptionCredentialsRequest request =1;
+}
+
+message GetProviderPracticeEPrescriptionCredentialsResponse{
+  string providerId = 1;
+  string practiceId = 2;
+  string facilityLogin = 3;
+  string facilityPwd = 4;
+  string clinicianLogin = 5;
+  string clinicianPwd = 6;
+  string licenseNumber = 7;
+  string practiceLicenseAuthority=8;
+}
+
+message GetProviderPracticeEPrescriptionCredentialsBatchResponse{
+  repeated GetProviderPracticeEPrescriptionCredentialsResponse result =1;
+}
+
+message AppointmentProfileLocationRequest{
+    string appointmentProfileId=1;
+}
+
+message AppointmentProfileLocationResponse{
+    string locationId=1;
+}
+
+message CheckPracticeAndProviderProfileRequest{
+    string practitionerId =1;
+    string practiceId =2;
+    google.protobuf.Timestamp start = 3;
+}
+
+message CheckPracticeAndProviderProfileResponse{
+    bool practiceOff=1;
+    bool providerOff=2;
+    bool working=3;
+}
+
+message GetAppointmentProfileByProviderIdRequest{
+    string providerId=1;
+}
+
+
+message GetAppointmentProfileByProviderIdResponse{
+    repeated ApppintmentProfileProviderIdResponse listOfProfiles=1;
+}
+
+message ApppintmentProfileProviderIdResponse{
+    string practiceId=1;
+    string appointmentProfileId=2;
+}
+
+
+message CountUerByIdRequest{
+    string id=1;
+}
+
+
+message CountUerByIdResponse{
+    int32 totalUser=1;
+}
+
+
+// The request message containing the room id.
+message GetRoomByIdRequest {
+  string id = 1;
+}
+
+// The response message containing the room.
+message GetRoomByIdResponse {
+  string id = 1;
+  string name = 2;
+}
+
+// The request message containing the practice id.
+message GetPracticeByIdRequest{
+    string id=1;
+}
+
+// The response message containing the practice(location).
+message GetPracticeByIdResponse{
+    string id= 1;
+    string name = 2;
+    string phone = 3;
+    string address = 4;
+    string country = 5;
+    string city = 6;
+    string office = 7;
+    string faxNumber = 8;
+    string photo=9;
+    string latitude=10;
+    string longitude=11;
+    string nabidhAssigningAuthority = 12;
+    string licenseNumber = 13;
+    string licenseAuthority = 14;
+    string organizationId = 15;
+}
+
+// The request message containing the provider id.
+message GetProviderByIdRequest{
+    string id=1;
+}
+
+// The response message containing the provider.
+message GetProviderByIdResponse{
+    string id=1;
+    string name=2;
+    string photo=3;
+    string speciality=4;
+    string timeZone = 5;
+    string organizationId=6;
+    string phoneNo=7;
+    string firstName=8;
+    string lastName=9;
+    string userId=10;
+}
+
+message CheckIfQuestionnaireAnsweredByAppointmentIdRequest {
+    string appointmentId = 1;
+    string questionnaireId =2;
+
+}
+
+message CheckIfQuestionnaireAnsweredByAppointmentIdResponse{
+    bool answered = 1;
+    string questionnaireId =2;
+}
+
+message GetOrgAminIdReqest{
+    string id=1;
+}
+
+message GetOrgAdminIdReponse{
+    bool isOnboarding=1;
+}
+
+// The request message containing the practice id.
+message GetPracticeNameByIdRequest{
+    string id=1;
+}
+
+// The response message containing the practice name
+message GetPracticeNameByIdResponse{
+    string practiceName = 1;    
+}
+message GetStaffRequest{
+    string UserId=1;
+}
+
+message GetStaffResponse{
+        string Id=1;
+        bool Status=2;
+        string OrganizationId=3;
+        string PracticeId=4;
+        string PractitonerId=5;      
+        string ImageURL=6;
+}
+message DoctorDataRequest{
+        string UserId=1;
+}
+
+
+message DoctorDataResponse{
+        string Id =1;
+        string PracticeId =2;
+        string OrganizationId =3;
+        bool Status =4;
+        bool IsOnboarded =5;
+        string ImageURL =6;      
+        SpecialityResponse Speciality =7;
+}
+
+message SpecialityResponse{
+            string specialitySkillId=1;
+            PracticeValueSetResponse PracticeValueSetResponse=2;
+}
+
+message PracticeValueSetResponse{
+        string code =1;
+        string displayName=2;
+        string System =3;
+    }
+message GetProvidersRequest{	
+	repeated string providerIds=1;
+}
+message GetProvidersResponse{
+	repeated GetProviderByIdResponse providers=1;
+}
+message GetPracticesRequest{	
+	repeated string practiceIds=1;
+}
+message GetPracticesResponse{
+	repeated GetPracticeByIdResponse practices=1;
+}
+message GetRoomsRequest {
+	string roomIds = 1;
+}
+message GetRoomsResponse {
+	repeated GetRoomByIdResponse rooms=1;
+}
+message DeactivateLocationsRequest{
+    string locations=1;
+    string OrganizationId=2;
+}
+message DeactivateLocationsResponse{
+ bool result=1;
+}
+
+message UpdateCashierShiftBalanceRequest{
+        string CashierShiftId=1;
+        string PaymentType=2;
+        string PaymentStatus=3;
+        string Value=4;
+        string UserId=5;
+}
+
+message UpdateCashierShiftBalanceResponse {
+  string Status = 1;
+}
+
+message GetCashierShiftStatusRequest{
+        string Id=1;
+}
+message GetCashierShiftStatusResponse {
+  string Status = 1;
+}
+
+message DoctorForPayment {
+    string Id =1;
+    string Name = 2;
+    string ImageURL = 3;
+}
+message GetDoctorsByIdsRequest {
+    repeated string Ids = 1;
+}
+message GetDoctorsByIdsResponse {
+    repeated DoctorForPayment Doctors=1;
+}
+
+message PracticeForPayment {
+    string Id =1;
+    string Name = 2;
+    string ImageURL = 3;
+}
+message GetPracticesByIdsRequest {
+	repeated string Ids = 1;
+}
+
+message GetPracticesByIdsResponse
+{
+	repeated PracticeForPayment Practices =1;
+}
+
+message GetCashierShiftOpenByUserIdRequest{
+     string Id =1;
+}
+message GetCashierShiftOpenByUserIdResponse {
+    string Id =1;
+}
+
+message StaffForInvoiceClaim {
+    string Id =1;
+    string Name = 2;
+    string ImageURL = 3;
+    string OrganizationId = 4;
+    string Timezone = 5;
+    string StaffId = 6;
+}
+message GetStaffsByUserIdsRequest {
+    repeated string Ids = 1;
+}
+message GetStaffsByIdsRequest {
+    repeated string Ids = 1;
+}
+message GetStaffsByUserIdsResponse {
+    repeated StaffForInvoiceClaim Staffs=1;
+}
+message GetStaffsByIdsResponse {
+    repeated StaffForInvoiceClaim Staffs=1;
+}
+message GetDoctorDistanceDetailsByIdRequest{
+    string id=1;
+}
+message GetDoctorDistanceDetailsByIdResponse{
+    string MaxDistance=1;
+    string latitude=2;
+    string longitude=3;
+}

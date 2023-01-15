@@ -1,11 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+		<PackageReference Update="Roslynator.Analyzers" Version="4.2.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="Protos\AppointmentManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\BillingManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\IdentityManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\MasterManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\PatientManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\PracticeManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\ProviderManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\OrganizationManagement.proto" GrpcServices="Client" />
+	</ItemGroup>
 
 </Project>

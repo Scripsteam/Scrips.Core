@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option csharp_namespace ="GrpcProviderManagement";
+
+package Provider;
+
+service ProviderManagement{
+  //get the provider reason for visit for appointment
+  rpc GetProviderRFV (GetProviderRFVRequest) returns (GetProviderRFVResponse);
+  rpc GetProviderRFVs (GetProviderRFVsRequest) returns (GetProviderRFVsResponse);
+  rpc GetPractitionerLicenceNo (GetPractitionerLicenceNoRequest) returns (GetPractitionerLicenceNoResponse);
+  rpc GetPractitionerLicenceNoByIds (GetPractitionerLicenceNoByIdsRequest) returns (GetPractitionerLicenceNoByIdsResponse);
+  rpc GetSpecialityNameByIds (Ids) returns (SpecialityNamesResponse);
+}
+
+message Ids
+{
+	repeated string values=1;
+}
+
+message SpecialityName
+{
+	string id = 1;
+	string name = 2;
+}
+
+message SpecialityNamesResponse
+{
+	repeated SpecialityName values=1;
+}
+
+message CheckProviderOnboardingUserIdRequest{
+    string id=1;
+}
+
+message CheckProviderOnboardingUserIdResponse{
+    bool isOnboarding=1;
+}
+
+message GetProviderRFVRequest{
+ string code=1;
+}
+message GetProviderRFVResponse{
+ string code=1;
+ string display=2;
+ string definition=3;
+ string id=4;
+}
+message GetProviderRFVsRequest{
+	repeated string codes=1;
+}
+message GetProviderRFVsResponse{
+	repeated GetProviderRFVResponse providerRFVList=1;
+}
+message GetPractitionerLicenceNoRequest{
+	string providerId=1;
+}
+message GetPractitionerLicenceNoResponse{
+	string licenceNo=1;
+	string licenceAuthorityId=2;
+}
+
+message GetPractitionerLicenceNoByIdsRequest{
+	repeated string providerIds=1;
+}
+message GetPractitionerLicenceNoByIdResponse{
+	string providerId=1;
+	string licenceNo=2;
+}
+message GetPractitionerLicenceNoByIdsResponse{
+	repeated GetPractitionerLicenceNoByIdResponse providers=1;
+}
