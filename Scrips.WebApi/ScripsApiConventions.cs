@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Scrips.Infrastructure.Middleware;
 
+namespace Scrips.WebApi;
 public static class ScripsApiConventions
 {
     [ProducesResponseType(200)]
