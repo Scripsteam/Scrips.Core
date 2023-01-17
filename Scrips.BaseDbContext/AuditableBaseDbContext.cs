@@ -4,59 +4,58 @@ using Microsoft.EntityFrameworkCore;
 using Scrips.Core.Models.Audit;
 using Serilog;
 
-namespace Scrips.BaseDbContext
+namespace Scrips.BaseDbContext;
+
+public class AuditableBaseDbContext : DbContext
 {
-    public class AuditableBaseDbContext : DbContext
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly DaprClient _daprClient;
+
+    public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly DaprClient _daprClient;
+        _httpContextAccessor = httpContextAccessor;
+        _daprClient = daprClient;
+    }
 
-        public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
         {
-            _httpContextAccessor = httpContextAccessor;
-            _daprClient = daprClient;
+            var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (changes != null && changes.Any())
+            {
+                await SaveAudit(changes);
+            }
         }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        catch (Exception ex)
         {
-            try
-            {
-                var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
-                if (changes != null && changes.Any())
-                {
-                    await SaveAudit(changes);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-            }
-            return await base.SaveChangesAsync(cancellationToken);
+            Log.Error(ex.Message);
         }
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 
-        public override int SaveChanges()
+    public override int SaveChanges()
+    {
+        try
         {
-            try
+            var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (changes != null && changes.Any())
             {
-                var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
-                if (changes != null && changes.Any())
-                {
-                    _ = SaveAudit(changes).Result;
-                }
+                _ = SaveAudit(changes).Result;
             }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message);
-            }
-            return base.SaveChanges();
         }
-
-        private async Task<bool> SaveAudit(List<LogAudit> changes)
+        catch (Exception ex)
         {
-
-            if (await _daprClient.CheckHealthAsync())
-                await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
-            return true;
+            Log.Error(ex.Message);
         }
+        return base.SaveChanges();
+    }
+
+    private async Task<bool> SaveAudit(List<LogAudit> changes)
+    {
+
+        if (await _daprClient.CheckHealthAsync())
+            await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
+        return true;
     }
 }

@@ -28,7 +28,7 @@ service PracticeManagement {
    //
   rpc GetAppointmentProfileByProviderId (GetAppointmentProfileByProviderIdRequest) returns (GetAppointmentProfileByProviderIdResponse);
 
-  //get practicename
+  //get practice name
   rpc GetPracticeNameById (GetPracticeNameByIdRequest) returns (GetPracticeNameByIdResponse);
   
   rpc GetStaffByUserId (GetStaffRequest) returns (GetStaffResponse);
