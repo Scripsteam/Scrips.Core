@@ -1,4 +1,4 @@
-﻿namespace Scrips.Core.Models.EmirateId;
+﻿namespace Scrips.Core.Models.Identity;
 
 public class EmiratesIdCardData
 {
