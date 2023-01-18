@@ -22,4 +22,9 @@ public interface ISchedulingApi
 
     [Get("/api/Appointment/GetById/{id}")]
     Task<AppointmentResponse> AppointmentGetById(Guid id, [Header("Authorization")] string auth);
+
+    [Post("/api/Appointment")]
+    Task<AppointmentsDetailsResponse> GetAppointment([Body] AppointmentsRequest appointmentRequest,
+                                                        [Header("Authorization")] string auth,
+                                                        [Header("OrganizationID")] Guid organizationId);
 }
