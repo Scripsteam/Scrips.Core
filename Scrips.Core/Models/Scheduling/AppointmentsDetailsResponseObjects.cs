@@ -264,6 +264,8 @@ public class BlockAppointmentRequest
     /// this property is merged from the endTime
     /// </summary>
     public DateTime EndDate { get; set; }
+    
+    
 
 }
 
