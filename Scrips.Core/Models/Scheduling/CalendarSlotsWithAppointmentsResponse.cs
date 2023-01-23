@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Scrips.Core.Models.Scheduling
+namespace Scrips.Core.Models.Scheduling;
+
+public class CalendarSlotsWithAppointmentsResponse
 {
-    public class CalendarSlotsWithAppointmentsResponse
-    {
-        public List<ProviderSearchResponse> CalendarSlotsResponse { get; set; }
-        public AppointmentsDetailsResponse AppointmentResponse { get; set; }
-    }
+    public List<ProviderSearchResponse> CalendarSlotsResponse { get; set; }
+    public AppointmentsDetailsResponse AppointmentResponse { get; set; }
 }

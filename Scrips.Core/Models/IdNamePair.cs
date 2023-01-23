@@ -1,11 +1,10 @@
 using System;
 
-namespace Scrips.Core.Models
-{
-    public class IdNamePair
-    {
-        public Guid Id { get; set; }
+namespace Scrips.Core.Models;
 
-        public string? Name { get; set; }
-    }
+public class IdNamePair
+{
+    public Guid Id { get; set; }
+
+    public string? Name { get; set; }
 }

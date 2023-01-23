@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Scrips.Core.Models.Identity
+namespace Scrips.Core.Models.Identity;
+
+public class GetUserDetailsRequest
 {
-    public class GetUserDetailsRequest
-    {
-        public List<Guid> UserIdList { get; set; }
-    }
+    public List<Guid> UserIdList { get; set; }
 }
