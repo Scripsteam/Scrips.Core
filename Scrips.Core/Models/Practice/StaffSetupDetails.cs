@@ -17,11 +17,11 @@ public class StaffSetupDetails
 
     public DateTime? IsLastLogin { get; set; }
 
-    public List<Practice> PracticeList { get; set; }
+    public List<PracticeWrapper> PracticeList { get; set; }
     public string PracticeName { get; set; }
 }
 
-public class Practice
+public class PracticeWrapper
 {
     public string PracticeName { get; set; }
 }
