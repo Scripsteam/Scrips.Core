@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "Scrips.Core.GrpcApiClients";
 import "google/protobuf/timestamp.proto";
-import "common.proto";
+import "Common.proto";
 
 package Practice;
 
