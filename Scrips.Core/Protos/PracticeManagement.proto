@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcPracticeManagement";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 package Practice;
 
@@ -23,7 +24,7 @@ service PracticeManagement {
   rpc CheckIfQuestionnaireAnsweredByAppointmentId (CheckIfQuestionnaireAnsweredByAppointmentIdRequest) returns (CheckIfQuestionnaireAnsweredByAppointmentIdResponse);
 
   //
-  rpc CountTotalNumberOfUsersById (CountUerByIdRequest) returns (CountUerByIdResponse);
+  rpc CountTotalNumberOfUsersById (Common.CountUserByIdRequest) returns (Common.CountUserByIdResponse);
 
    //
   rpc GetAppointmentProfileByProviderId (GetAppointmentProfileByProviderIdRequest) returns (GetAppointmentProfileByProviderIdResponse);
@@ -54,14 +55,14 @@ service PracticeManagement {
 
   rpc GetProviderPracticeEPrescriptionCredentials(GetProviderPracticeEPrescriptionCredentialsRequest) returns(GetProviderPracticeEPrescriptionCredentialsResponse);
   rpc GetProviderPracticeEPrescriptionCredentialsList(GetProviderPracticeEPrescriptionCredentialsBatchRequest) returns(GetProviderPracticeEPrescriptionCredentialsBatchResponse);
-  rpc GetPracticeEClaimCredential(Id) returns(GetPracticeEClaimCredentialResponse);
+  rpc GetPracticeEClaimCredential(Common.Id) returns(GetPracticeEClaimCredentialResponse);
   rpc GetDoctorDistanceDetailsById (GetDoctorDistanceDetailsByIdRequest) returns (GetDoctorDistanceDetailsByIdResponse);
   rpc GetAllEnabledEClaimCredentials(EmptyParameter) returns (GetAllEnabledEClaimCredentialsResponse);
 
   rpc RemovePracticePatientDistance (RemovePracticePatientDistanceRequest) returns (RemovePracticePatientDistanceResponse);
-  rpc RemoveAppointmentProfilesByBillingProfileId(Id) returns(Boolean);
+  rpc RemoveAppointmentProfilesByBillingProfileId(Common.Id) returns(Boolean);
 
-  rpc GetPracticeTrnNumbersByIds(Ids) returns (TrnNumberResponse);
+  rpc GetPracticeTrnNumbersByIds(Common.Ids) returns (TrnNumberResponse);
   rpc GetPractitionerPresence (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
   rpc GetPractitionerPresence2 (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
 
@@ -70,7 +71,7 @@ service PracticeManagement {
   rpc GetPractitionerOverbookCalendarSettings (GetPractitionerOverbookCalendarSettingsRequest) 
       returns (GetPractitionerOverbookCalendarSettingsResponse);
 
-  rpc UpdateRFVInAppoinmentProfile (Ids) returns (Ids);
+  rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
 }
 
 message GetPractitionerOverbookCalendarSettingsRequest {
@@ -116,15 +117,6 @@ message TrnNumber{
 message TrnNumberResponse{
     repeated TrnNumber value=1;
 }
-
-message Id{
-    string value=1;
-}
-
-message Ids{
-    repeated string value=1;
-}
-
 
 message Boolean{
     bool value=1;
@@ -221,17 +213,6 @@ message ApppintmentProfileProviderIdResponse{
     string practiceId=1;
     string appointmentProfileId=2;
 }
-
-
-message CountUerByIdRequest{
-    string id=1;
-}
-
-
-message CountUerByIdResponse{
-    int32 totalUser=1;
-}
-
 
 // The request message containing the room id.
 message GetRoomByIdRequest {

@@ -1,0 +1,19 @@
+syntax = "proto3";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
+package Common;
+
+message CountUserByIdRequest{
+  string id=1;
+}
+
+message CountUserByIdResponse{
+  int32 totalUser=1;
+}
+
+message Id{
+  string value=1;
+}
+
+message Ids{
+  repeated string value=1;
+}

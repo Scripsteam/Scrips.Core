@@ -1,10 +1,11 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcAppointmentManagement";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
 
 package Appointment;
 
 import "google/protobuf/timestamp.proto";
+import "Common.proto";
 
 // The practice service definition.
 service AppointmentManagement {  

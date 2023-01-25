@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcIdentityManagement";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
 
 package Identity;
 

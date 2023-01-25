@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "GrpcBillingManagement";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
 
 package Billing;
 

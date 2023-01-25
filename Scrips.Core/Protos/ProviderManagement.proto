@@ -1,7 +1,6 @@
 syntax = "proto3";
-
-option csharp_namespace ="GrpcProviderManagement";
-
+option csharp_namespace ="Scrips.Core.GrpcApiClients";
+import "Common.proto";
 package Provider;
 
 service ProviderManagement{
@@ -10,12 +9,7 @@ service ProviderManagement{
   rpc GetProviderRFVs (GetProviderRFVsRequest) returns (GetProviderRFVsResponse);
   rpc GetPractitionerLicenceNo (GetPractitionerLicenceNoRequest) returns (GetPractitionerLicenceNoResponse);
   rpc GetPractitionerLicenceNoByIds (GetPractitionerLicenceNoByIdsRequest) returns (GetPractitionerLicenceNoByIdsResponse);
-  rpc GetSpecialityNameByIds (Ids) returns (SpecialityNamesResponse);
-}
-
-message Ids
-{
-	repeated string values=1;
+  rpc GetSpecialityNameByIds (Common.Ids) returns (SpecialityNamesResponse);
 }
 
 message SpecialityName

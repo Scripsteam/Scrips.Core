@@ -1,7 +1,6 @@
 syntax = "proto3";
-
-
-option csharp_namespace = "GrpcPatientManagement";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
+import "Common.proto";
 
 package Patient;
 
@@ -29,7 +28,7 @@ service PatientManagement {
   rpc GetPatientFlagById (GetPatientFlagByIdRequest) returns (GetPatientFlagListByIdResponse);
 
   //
-  rpc CountTotalNumberOfUsersById (CountUerByIdRequest) returns (CountUerByIdResponse);
+  rpc CountTotalNumberOfUsersById (Common.CountUserByIdRequest) returns (Common.CountUserByIdResponse);
 
   //
   rpc GetAllergyList (GetAllergyListRequest) returns (GetAllergyListResponse);
@@ -55,7 +54,7 @@ service PatientManagement {
    //Get patient coordinates by ResidentialAddressId
   rpc GetPatientCoordinatesByResidentialAddressId (GetPatientCoordinatesByResidentialAddressIdRequest) returns (GetPatientCoordinatesByResidentialAddressIdResponce);
 
-  rpc IsEncounterCreated(Id) returns (Bool);
+  rpc IsEncounterCreated(Common.Id) returns (Bool);
   rpc GetVitalsDetialsByEncounter(GetVitalsDetialsByEncounterRequest) returns (GetVitalsDetialsByEncounterResponse);
   rpc GetSocialHistoryByPatientId(GetSocialHistoryByPatientIdRequest) returns (GetSocialHistoryByPatientIdResponse);
   rpc GetPatientAllergyList(GetPatientAllergyListRequest) returns (GetPatientAllergyListResponse);
@@ -490,9 +489,6 @@ message QuantityCode{
     string unit = 4;
 }
 
-message Id{
-    string value=1;
-}
 message Bool{
     bool value=1;
 }
@@ -509,15 +505,6 @@ message AllergyResponse{
     string code=1;
     string display=2;
     string system=3;
-}
-
-message CountUerByIdRequest{
-    string id=1;
-}
-
-
-message CountUerByIdResponse{
-    int32 totalUser=1;
 }
 
 message GetPatientFlagByIdRequest{
