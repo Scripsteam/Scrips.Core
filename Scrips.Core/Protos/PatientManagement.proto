@@ -55,6 +55,7 @@ service PatientManagement {
   rpc GetPatientCoordinatesByResidentialAddressId (GetPatientCoordinatesByResidentialAddressIdRequest) returns (GetPatientCoordinatesByResidentialAddressIdResponce);
 
   rpc IsEncounterCreated(Common.Id) returns (Bool);
+  rpc IsEncounterCreatedAndStarted(Common.Id) returns (Bool);
   rpc GetVitalsDetialsByEncounter(GetVitalsDetialsByEncounterRequest) returns (GetVitalsDetialsByEncounterResponse);
   rpc GetSocialHistoryByPatientId(GetSocialHistoryByPatientIdRequest) returns (GetSocialHistoryByPatientIdResponse);
   rpc GetPatientAllergyList(GetPatientAllergyListRequest) returns (GetPatientAllergyListResponse);
