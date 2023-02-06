@@ -1,7 +1,5 @@
 ﻿using Scrips.Core.Models.Patient;
 using Scrips.Core.Models.Practice;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Scrips.Core.Models.Scheduling;
@@ -46,7 +44,7 @@ public class AppointmentsDetailsResponse
     public ICollection<BlockAppointmentRequest> BlockAppointment { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public AppointmentsDetailsResponseFacets Facets { get; set; }
 }
@@ -248,7 +246,7 @@ public class BlockAppointmentRequest
     public bool UnBlock { get; set; }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public SlotResponse Slot { get; set; }
 
@@ -260,8 +258,8 @@ public class BlockAppointmentRequest
     /// this property is merged from the endTime
     /// </summary>
     public DateTime EndDate { get; set; }
-    
-    
+
+
 
 }
 

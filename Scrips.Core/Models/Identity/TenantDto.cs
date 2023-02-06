@@ -1,5 +1,3 @@
-using System;
-
 namespace Scrips.Core.Models.Identity;
 
 public class TenantDto

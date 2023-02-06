@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Refit;
+﻿using Refit;
 using Scrips.Core.Models.Patient;
 
 namespace Scrips.Core.HttpApiClients;
@@ -12,10 +9,13 @@ public interface IPatientApi
     Task<EditPatientResponse> Get(Guid id, [Header("Authorization")] string auth);
 
     [Get("/api/Patients/PatientAddressList")]
-    Task<List<PatientAddressListResponse>> PatientAddressList([Query] Guid patientId,
+    Task<List<PatientAddressListResponse>> PatientAddressList(
+        [Query] Guid patientId,
         [Header("Authorization")] string authorization);
 
     [Get("/api/Patients/{patientId}/HealthInsurance/{companyCode}")]
-    Task<ApiResponse<HealthInsuranceResponse>> PatientHealthInsuranceByPatientIdForCompanyCode(Guid patientId, string? companyCode, 
+    Task<ApiResponse<HealthInsuranceResponse>> PatientHealthInsuranceByPatientIdForCompanyCode(
+        Guid patientId,
+        string? companyCode,
         [Header("Authorization")] string authorization);
 }

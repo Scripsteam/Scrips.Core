@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Scrips.Core.Models.Billing;
 
 public class BillingProfileDto

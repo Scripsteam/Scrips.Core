@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Scrips.Core.Models.Patient;
+﻿using Scrips.Core.Models.Patient;
 using Scrips.Core.Models.Practice;
 
 namespace Scrips.Core.Models.Scheduling;

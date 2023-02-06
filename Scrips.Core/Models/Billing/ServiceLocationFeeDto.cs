@@ -1,4 +1,3 @@
-using System;
 using Scrips.Core.Models.Practice;
 
 namespace Scrips.Core.Models.Billing;

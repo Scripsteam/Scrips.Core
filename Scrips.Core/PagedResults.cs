@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Scrips.Core;
+﻿namespace Scrips.Core;
 
 public class PagedResults<T>
 {

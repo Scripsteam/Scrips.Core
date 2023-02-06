@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Scrips.Core.Models.Scheduling;
+﻿using Scrips.Core.Models.Scheduling;
 
 namespace Scrips.Core.Models.Billing;
 

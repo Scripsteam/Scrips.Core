@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Scrips.Core.Models.Organization;
+﻿namespace Scrips.Core.Models.Organization;
 
 public class OrganizationSettingsDto
 {
