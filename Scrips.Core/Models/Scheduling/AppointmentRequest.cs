@@ -1,7 +1,5 @@
 ﻿using Scrips.Core.Models.Patient;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System;
 
 namespace Scrips.Core.Models.Scheduling;
 

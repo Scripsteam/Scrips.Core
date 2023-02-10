@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Practice;
+﻿namespace Scrips.Core.Models.Practice;
 
 public class PracticeWorkingHoursDetailsModel
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Scrips.Core.Models.Identity;
+﻿namespace Scrips.Core.Models.Identity;
 
 public class GetUserDetailsRequest
 {

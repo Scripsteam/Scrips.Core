@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Organization;
+﻿namespace Scrips.Core.Models.Organization;
 
 public class OrganizationDto
 {

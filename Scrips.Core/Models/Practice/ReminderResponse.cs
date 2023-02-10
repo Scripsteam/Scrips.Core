@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Scrips.Core.Models.Practice;
 
 public class ReminderResponse

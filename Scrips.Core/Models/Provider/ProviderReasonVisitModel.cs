@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Provider;
+﻿namespace Scrips.Core.Models.Provider;
 
 public class ProviderReasonVisitModel
 {
@@ -15,7 +13,7 @@ public class ProviderReasonCodeModel
 {
     /// <summary>
     /// provider id is used as Code id
-    /// </summary>        
+    /// </summary>
     public string Code { get; set; }
 
     /// <summary>
@@ -24,7 +22,7 @@ public class ProviderReasonCodeModel
     public string Definition { get; set; }
 
     /// <summary>
-    /// 
-    /// </summary>     
+    ///
+    /// </summary>
     public string Display { get; set; }
 }

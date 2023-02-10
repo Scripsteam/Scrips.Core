@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Practice.Aggregator.Models.Practice;
-
 namespace Scrips.Core.Models.Billing;
 
 public class BillingProfileDto

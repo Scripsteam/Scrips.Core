@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Patient;
+﻿namespace Scrips.Core.Models.Patient;
 
 public class PatientCorporateResponse
 {

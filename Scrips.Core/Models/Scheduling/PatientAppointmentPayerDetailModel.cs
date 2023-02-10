@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Scrips.Core.Models.Scheduling;
+﻿namespace Scrips.Core.Models.Scheduling;
 
 /// <summary>
 ///
