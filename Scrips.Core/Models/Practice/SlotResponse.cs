@@ -51,6 +51,7 @@ public class SlotResponse
     public string PracticeName { get; set; }
 }
 
+/// <summary>
 /// The coded reason that this appointment is being scheduled. This is more clinical than administrative.
 /// </summary>
 public class SlotStatus
