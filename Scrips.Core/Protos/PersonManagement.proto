@@ -1,0 +1,31 @@
+syntax = "proto3";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
+import "Common.proto";
+
+package Person;
+
+service PersonManagment{
+// Get patient by userID
+rpc GetPatientByUserId (GetPatientByUserIdRequest) returns (GetPatientByUserIdResponse);
+rpc GetPersonByUserId (GetPersonByUserIdRequest) returns (GetPersonByUserIdResponse);
+}
+
+message GetPatientByUserIdRequest{
+	string userId=1;
+}
+
+message GetPatientByUserIdResponse{
+	string organizationId=1;
+	string practiceId=2;
+}
+
+message GetPersonByUserIdRequest{
+	string userId=1;
+}
+message GetPersonByUserIdResponse{
+	string organizationId=1;
+	string practiceId=2;
+	string patientId=3;
+	string organizationName=4;
+	string ImageURL=5;
+}
