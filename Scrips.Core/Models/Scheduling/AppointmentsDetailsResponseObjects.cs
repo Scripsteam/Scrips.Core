@@ -69,7 +69,7 @@ public class ListAppointmentResponse : ListAppointmentResponseBase
     public bool IsBlock { get; set; }
 
     /// <summary>
-    ///     Practice Id
+    ///     Practice Id.
     /// </summary>
     public PracticeResponse Practice { get; set; }
 

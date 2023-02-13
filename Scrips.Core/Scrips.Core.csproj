@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -19,6 +19,7 @@
 		<Protobuf Include="Protos\IdentityManagement.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\MasterManagement.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\PatientManagement.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\PersonManagement.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\PracticeManagement.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\ProviderManagement.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\OrganizationManagement.proto" GrpcServices="Client" />
