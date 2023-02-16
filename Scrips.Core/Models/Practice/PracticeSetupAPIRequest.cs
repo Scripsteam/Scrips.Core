@@ -4,7 +4,7 @@ namespace Scrips.Core.Models.Practice;
 
 public class PracticeSetupApiRequest
 {
-
+    public Guid PracticeProfileId { get; set; }
     //profile info
     [Required]
     public Guid OrganizationId { get; set; }
