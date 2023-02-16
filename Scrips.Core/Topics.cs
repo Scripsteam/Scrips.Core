@@ -9,4 +9,6 @@ public static class Topics
     public const string OrganizationCreated = nameof(OrganizationCreated);
 
     public const string PracticeCreated = nameof(PracticeCreated);
+
+    public const string PracticeUpdated = nameof(PracticeUpdated);
 }
