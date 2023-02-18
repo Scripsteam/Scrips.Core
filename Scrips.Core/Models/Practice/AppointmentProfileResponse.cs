@@ -1,53 +1,52 @@
 ﻿namespace Scrips.Core.Models.Practice;
 
 /// <summary>
-///
+/// Appointment profile response.
 /// </summary>
 public class AppointmentProfileResponse
 {
     /// <summary>
     /// Appointment profile id.
     /// </summary>
-
     public Guid? Id { get; set; }
 
     /// <summary>
-    /// Organization Id
+    /// Organization Id.
     /// </summary>
     public Guid? OrganizationId { get; set; }
 
     /// <summary>
-    /// PractionerId Id
+    /// PractitionerId Id.
     /// </summary>
     public Guid PractionerId { get; set; }
+
     /// <summary>
-    /// PracticeId
+    /// PracticeId.
     /// </summary>
     public Guid PracticeId { get; set; }
 
     /// <summary>
-    /// appoinement profile name
+    /// Appointment profile name.
     /// </summary>
     public string ProfileName { get; set; }
 
     /// <summary>
-    /// Office | Home | Video
+    /// Office | Home | Video.
     /// </summary>
     public LocationModel Location { get; set; }
 
     /// <summary>
-    /// Can be less than start/end (e.g. estimate)
+    /// Can be less than start/end (e.g. estimate).
     /// </summary>
     public int? MinutesDuration { get; set; }
 
     /// <summary>
-    ///
+    /// Color of the appointment.
     /// </summary>
     public string Color { get; set; }
 
-
     /// <summary>
-    /// Coded reason this appointment is scheduled
+    /// Coded reason this appointment is scheduled.
     /// </summary>
     public ReasonCode ReasonCode { get; set; }
 
@@ -66,47 +65,28 @@ public class AppointmentProfileResponse
     /// </summary>
     public Guid? BillingProfileId { get; set; }
 
-    public BillingProfileDto BillingProfile { get; set; }
     /// <summary>
-    ///
+    /// Billing profile.
+    /// </summary>
+    public BillingProfileDto BillingProfile { get; set; }
+
+    /// <summary>
+    /// Id of the appointment type.
     /// </summary>
     public bool InAppBooking { get; set; }
 
     /// <summary>
-    ///
+    /// is default profile.
     /// </summary>
     public bool IsDefault { get; set; }
 
     /// <summary>
-    ///
+    /// is updated profile.
     /// </summary>
     public bool IsUpdated { get; set; }
 
     /// <summary>
-    ///
+    /// is preferred profile.
     /// </summary>
     public bool? IsPreferred { get; set; }
-
-
-}
-
-public class AppointmentProfileResponseList
-{
-    public AppointmentProfileResponseList()
-    {
-        CreateAppointmentProfileRequest = new List<AppointmentProfileResponse>();
-        IsDeleted = new List<Guid>();
-    }
-
-    public IList<AppointmentProfileResponse> CreateAppointmentProfileRequest { get; set; }
-    public IList<Guid> IsDeleted { get; set; }
-}
-
-public class AppointmentProfileModel
-{
-    public string ProfileName { get; set; }
-    public string Location { get; set; }
-    public string Color { get; set; }
-    public string AppointmentTypeId { get; set; }
-    public int Duration { get; set; }
 }

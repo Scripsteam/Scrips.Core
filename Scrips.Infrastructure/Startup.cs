@@ -1,11 +1,9 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrips.Infrastructure.Auth;
 using Scrips.Infrastructure.Persistence;
-using System.Reflection;
 
 namespace Scrips.Infrastructure;
 
@@ -23,16 +21,18 @@ public static class Startup
                 // .AddExceptionMiddleware()
                 // .AddHealthCheck()
                 .AddLocalization()
+
                 // .AddMailing(config)
-                //.AddMediatR(Assembly.GetExecutingAssembly())
                 .AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()); })
+
                 // .AddMultitenancy(config)
                 // .AddNotifications(config)
                 // .AddOpenApiDocumentation(config)
                 .AddPersistence(config)
-            // .AddRequestLogging(config)
-            //.AddRouting(options => options.LowercaseUrls = true)
-            // .AddServices()
+
+                // .AddRequestLogging(config)
+                // .AddRouting(options => options.LowercaseUrls = true)
+                // .AddServices()
             ;
     }
 

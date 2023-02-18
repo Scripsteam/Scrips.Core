@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Scrips.Core.Models.Organization;
+﻿namespace Scrips.Core.Models.Organization;
 
 public class OrganizationV1Dto
 {
@@ -30,5 +23,4 @@ public class OrganizationV1Dto
     public string NameArabic { get; set; }
     public string Jurisdiction { get; set; }
     public Guid? OwnerId { get; set; }
-
 }
