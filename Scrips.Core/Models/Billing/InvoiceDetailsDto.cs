@@ -36,26 +36,3 @@ public class InvoiceDetailsDto
     public string BillingGroupCategory { get; set; }
     public bool? IsIndividualAdded { get; set; }
 }
-public class InvoiceLineItemDxPointer
-{
-    public Guid InvoiceId { get; set; }
-    public Guid ServiceId { get; set; }
-    public Guid DiagnosisId { get; set; }
-    public InvoiceLineItemDxPointerCode DxPointerCode { get; set; }
-    public string Note { get; set; }
-    public bool? IsDeleted { get; set; }
-}
-
-public class InvoiceLineItemDxPointerCode
-{
-    public string Code { get; set; }
-    public string Display { get; set; }
-    public string System { get; set; }
-}
-public class ProcedureCodeModel
-{
-    public string Code { get; set; }
-    public string DisplayName { get; set; }
-    public string System { get; set; }
-    public string ShortDescription { get; set; }
-}

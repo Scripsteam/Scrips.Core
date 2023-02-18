@@ -9,172 +9,172 @@ namespace Scrips.Core.Enums.Scheduling;
 public enum AppointmentCancellationReason
 {
     /// <summary>
-    ///     Patient
+    ///     Patient.
     /// </summary>
     Pat,
 
     /// <summary>
-    ///     Patient: Canceled via automated reminder system
+    ///     Patient: Canceled via automated reminder system.
     /// </summary>
     PatCrs,
 
     /// <summary>
-    ///     Patient: Canceled via Patient Portal
+    ///     Patient: Canceled via Patient Portal.
     /// </summary>
     PatCpp,
 
     /// <summary>
-    ///     Patient: Deceased
+    ///     Patient: Deceased.
     /// </summary>
     PatDec,
 
     /// <summary>
-    ///     Patient: Feeling Better
+    ///     Patient: Feeling Better.
     /// </summary>
     PatFb,
 
     /// <summary>
-    ///     Patient: Lack of Transportation
+    ///     Patient: Lack of Transportation.
     /// </summary>
     PatLt,
 
     /// <summary>
-    ///     Patient: Member Terminated
+    ///     Patient: Member Terminated.
     /// </summary>
     PatMt,
 
     /// <summary>
-    ///     Patient: Moved
+    ///     Patient: Moved.
     /// </summary>
     PatMv,
 
     /// <summary>
-    ///     Patient: Pregnant
+    ///     Patient: Pregnant.
     /// </summary>
     PatPreg,
 
     /// <summary>
-    ///     Patient: Scheduled from Wait List
+    ///     Patient: Scheduled from Wait List.
     /// </summary>
     PatSwl,
 
     /// <summary>
-    ///     Patient: Unhappy/Changed Provider
+    ///     Patient: Unhappy/Changed Provider.
     /// </summary>
     PatUcp,
 
     /// <summary>
-    ///     Provider
+    ///     Provider.
     /// </summary>
     Prov,
 
     /// <summary>
-    ///     Provider: Personal
+    ///     Provider: Personal.
     /// </summary>
     ProvPers,
 
     /// <summary>
-    ///     Provider: Discharged
+    ///     Provider: Discharged.
     /// </summary>
     ProvDch,
 
     /// <summary>
-    ///     Provider: Edu/Meeting
+    ///     Provider: Edu/Meeting.
     /// </summary>
     ProvEdu,
 
     /// <summary>
-    ///     Provider: Hospitalized
+    ///     Provider: Hospitalized.
     /// </summary>
     ProvHosp,
 
     /// <summary>
-    ///     Provider: Labs Out of Acceptable Range
+    ///     Provider: Labs Out of Acceptable Range.
     /// </summary>
     ProvLabs,
 
     /// <summary>
-    ///     Provider: MRI Screening Form Marked Do Not Proceed
+    ///     Provider: MRI Screening Form Marked Do Not Proceed.
     /// </summary>
     ProvMri,
 
     /// <summary>
-    ///     Provider: Oncology Treatment Plan Changes
+    ///     Provider: Oncology Treatment Plan Changes.
     /// </summary>
     ProvOnc,
 
     /// <summary>
-    ///     Equipment Maintenance/Repair
+    ///     Equipment Maintenance/Repair.
     /// </summary>
     Maint,
 
     /// <summary>
-    ///     Prep/Med Incomplete
+    ///     Prep/Med Incomplete.
     /// </summary>
     MedsInc,
 
     /// <summary>
-    ///     Other
+    ///     Other.
     /// </summary>
     Other,
 
     /// <summary>
-    ///     Other: CMS Therapy Cap Service Not Authorized
+    ///     Other: CMS Therapy Cap Service Not Authorized.
     /// </summary>
     OthCms,
 
     /// <summary>
-    ///     Other: Error
+    ///     Other: Error.
     /// </summary>
     OthErr,
 
     /// <summary>
-    ///     Other: Financial
+    ///     Other: Financial.
     /// </summary>
     OthFin,
 
     /// <summary>
-    ///     Other: Improper IV Access/Infiltrate IV
+    ///     Other: Improper IV Access/Infiltrate IV.
     /// </summary>
     OthIv,
 
     /// <summary>
-    ///     Other: No Interpreter Available
+    ///     Other: No Interpreter Available.
     /// </summary>
     OthInt,
 
     /// <summary>
-    ///     Other: Prep/Med/Results Unavailable
+    ///     Other: Prep/Med/Results Unavailable.
     /// </summary>
     OthMu,
 
     /// <summary>
-    ///     Other: Room/Resource Maintenance
+    ///     Other: Room/Resource Maintenance.
     /// </summary>
     OthRoom,
 
     /// <summary>
-    ///     Other: Schedule Order Error
+    ///     Other: Schedule Order Error.
     /// </summary>
     OthOerr,
 
     /// <summary>
-    ///     Other: Silent Walk In Error
+    ///     Other: Silent Walk In Error.
     /// </summary>
     OthSwie,
 
     /// <summary>
-    ///     Other: Weather
+    ///     Other: Weather.
     /// </summary>
     OthWeath,
 
     /// <summary>
-    ///     Other: PatIt
+    ///     Other: PatIt.
     /// </summary>
     PatIt,
 
     /// <summary>
-    ///     Other: Discharged
+    ///     Other: Discharged.
     /// </summary>
     ProcDch
 }
