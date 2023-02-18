@@ -78,10 +78,16 @@ public interface IPracticeApi
     Task<List<UpdateExamRoomApiRequest>> GetPracticeRooms(
         Guid practiceId,
         [Header("Authorization")] string authorization);
-    
+
     [Get("/api/Doctor/GetPracticeId/{userId}")]
     Task<DoctorData> GetPracticeId(Guid userId, [Header("Authorization")] string authorization);
-    
+
     [Get("/api/Staff/GetStaffId/{userId}")]
     Task<StaffData> GetStaffId(Guid userId, [Header("Authorization")] string authorization);
+
+    [Get("/api/Doctor/GetPractitionerRoleForUser/{userId}")]
+    Task<List<PractitionerRole>> GetPractitionerRoleForUser(
+        Guid userId,
+        Guid? organizationId,
+        [Header("Authorization")] string token);
 }

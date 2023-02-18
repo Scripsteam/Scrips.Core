@@ -8,7 +8,6 @@ public class SlotsRequest
     /// <summary>
     ///     Id of the Practice.
     /// </summary>
-
     public Guid? PracticeId { get; set; }
 
     /// <summary>
@@ -33,7 +32,6 @@ public class SlotsRequest
     /// <summary>
     ///     Appointment profile id.
     /// </summary>
-
     public Guid? AppointmentProfileId { get; set; }
 
     /// <summary>
@@ -43,8 +41,7 @@ public class SlotsRequest
     public int Count { get; set; } = 5;
 
     /// <summary>
-    ///     SearchFromUserApp is uses when slots are search for all location
+    ///     SearchFromUserApp is uses when slots are search for all location.
     /// </summary>
-    public bool SearchFromUserApp { get; set; } = false;
-
+    public bool SearchFromUserApp { get; set; }
 }

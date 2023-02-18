@@ -14,7 +14,7 @@ public class DoctorData
 
     public bool IsOnboarded { get; set; }
     public string ImageURL { get; set; }
-         
+
     public Speciality Speciality { get; set; }
 
     public string CountryName { get; set; }

@@ -8,48 +8,59 @@ public class Sponsor
     {
         RelatedTpa = new List<ThirdPartyAdministrator>();
     }
+
     /// <summary>
-    /// id
+    /// id.
     /// </summary>
     public string Id { get; set; }
+
     /// <summary>
-    /// image URL
+    /// image URL.
     /// </summary>
     public string ImageUrl { get; set; }
+
     /// <summary>
-    /// payer name
+    /// payer name.
     /// </summary>
     public string PayerName { get; set; }
+
     /// <summary>
-    /// payer company id
+    /// payer company id.
     /// </summary>
     public string PayerCompanyId { get; set; }
+
     /// <summary>
-    /// office
+    /// office.
     /// </summary>
     public string Office { get; set; }
+
     /// <summary>
-    /// address
+    /// address.
     /// </summary>
     public string Address { get; set; }
+
     /// <summary>
-    /// website
+    /// website.
     /// </summary>
     public string Website { get; set; }
+
     /// <summary>
-    /// email
+    /// email.
     /// </summary>
     public string Email { get; set; }
+
     /// <summary>
-    /// phone number
+    /// phone number.
     /// </summary>
     public string PhoneNumber { get; set; }
+
     /// <summary>
-    /// note
+    /// note.
     /// </summary>
     public string Note { get; set; }
+
     /// <summary>
-    /// TPA
+    /// TPA.
     /// </summary>
     public List<ThirdPartyAdministrator> RelatedTpa { get; set; }
 }
