@@ -78,4 +78,7 @@ public interface IPracticeApi
     Task<List<UpdateExamRoomApiRequest>> GetPracticeRooms(
         Guid practiceId,
         [Header("Authorization")] string authorization);
+    
+    [Get("/api/Doctor/GetPracticeId/{userId}")]
+    Task<DoctorData> GetPracticeId(Guid userId, [Header("Authorization")] string authorization);
 }
