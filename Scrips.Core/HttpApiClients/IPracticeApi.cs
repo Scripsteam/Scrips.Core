@@ -81,4 +81,7 @@ public interface IPracticeApi
     
     [Get("/api/Doctor/GetPracticeId/{userId}")]
     Task<DoctorData> GetPracticeId(Guid userId, [Header("Authorization")] string authorization);
+    
+    [Get("/api/Staff/GetStaffId/{userId}")]
+    Task<StaffData> GetStaffId(Guid userId, [Header("Authorization")] string authorization);
 }
