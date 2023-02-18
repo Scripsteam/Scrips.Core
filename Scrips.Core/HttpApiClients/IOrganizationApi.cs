@@ -13,4 +13,7 @@ public interface IOrganizationApi
 
     [Post("/api/v1/Organization/list")]
     Task<List<OrganizationDto>> GetOrganizationList([Header("Authorization")] string token, [Body]object body);
+
+    [Get("/api/Organization/UpdateAndGetOrganization/{userId}")]
+    Task<OrganizationDto> UpdateAndGetOrganization(Guid userId, [Header("Authorization")] string token);
 }
