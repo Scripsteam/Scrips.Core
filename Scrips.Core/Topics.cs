@@ -11,6 +11,9 @@ public static class Topics
     public const string OrganizationV1Updated = nameof(OrganizationV1Updated);
 
     public const string PracticeCreated = nameof(PracticeCreated);
-
     public const string PracticeUpdated = nameof(PracticeUpdated);
+
+    public const string OrganizationSettingsCreated = nameof(OrganizationSettingsCreated);
+    public const string OrganizationSettingsUpdated = nameof(OrganizationSettingsUpdated);
+
 }
