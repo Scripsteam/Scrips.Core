@@ -86,7 +86,7 @@ public interface IPracticeApi
     Task<StaffData> GetStaffId(Guid userId, [Header("Authorization")] string authorization);
 
     [Get("/api/Doctor/GetPractitionerRoleForUser/{userId}")]
-    Task<List<PractitionerRole>> GetPractitionerRoleForUser(
+    Task<List<PractitionerRoleDto>> GetPractitionerRoleForUser(
         Guid userId,
         Guid? organizationId,
         [Header("Authorization")] string token);
