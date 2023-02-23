@@ -12,14 +12,14 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DaprClient _daprClient;
 
-    public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) 
+    public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
         : base(tenantInfo)
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
     }
 
-    public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) 
+    public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
         : base(tenantInfo, option)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -40,6 +40,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
         {
             Log.Error(ex.Message);
         }
+
         return await base.SaveChangesAsync(cancellationToken);
     }
 
@@ -57,6 +58,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
         {
             Log.Error(ex.Message);
         }
+
         return base.SaveChanges();
     }
 

@@ -20,11 +20,12 @@ internal static class Startup
             throw new InvalidOperationException("DB ConnectionString is not configured.");
         }
 
-        string dbProvider = "mssql";
+        const string dbProvider = "mssql";
 
         _logger.Information($"Current DB Provider : {dbProvider}");
 
         return services
+
             // .Configure<DatabaseSettings>(config.GetSection(nameof(DatabaseSettings)))
             // .AddDbContext<ApplicationDbContext>(m => m.UseDatabase(dbProvider, rootConnectionString))
             // .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
@@ -35,7 +36,7 @@ internal static class Startup
             .AddTransient<IConnectionStringSecurer, ConnectionStringSecurer>()
             .AddTransient<IConnectionStringValidator, ConnectionStringValidator>();
 
-        //.AddRepositories();
+            // .AddRepositories();
     }
 
 /*

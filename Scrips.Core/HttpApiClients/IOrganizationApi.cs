@@ -12,5 +12,8 @@ public interface IOrganizationApi
     Task<OrganizationSettingsDto> GetOrganizationSettings(Guid id, [Header("Authorization")] string token);
 
     [Post("/api/v1/Organization/list")]
-    Task<List<OrganizationDto>> GetOrganizationList([Header("Authorization")] string token, [Body]object body);
+    Task<List<OrganizationDto>> GetOrganizationList([Header("Authorization")] string token, [Body] object body);
+
+    [Get("/api/Organization/UpdateAndGetOrganization/{userId}")]
+    Task<OrganizationInfo> UpdateAndGetOrganization(Guid userId, [Header("Authorization")] string token);
 }

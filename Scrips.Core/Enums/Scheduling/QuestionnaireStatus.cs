@@ -8,16 +8,17 @@ namespace Scrips.Core.Enums.Scheduling;
 public enum QuestionnaireStatus
 {
     /// <summary>
-    ///     Office
+    ///     Office.
     /// </summary>
     Send,
 
     /// <summary>
-    ///     Home
+    ///     Home.
     /// </summary>
     Pending,
 
     /// <summary>
+    /// Answered.
     /// </summary>
     Answered
 }

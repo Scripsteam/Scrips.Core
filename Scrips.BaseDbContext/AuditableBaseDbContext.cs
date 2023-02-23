@@ -11,7 +11,8 @@ public class AuditableBaseDbContext : DbContext
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DaprClient _daprClient;
 
-    public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient) : base(option)
+    public AuditableBaseDbContext(DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
+        : base(option)
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
@@ -31,6 +32,7 @@ public class AuditableBaseDbContext : DbContext
         {
             Log.Error(ex.Message);
         }
+
         return await base.SaveChangesAsync(cancellationToken);
     }
 
@@ -48,6 +50,7 @@ public class AuditableBaseDbContext : DbContext
         {
             Log.Error(ex.Message);
         }
+
         return base.SaveChanges();
     }
 

@@ -9,7 +9,7 @@ namespace Scrips.Core.Models.Scheduling;
 public class AppointmentResponse
 {
     /// <summary>
-    ///     Constructor
+    ///     Constructor.
     /// </summary>
     public AppointmentResponse()
     {
@@ -32,23 +32,22 @@ public class AppointmentResponse
     public AppointmentStatus Status { get; set; }
 
     /// <summary>
-    ///     Office | Home | Video
+    ///     Office | Home | Video.
     /// </summary>
     public LocationModel Location { get; set; }
 
     /// <summary>
-    ///     Organization Id
+    ///     Organization Id.
     /// </summary>
     public Guid OrganizationId { get; set; }
 
     /// <summary>
-    ///     Practice Id
+    ///     Practice Id.
     /// </summary>
     public Guid PracticeId { get; set; }
 
-
     /// <summary>
-    ///     Practice Id
+    ///     Practice Id.
     /// </summary>
     public PracticeResponse Practice { get; set; }
 
@@ -63,27 +62,27 @@ public class AppointmentResponse
     public RoomResponse Room { get; set; }
 
     /// <summary>
-    ///     The coded reason for the appointment being canceled
+    ///     The coded reason for the appointment being canceled.
     /// </summary>
     public AppointmentCancellationReason CancelationReason { get; set; }
 
     /// <summary>
-    ///     A broad categorization of the service that is to be performed during this appointment
+    ///     A broad categorization of the service that is to be performed during this appointment.
     /// </summary>
     public ServiceCategory ServiceCategory { get; set; }
 
     /// <summary>
-    ///     The specific service that is to be performed during this appointment
+    ///     The specific service that is to be performed during this appointment.
     /// </summary>
     public ServiceType ServiceType { get; set; }
 
     /// <summary>
-    ///     The specialty of a practitioner that would be required to perform the service requested in this appointment
+    ///     The specialty of a practitioner that would be required to perform the service requested in this appointment.
     /// </summary>
     public Speciality Specialty { get; set; }
 
     /// <summary>
-    ///     Role of participant in the appointment
+    ///     Role of participant in the appointment.
     /// </summary>
     public AppointmentType AppointmentType { get; set; }
 
@@ -93,48 +92,48 @@ public class AppointmentResponse
     public ReasonCode ReasonCode { get; set; }
 
     /// <summary>
-    ///     Used to make informed decisions if needing to re-prioritize
+    ///     Used to make informed decisions if needing to re-prioritize.
     /// </summary>
     public int Priority { get; set; }
 
     /// <summary>
-    ///     Shown on a subject line in a meeting request, or appointment list
+    ///     Shown on a subject line in a meeting request, or appointment list.
     /// </summary>
     public string Description { get; set; }
 
     /// <summary>
-    ///     Additional information to support the appointment
+    ///     Additional information to support the appointment.
     /// </summary>
     public string SupportingInformation { get; set; }
 
     /// <summary>
-    ///     When appointment is to take place
+    ///     When appointment is to take place.
     /// </summary>
     public DateTime? Start { get; set; }
 
     /// <summary>
-    ///     When appointment is to conclude
+    ///     When appointment is to conclude.
     /// </summary>
     public DateTime? End { get; set; }
 
     /// <summary>
-    ///     Can be less than start/end (e.g. estimate)
+    ///     Can be less than start/end (e.g. estimate).
     /// </summary>
     public int? MinutesDuration { get; set; }
 
     /// <summary>
-    ///     Can be less than start/end (e.g. estimate)
+    ///     Can be less than start/end (e.g. estimate).
     /// </summary>
     public int ReferenceId { get; set; }
 
     /// <summary>
-    ///     The slots that this appointment is filling
+    ///     The slots that this appointment is filling.
     /// </summary>
     public SlotResponse Slot { get; set; }
 
 
     /// <summary>
-    ///     The date that this appointment was initially created
+    ///     The date that this appointment was initially created.
     /// </summary>
     public DateTime Created { get; set; }
 
@@ -144,119 +143,117 @@ public class AppointmentResponse
     public string Comment { get; set; }
 
     /// <summary>
-    ///     Detailed information and instructions for the patient
+    ///     Detailed information and instructions for the patient.
     /// </summary>
     public string PatientInstruction { get; set; }
 
     /// <summary>
-    ///     Participants involved in appointment
+    ///     Participants involved in appointment.
     /// </summary>
     public ICollection<ParticipantResponse> Participant { get; set; }
 
     /// <summary>
-    ///     Potential date/time interval(s) requested to allocate the appointment within
+    ///     Potential date/time interval(s) requested to allocate the appointment within.
     /// </summary>
     public PeriodResponse RequestedPeriod { get; set; }
 
     /// <summary>
+    /// Appointment Profile.
     /// </summary>
     public CreateAppointmentProfileRequest AppointmentProfile { get; set; }
 
     /// <summary>
+    /// Reminder Profile.
     /// </summary>
     public CreateReminderProfileRequest ReminderProfile { get; set; }
 
     /// <summary>
+    /// Flag List.
     /// </summary>
     public IList<FlagResponse> FlagList { get; set; }
 
     /// <summary>
-    ///     Questionnaire Form Id
+    ///     Questionnaire Form Id.
     /// </summary>
     public QuestionnaireRequest QuestionnaireForm { get; set; }
 
     /// <summary>
+    /// Completed Appointment Responses.
     /// </summary>
     public CompletedAppointmentResponse CompletedAppointmentResponses { get; set; }
 
     /// <summary>
-    ///     the person who updated the appointment
+    ///     the person who updated the appointment.
     /// </summary>
     public Guid UpdatedBy { get; set; }
 
     /// <summary>
+    /// Created Person.
     /// </summary>
     public string CreatedPerson { get; set; }
 
     /// <summary>
+    /// Updated Person.
     /// </summary>
     public string UpdatedPerson { get; set; }
 
     /// <summary>
-    ///
+    /// Patient Appointment Payer Detail.
     /// </summary>
     public PatientAppointmentPayerDetailModel PatientAppointmentPayerDetail { get; set; }
 
     /// <summary>
-    ///
+    /// Sponsor Type.
     /// </summary>
     public string SponsorType { get; set; }
 
     /// <summary>
-    ///
+    /// Billing Total.
     /// </summary>
     public BillingTotal BillingTotal { get; set; }
 
     /// <summary>
-    ///
+    /// Invoice.
     /// </summary>
     public AppointmentInvoiceModel Invoice { get; set; }
 
     /// <summary>
-    /// sponsor
+    /// Sponsor.
     /// </summary>
     public Sponsor Sponsor { get; set; }
 
     /// <summary>
-    /// policy no
+    /// Policy no.
     /// </summary>
     public string PolicyNo { get; set; }
 
     /// <summary>
-    /// Residential Address Details
+    /// Residential Address Details.
     /// </summary>
     public PatientAddressListResponse ResidentialAddress { get; set; }
 
     /// <summary>
-    /// CallBack Contract Details
+    /// CallBack Contract Details.
     /// </summary>
     public EmergencyContactResponse CallBackContract { get; set; }
 
     /// <summary>
-    /// Payment Link
+    /// Payment Link.
     /// </summary>
     public string PaymentLink { get; set; }
 
     /// <summary>
-    /// Added Services
+    /// Added Services.
     /// </summary>
     public List<InvoiceDetailsDto> AddedIndividualServices { get; set; }
 
     /// <summary>
-    /// Recurring base details
+    /// Recurring base details.
     /// </summary>
     public RecurringDto Recurring { get; set; }
 
     /// <summary>
-    /// IsBlock
+    /// IsBlock.
     /// </summary>
     public bool IsBlock { get; set; }
-
-}
-
-public class AppointmentPagedResponse
-{
-    public int CurrentPage { get; set; }
-    public int Count { get; set; }
-    public List<AppointmentResponse> AppointmentList { get; set; }
 }

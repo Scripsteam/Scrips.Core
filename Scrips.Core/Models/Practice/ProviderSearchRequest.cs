@@ -18,12 +18,12 @@ public class ProviderSearchRequest
     public List<string> Weekdays { get; set; } = new();
 
     /// <summary>
-    /// Start date to filter the provider
+    /// Start date to filter the provider.
     /// </summary>
     public DateTime StartDate { get; set; }
 
     /// <summary>
-    /// End date to filter the provider
+    /// End date to filter the provider.
     /// </summary>
     public DateTime EndDate { get; set; }
 
@@ -40,6 +40,7 @@ public class ProviderSearchRequest
     public bool IsInAppEnabled { get; set; } = false;
 
     public bool IsSearchFromDashboard { get; set; } = false;
+
     /// <summary>
     /// Practitioners ids.
     /// </summary>
@@ -120,14 +121,17 @@ public class AvailableProviderRequest
 
     public Guid OrganizationId { get; set; }
     public Guid? PracticeId { get; set; }
+
     /// <summary>
-    /// Start date to filter the provider
+    /// Start date to filter the provider.
     /// </summary>
     public DateTime StartDate { get; set; }
+
     /// <summary>
-    /// End date to filter the provider
+    /// End date to filter the provider.
     /// </summary>
     public DateTime EndDate { get; set; }
+
     /// <summary>
     /// Practitioners ids.
     /// </summary>

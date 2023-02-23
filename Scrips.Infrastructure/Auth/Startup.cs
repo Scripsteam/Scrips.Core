@@ -8,7 +8,6 @@ internal static class Startup
     internal static IApplicationBuilder UseCurrentUser(this IApplicationBuilder app) =>
         app.UseMiddleware<CurrentUserMiddleware>();
 
-
     internal static IServiceCollection AddCurrentUser(this IServiceCollection services) =>
         services
             .AddScoped<CurrentUserMiddleware>()

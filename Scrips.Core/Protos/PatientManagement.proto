@@ -538,6 +538,8 @@ message GetPatientDetailsByIdResponse{
     string practiceId=2;
     string imageURL=3;
     string isActive =4;
+    string birthDate =5;
+    string age =6;
 }
 
 message GetPatientPreferredModeByIdRequest{

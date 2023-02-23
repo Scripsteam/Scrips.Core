@@ -18,4 +18,7 @@ public interface IPatientApi
         Guid patientId,
         string? companyCode,
         [Header("Authorization")] string authorization);
+
+    [Get("/api/Patients/GetGuardianDetails?userId={userId}")]
+    Task<GuardianDto> GetGuardianDetails(Guid userId, [Header("Authorization")] string authorization);
 }
