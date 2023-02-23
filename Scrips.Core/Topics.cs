@@ -11,4 +11,6 @@ public static class Topics
     public const string PracticeCreated = nameof(PracticeCreated);
 
     public const string PracticeUpdated = nameof(PracticeUpdated);
+
+    public const string PracticeActiveArchive = nameof(PracticeActiveArchive);
 }
