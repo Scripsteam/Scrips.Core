@@ -14,6 +14,7 @@ service OrganizationConfiguration {
   rpc GetOrganizationById(GetOrganizationByIdRequest) returns (GetOrganizationByIdResponse);
   rpc CheckOrganizationHasPatientCommunication(CheckOrganizationHasPatientCommunicationRequest) returns (CheckOrganizationHasPatientCommunicationResponse);
   rpc GetDepartmentIdsByTenantId(GetDepartmentIdsByTenantIdRequest) returns (GetDepartmentIdsByTenantIdResponse);
+  rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetail);
 }
 
 message CheckOrganizationHasPatientCommunicationRequest {
@@ -99,4 +100,10 @@ message GetDepartmentIdsByTenantIdResponse{
 
 message DepartmentId{
     string Id =1;
+}
+
+message V1OrganizationDetail {
+    string Id=1;  
+    string Name=2;
+    string ImageURL=3;
 }
