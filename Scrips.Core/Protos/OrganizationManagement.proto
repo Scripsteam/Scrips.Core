@@ -103,7 +103,18 @@ message DepartmentId{
 }
 
 message V1OrganizationDetail {
-    string Id=1;  
-    string Name=2;
-    string ImageURL=3;
+    string id= 1;
+    string name = 2;
+    string phone = 3;
+    string address = 4;
+    string country = 5;
+    string city = 6;
+    string office = 7;
+    string faxNumber = 8;
+    string photo=9;
+    string latitude=10;
+    string longitude=11;
+    string nabidhAssigningAuthority = 12;
+    string licenseNumber = 13;
+    string licenseAuthority = 14;
 }
