@@ -176,5 +176,20 @@ public enum AppointmentCancellationReason
     /// <summary>
     ///     Other: Discharged.
     /// </summary>
-    ProcDch
+    ProcDch,
+
+    /// <summary>
+    ///     Insurance Expired.
+    /// </summary>
+    InE,
+
+    /// <summary>
+    ///     Need to Reschedule.
+    /// </summary>
+    NtR,
+
+    /// <summary>
+    ///     Time is not Convenient.
+    /// </summary>
+    TNC
 }
