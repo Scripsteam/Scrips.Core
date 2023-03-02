@@ -120,10 +120,10 @@ message V1OrganizationDetail {
     string licenseAuthority = 14;
 }
 
-message V1OrganizationDetail {
-    repeated V1OrganizationDetail V1OrganizationDetails =1; 
+message V1OrganizationDetails {
+    repeated V1OrganizationDetail v1OrganizationDetails =1; 
 }
 
 message GetOrganizationDetailsRequest{
-   repeated GetOrganizationDetailRequest GetOrganizationDetailsRequest = 1;
+   repeated GetOrganizationDetailRequest getOrganizationDetailsRequest = 1;
 }
