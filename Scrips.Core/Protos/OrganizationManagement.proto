@@ -15,6 +15,7 @@ service OrganizationConfiguration {
   rpc CheckOrganizationHasPatientCommunication(CheckOrganizationHasPatientCommunicationRequest) returns (CheckOrganizationHasPatientCommunicationResponse);
   rpc GetDepartmentIdsByTenantId(GetDepartmentIdsByTenantIdRequest) returns (GetDepartmentIdsByTenantIdResponse);
   rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetail);
+  rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetails);
 }
 
 message CheckOrganizationHasPatientCommunicationRequest {
@@ -117,4 +118,12 @@ message V1OrganizationDetail {
     string nabidhAssigningAuthority = 12;
     string licenseNumber = 13;
     string licenseAuthority = 14;
+}
+
+message V1OrganizationDetail {
+    repeated V1OrganizationDetail V1OrganizationDetails =1; 
+}
+
+message GetOrganizationDetailsRequest{
+   repeated GetOrganizationDetailRequest GetOrganizationDetailsRequest = 1;
 }
