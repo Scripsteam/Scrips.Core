@@ -15,7 +15,7 @@ service OrganizationConfiguration {
   rpc CheckOrganizationHasPatientCommunication(CheckOrganizationHasPatientCommunicationRequest) returns (CheckOrganizationHasPatientCommunicationResponse);
   rpc GetDepartmentIdsByTenantId(GetDepartmentIdsByTenantIdRequest) returns (GetDepartmentIdsByTenantIdResponse);
   rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetail);
-  rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetails);
+  rpc GetV1OrganizationById(GetOrganizationDetailsRequest) returns (V1OrganizationDetails);
 }
 
 message CheckOrganizationHasPatientCommunicationRequest {
