@@ -121,9 +121,9 @@ message V1OrganizationDetail {
 }
 
 message V1OrganizationDetails {
-    repeated V1OrganizationDetail v1OrganizationDetails =1; 
+    repeated V1OrganizationDetail Details =1; 
 }
 
 message GetOrganizationDetailsRequest{
-   repeated GetOrganizationDetailRequest getOrganizationDetailsRequest = 1;
+   repeated string ids=1;
 }
