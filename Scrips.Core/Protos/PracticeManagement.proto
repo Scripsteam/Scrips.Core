@@ -12,7 +12,7 @@ service PracticeManagement {
   rpc GetRoomById (GetRoomByIdRequest) returns (GetRoomByIdResponse);
 
   //send a practice(location)
-  rpc GetPracticeById (GetPracticeByIdRequest) returns (GetPracticeByIdResponse);
+  //rpc GetPracticeById (GetPracticeByIdRequest) returns (GetPracticeByIdResponse);
 
   //send a provider
   rpc GetProviderById (GetProviderByIdRequest) returns (GetProviderByIdResponse);
@@ -42,8 +42,8 @@ service PracticeManagement {
   rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
   rpc GetProviders(.Practice.GetProvidersRequest) returns (.Practice.GetProvidersResponse);
   rpc GetProviderBaseInfos(.Practice.GetProvidersRequest) returns (GetProviderBaseInfosResponse);
-  rpc GetPractices (GetPracticesRequest) returns (GetPracticesResponse);
-  rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
+  //rpc GetPractices (GetPracticesRequest) returns (GetPracticesResponse);
+  //rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
   rpc GetRooms (GetRoomsRequest) returns (GetRoomsResponse);
 
   rpc GetLocationBasedOnAppointmentProfile(AppointmentProfileLocationRequest) returns (AppointmentProfileLocationResponse);
@@ -62,7 +62,7 @@ service PracticeManagement {
   rpc RemovePracticePatientDistance (RemovePracticePatientDistanceRequest) returns (RemovePracticePatientDistanceResponse);
   rpc RemoveAppointmentProfilesByBillingProfileId(Common.Id) returns(Boolean);
 
-  rpc GetPracticeTrnNumbersByIds(Common.Ids) returns (TrnNumberResponse);
+  //rpc GetPracticeTrnNumbersByIds(Common.Ids) returns (TrnNumberResponse);
   rpc GetPractitionerPresence (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
   rpc GetPractitionerPresence2 (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
 

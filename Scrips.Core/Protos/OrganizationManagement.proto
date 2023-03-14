@@ -15,20 +15,18 @@ service OrganizationConfiguration {
   rpc CheckOrganizationHasPatientCommunication(CheckOrganizationHasPatientCommunicationRequest) returns (CheckOrganizationHasPatientCommunicationResponse);
   rpc GetDepartmentIdsByTenantId(GetDepartmentIdsByTenantIdRequest) returns (GetDepartmentIdsByTenantIdResponse);
   rpc GetV1OrganizationById(GetOrganizationDetailRequest) returns (V1OrganizationDetail);
-  rpc GetV1Organizations(GetOrganizationDetailsRequest) returns (V1OrganizationDetails);
-  rpc GetBasicV1OrganizationByIds(GetOrganizationDetailsRequest) returns (BasicV1OrganizationDetail);
-
+  rpc GetV1Organizations(GetOrganizationDetailsRequest) returns (V1OrganizationDetails);  
+  rpc GetPracticeTrnNumbersByIds(Common.Ids) returns (TrnNumberResponse);
 }
 
-message BasicV1Organization {
-    string Id =1;
-    string Name = 2;
-    string ImageURL = 3;
+
+message TrnNumber{
+    string id=1;
+    string number=2;
 }
 
-message BasicV1OrganizationDetail
-{
-	repeated BasicV1Organization Organizations =1;
+message TrnNumberResponse{
+    repeated TrnNumber value=1;
 }
 
 message CheckOrganizationHasPatientCommunicationRequest {
