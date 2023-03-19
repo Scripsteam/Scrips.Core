@@ -27,5 +27,7 @@ public class GuardianDto
         
     public string Age { get; set; }
     public Guid? OrganizationId { get; set; }
+    public string OrganizationName { get; set; }
+    public string BrandingUrl { get; set; }
     public Guid? PracticeId { get; set; }
 }
