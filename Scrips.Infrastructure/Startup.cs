@@ -23,7 +23,7 @@ public static class Startup
                 .AddLocalization()
 
                 // .AddMailing(config)
-                .AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()); })
+                //.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()); })
 
                 // .AddMultitenancy(config)
                 // .AddNotifications(config)

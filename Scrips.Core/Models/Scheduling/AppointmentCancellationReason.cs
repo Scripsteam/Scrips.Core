@@ -22,4 +22,6 @@ public class AppointmentCancellationReason
     ///     and/or which represents the intended meaning of the user.
     /// </summary>
     public string Display { get; set; }
+    public bool IsForPatient { get; set; }
+    public bool IsForProvider { get; set; }
 }
