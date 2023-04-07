@@ -41,8 +41,10 @@ service PracticeManagement {
 
   rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
   rpc GetProviders(.Practice.GetProvidersRequest) returns (.Practice.GetProvidersResponse);
+  rpc GetProvidersList(GetPracticesListRequest) returns (GetProvidersResponse);
   rpc GetProviderBaseInfos(.Practice.GetProvidersRequest) returns (GetProviderBaseInfosResponse);
   rpc GetPractices (GetPracticesRequest) returns (GetPracticesResponse);
+  rpc GetPracticesList(GetPracticesListRequest) returns (GetPracticesResponse);
   rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
   rpc GetRooms (GetRoomsRequest) returns (GetRoomsResponse);
 
@@ -72,6 +74,10 @@ service PracticeManagement {
       returns (GetPractitionerOverbookCalendarSettingsResponse);
 
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
+}
+
+message GetPracticesListRequest{
+    string organizationId=1;
 }
 
 message GetPractitionerOverbookCalendarSettingsRequest {
