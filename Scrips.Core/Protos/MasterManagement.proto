@@ -22,8 +22,9 @@ service MasterManagement {
    // service type
   rpc GetServiceTypeByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
 
-   // appointment type
+   // appointment status
   rpc GetAppointmentStatusByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
+  rpc GetAppointmentStatusList(GetValueSetByCodeRequest) returns (GetValuesSetResponse);
 
   // speciality
   rpc GetSpecialityByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
@@ -33,7 +34,8 @@ service MasterManagement {
 
   // appointmentType
   rpc GetAppointmentTypeByCode (GetValueSetByCodeRequest) returns (GetValueSetResponse);
-
+  rpc GetAppointmentTypesList(GetValueSetByCodeRequest) returns (GetValuesSetResponse);
+  rpc GetPracticeCodeList(GetValueSetByCodeRequest) returns (GetValuesSetResponse);
   // appointmentType by codes
   rpc GetAppointmentTypesByCodes (GetValueSetByCodesRequest) returns (GetValuesSetResponse);
 
