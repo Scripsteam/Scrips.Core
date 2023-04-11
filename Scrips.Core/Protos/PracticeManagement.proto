@@ -41,7 +41,7 @@ service PracticeManagement {
 
   rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
   rpc GetProviders(.Practice.GetProvidersRequest) returns (.Practice.GetProvidersResponse);
-  rpc GetProvidersList(GetPracticesListRequest) returns (GetProvidersResponse);
+  rpc GetProvidersList(GetProviderListRequest) returns (GetProvidersResponse);
   rpc GetProviderBaseInfos(.Practice.GetProvidersRequest) returns (GetProviderBaseInfosResponse);
   rpc GetPractices (GetPracticesRequest) returns (GetPracticesResponse);
   rpc GetPracticesList(GetPracticesListRequest) returns (GetPracticesResponse);
@@ -78,6 +78,11 @@ service PracticeManagement {
 
 message GetPracticesListRequest{
     string organizationId=1;
+}
+
+message GetProviderListRequest{
+    string organizationId=1;
+    string providerName=2;
 }
 
 message GetPractitionerOverbookCalendarSettingsRequest {
