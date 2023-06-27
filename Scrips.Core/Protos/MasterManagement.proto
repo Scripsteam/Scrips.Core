@@ -70,6 +70,7 @@ service MasterManagement {
      rpc GetSpecialityByIds (GetSpecialityByIdsRequest) returns (GetValuesSetResponse);
      rpc GetServiceCategoryByCodes (GetByCodesRequest) returns (GetValuesSetResponse);
      rpc GetServiceTypeByCodes (GetByCodesRequest) returns (GetValuesSetResponse);
+     rpc GetSpecialitiesByIds (GetSpecialityByIdRequest) returns (GetValuesSetResponse);
 }
 
 message GetMedicationRouteByDisplayRequest{
