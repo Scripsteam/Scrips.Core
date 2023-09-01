@@ -81,6 +81,7 @@ public class ProviderSearchResponse
     public IList<PracticeSlot> practiceSlots { get; set; }
     public int TotalSlots { get; set; }
     public bool AlreadyFiltered { get; set; }
+    public IssueObject Issue { get; set; }
 }
 
 public class PracticeSlot
