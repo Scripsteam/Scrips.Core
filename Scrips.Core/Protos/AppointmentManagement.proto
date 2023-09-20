@@ -50,7 +50,7 @@ message AppointmentPartialDetails
     string end = 3;
     ValueSet status = 4;
     AppointmentType appointmentType = 5;
-    LocationModel location = 6;
+    LocationObject location = 6;
     ValueSet ReasonCode = 7;
     PatientDetails Patient = 8;
 }
@@ -62,7 +62,7 @@ message PatientDetails
     string imageUrl = 3;
 }
 
-message LocationModel
+message LocationObject
 {
     string id = 1;
     string name = 2;
