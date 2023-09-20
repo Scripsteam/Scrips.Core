@@ -2,7 +2,7 @@
 
 namespace Scrips.Core.Models.Scheduling
 {
-    public class AppointmentPartDetails
+    public class AppointmentPartialDetails
     {
         public Guid Id { get; set; }
         public DateTime? Start { get; set; }
