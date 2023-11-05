@@ -21,6 +21,7 @@ public class DoctorSetupDetails
     public Speciality Speciality { get; set; }
     public string PhotoURL { get; set; }
     public string PracticeName { get; set; }
+    public IssueObject Issue { get; set; }
 }
 public class Doctors
 {

@@ -11,11 +11,10 @@ public class StaffSetupDetails
     public int RoleId { get; set; }
     public bool? InvitationStatus { get; set; }
     public string PhotoUrl { get; set; }
-
     public DateTime? IsLastLogin { get; set; }
-
     public List<PracticeWrapper> PracticeList { get; set; }
     public string PracticeName { get; set; }
+    public List<Speciality> Specialities { get; set; }
 }
 
 public class PracticeWrapper

@@ -47,6 +47,7 @@ public class EditPatientResponse
     public List<PatientCorporateResponse> CorporateAgreementResponse { get; set; }
     public bool IsMerged { get; set; }
     public bool? IsArchived { get; set; }
+    public string ExternalMRN { get; set; }
     public List<PatientDetail> ChildPatients { get; set; }
     public PatientDetail ParentPatient { get; set; }
 

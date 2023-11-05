@@ -29,6 +29,46 @@ service AppointmentManagement {
   rpc GetAppointmentCustomNote (GetAppointmentCustomNoteRequest) returns (GetAppointmentCustomNoteResponse);
   rpc GetAppointmentDateById (GetAppointmentByIdRequest) returns (GetAppointmentDateByIdResponse);
   rpc GetPractitionersAvailability(GetPractitionersAvailabilityRequest) returns (TimePeriodCollectionMessages);
+  rpc GetAppointmentsListByProvider(GetAppointmentsListByProviderRequest) returns (GetAppointmentsListByProviderResponse);
+}
+
+message GetAppointmentsListByProviderRequest{
+	string start = 1;
+	string end = 2;
+	string providerId = 3;
+	string practiceId = 4;
+}
+
+message GetAppointmentsListByProviderResponse{
+    repeated AppointmentPartialDetails appointments = 1;
+}
+
+message AppointmentPartialDetails
+{  
+	string id = 1;
+    string start = 2;
+    string end = 3;
+    ValueSet status = 4;
+    AppointmentType appointmentType = 5;
+    LocationObject location = 6;
+    ValueSet ReasonCode = 7;
+    PatientDetails Patient = 8;
+}
+
+message PatientDetails
+{
+    string id = 1;
+    string name = 2;
+    string imageUrl = 3;
+}
+
+message LocationObject
+{
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string isArchived = 4;
+    string imageUrl = 5;
 }
 
 message GetAppointmentDateByIdResponse {

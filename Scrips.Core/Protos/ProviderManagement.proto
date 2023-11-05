@@ -52,6 +52,7 @@ message GetPractitionerLicenceNoRequest{
 message GetPractitionerLicenceNoResponse{
 	string licenceNo=1;
 	string licenceAuthorityId=2;
+	string expirationDate=3;
 }
 
 message GetPractitionerLicenceNoByIdsRequest{
