@@ -55,6 +55,7 @@ message OrganizationDetailRequest{
 message OrganizationDetailResponse{
     string name=1;
     string medicationSystem=2;
+    string hasExternalMRN=3;
 }
 
 message OrganizationImageRequest {
