@@ -246,6 +246,7 @@ message GetServiceByCodeAndSystemResponse {
 	string code=1;
 	string system=2;
 	string display=3;
+    string description=4;
 }
 message GetLocationsRequest{
     string ids=1;
