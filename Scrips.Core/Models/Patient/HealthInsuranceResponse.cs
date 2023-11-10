@@ -21,5 +21,6 @@ public class HealthInsuranceResponse
     public string CopaymentType { get; set; }
     public bool IsReviewed { get; set; }
     public bool? IsVerified { get; set; }
+    public string MaximumCopayment { get; set; }
     public List<PatientBillingGroupModel> BillingGroups { get; set; }
 }
