@@ -5,4 +5,5 @@ public class PatientCoPaymentDto
     public List<BillingGroupDto> BillingGroups { get; set; }
 
     public string CoPaymentType { get; set; }
+    public decimal? MaximumCopayment { get; set; }
 }

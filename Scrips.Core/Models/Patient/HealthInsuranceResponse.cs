@@ -19,8 +19,8 @@ public class HealthInsuranceResponse
     public string FrontPhotoUrl { get; set; }
     public string BackPhotoUrl { get; set; }
     public string CopaymentType { get; set; }
+    public decimal? MaximumCopayment { get; set; }
     public bool IsReviewed { get; set; }
     public bool? IsVerified { get; set; }
-    public string MaximumCopayment { get; set; }
     public List<PatientBillingGroupModel> BillingGroups { get; set; }
 }
