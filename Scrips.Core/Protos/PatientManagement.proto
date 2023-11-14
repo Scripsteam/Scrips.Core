@@ -654,12 +654,12 @@ message UpdatePatientInsuranceRequest {
     string eligibilityStartDate=6;
     string eligibilityEndDate=7;
     repeated BillingGroupModel billingGroups=8;
-    string maximumCopayment=9;
 }
 message BillingGroupModel {
     string id=1;
     string category=2;
     string value=3;
+    string maximumCopayment=4;
 }
 message UpdatePatientInsuranceResponse {
     bool response=1;
@@ -691,7 +691,6 @@ message GetPatientInsuranceResponse {
     string copaymentType=5;
     string policyNumber=6;
     repeated BillingGroupModel billingGroups=7;
-    string maximumCopayment=8;
 }
 
 message GetPatientInsurancesResponse {
