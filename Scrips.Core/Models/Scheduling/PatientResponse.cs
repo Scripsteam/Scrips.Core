@@ -42,6 +42,11 @@ public class PatientResponse
     public string Mrn { get; set; }
 
     /// <summary>
+    /// ExternalMRN of the patient.
+    /// </summary>
+    public string ExternalMRN { get; set; }
+
+    /// <summary>
     /// Birth date of the patient.
     /// </summary>
     public DateTime BirthDate { get; set; }
