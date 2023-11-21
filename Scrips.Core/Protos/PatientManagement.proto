@@ -619,6 +619,7 @@ message GetPatientByIdResponse {
   string guardianIdentificationIDNumber=35;
   string guardianIdentificationType=36;
   string secondaryPhoneNumber=37;
+  string externalMRN=38;
 }
 message CheckPatientByIdRequest{
     string id=1;
