@@ -153,6 +153,7 @@ message PatientMedication {
     string OrderId = 15;
     string UnitOfMeasurement = 16;
     string Route = 17;
+    string DispenseUnit = 18;
 }
 
 message GetPatientComplaintsRequest{
@@ -619,6 +620,7 @@ message GetPatientByIdResponse {
   string guardianIdentificationIDNumber=35;
   string guardianIdentificationType=36;
   string secondaryPhoneNumber=37;
+  string externalMRN=38;
 }
 message CheckPatientByIdRequest{
     string id=1;

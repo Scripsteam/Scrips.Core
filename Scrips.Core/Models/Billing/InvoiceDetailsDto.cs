@@ -13,6 +13,7 @@ public class InvoiceDetailsDto
     public int Quantity { get; set; }
     public double GrossAmount { get; set; }
     public double DiscountAmount { get; set; }
+    public string DiscountReason { get; set; }
     public double NetAmount { get; set; }
     public double SponsorAmount { get; set; }
     public double PatientAmount { get; set; }
