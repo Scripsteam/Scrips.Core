@@ -242,6 +242,7 @@ message GetRelationByIdResponse{
 message GetServiceByCodeAndSystemRequest {
 	string code = 1;
     string system = 2;
+    string organizationId = 3;
 }
 
 message GetServiceByCodeAndSystemResponse {
