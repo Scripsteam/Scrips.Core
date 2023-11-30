@@ -258,6 +258,7 @@ message GetPracticeByIdResponse{
     string licenseNumber = 13;
     string licenseAuthority = 14;
     string organizationId = 15;
+    string practiceStampUrl = 16;
 }
 
 // The request message containing the provider id.
@@ -405,6 +406,7 @@ message PracticeForPayment {
     string Id =1;
     string Name = 2;
     string ImageURL = 3;
+    string practiceStampUrl = 4;
 }
 message GetPracticesByIdsRequest {
 	repeated string Ids = 1;

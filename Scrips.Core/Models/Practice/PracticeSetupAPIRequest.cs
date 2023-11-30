@@ -22,6 +22,7 @@ public class PracticeSetupApiRequest
     public bool BillingStatus { get; set; }
 
     public string BillingTaxId { get; set; }
+    public string PracticeStampUrl { get; set; }
     //contact/ details
     public ContactDetails ContactDetails { get; set; }
 
