@@ -724,6 +724,7 @@ message GetPatientIDNumberResponse{
     string patientId=1;
     string IDNumber=2;
     string MRN=3;
+    string IDType=4;
 }
 
 message GetPatientIDNumbersRequest{
