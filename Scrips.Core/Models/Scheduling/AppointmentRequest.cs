@@ -79,5 +79,5 @@ public class AppointmentsRequest
     /// </summary>
     public Guid? RecurringId { get; set; }
     public Guid? PatientId { get; set; }
-
+    public bool? ShowActiveAppointmentOnly { get; set; }
 }
