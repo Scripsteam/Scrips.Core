@@ -1,6 +1,7 @@
 ﻿using Scrips.Core.Models.Patient;
 using Scrips.Core.Models.Practice;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Scrips.Core.Models.Scheduling;
 
@@ -262,6 +263,10 @@ public class BlockAppointmentRequest
     /// 
     /// </summary>
     public Guid? RecurringId { get; set; }
+    /// <summary>
+    /// 
+    /// </summary>
+    public BlockRecurrenceCriteria Recurring { get; set; }
 }
 
 public class BlockTime
@@ -283,4 +288,79 @@ public class BlockTime
     /// </summary>
     [Required]
     public string Format { get; set; }
+}
+
+public class BlockRecurrenceCriteria
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    public Guid? Id { get; set; }
+
+    /// <summary>
+    /// ProviderId
+    /// </summary>
+    public Guid ProviderId { get; set; }
+
+    /// <summary>
+    /// PracticeId
+    /// </summary>
+    public Guid PracticeId { get; set; }
+
+    /// <summary>
+    /// AppointmentProfileId
+    /// </summary>
+    public Guid AppointmentProfileId { get; set; }
+
+    /// <summary>
+    /// StartDate
+    /// </summary>
+    public DateTime StartDate { get; set; }
+
+    /// <summary>
+    /// EndDate
+    /// </summary>
+    public DateTime EndDate { get; set; }
+
+    /// <summary>
+    /// RepeatEvery
+    /// </summary>
+    public int RepeatEvery { get; set; }
+
+    /// <summary>
+    /// RepeatEvery
+    /// </summary>
+    public int NumberOfRepeat { get; set; } = 0;
+
+    /// <summary>
+    /// Period 
+    /// </summary>
+    public FuRequestFollowUp Period { get; set; }
+
+    /// <summary>
+    /// Days
+    /// </summary>
+    public List<DayOfWeek> Days { get; set; }
+}
+
+/// <summary>
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum FuRequestFollowUp
+{
+    /// <summary>
+    /// </summary>
+    Days,
+
+    /// <summary>
+    /// </summary>
+    Weeks,
+
+    /// <summary>
+    /// </summary>
+    Months,
+
+    /// <summary>
+    /// </summary>
+    Years
 }
