@@ -258,9 +258,10 @@ public class BlockAppointmentRequest
     /// this property is merged from the endTime
     /// </summary>
     public DateTime EndDate { get; set; }
-
-
-
+    /// <summary>
+    /// 
+    /// </summary>
+    public Guid? RecurringId { get; set; }
 }
 
 public class BlockTime
