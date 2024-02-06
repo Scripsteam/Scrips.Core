@@ -83,6 +83,7 @@ message AgreementReponse{
 	string note=13;
 	repeated RelatedTpa listOfRelatedTpa=14;
 	string agreementId=15;
+	string agreementName=16;
 }
 
 message RelatedTpa{
