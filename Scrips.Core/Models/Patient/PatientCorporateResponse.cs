@@ -8,7 +8,7 @@ public class PatientCorporateResponse
     }
     public string CorporateId { get; set; }
     public string PatientId { get; set; }
-    public ProviderInsuranceModel InsuranceProvider { get; set; }
+    public ProviderInsuranceModel CorporateProvider { get; set; }
     public string PolicyNumber { get; set; }
     public DateTime? EligiblityStartDate { get; set; }
     public DateTime ExpirationDate { get; set; }
