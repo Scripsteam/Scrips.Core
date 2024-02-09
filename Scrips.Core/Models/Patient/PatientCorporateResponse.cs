@@ -23,5 +23,6 @@ public class PatientCorporateResponse
     public bool? IsVerified { get; set; }
     public string AgreementName { get; set; }
     public string AgreementId { get; set; }
+    public Guid CorporateProviderId {  get; set; }
     public List<PatientBillingGroupModel> BillingGroups { get; set; }
 }
