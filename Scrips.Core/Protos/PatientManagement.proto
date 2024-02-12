@@ -38,7 +38,7 @@ service PatientManagement {
   rpc GetAssessmentPlans(GetAssessmentPlansRequest) returns (GetAssessmentPlansResponse);
   rpc UpdatePatientInsurance(UpdatePatientInsuranceRequest) returns (UpdatePatientInsuranceResponse);
   rpc GetPatientInsurance(GetPatientInsuranceRequest) returns (GetPatientInsuranceResponse);
-
+  rpc GetPatientCorporate(GetPatientCorporateRequest) returns (GetPatientCorporateResponse);
   rpc GetClaimIdfromEncounterByAppointmentId(GetClaimIdfromEncounterByAppointmentIdRequest) returns (GetClaimIdfromEncounterByAppointmentIdResponse);
 
   rpc GetEncounterByClaimId(GetEncounterByClaimIdRequest) returns (GetEncounterByClaimIdResponse);
@@ -681,11 +681,26 @@ message GetPatientInsuranceRequest {
     string sponsorId=2;
 }
 
+message GetPatientCorporateRequest {
+    string patientId=1;
+    string sponsorId=2;
+}
+
 message GetPatientInsurancesRequest {
    repeated GetPatientInsuranceRequest request=1;
 }
 
 message GetPatientInsuranceResponse {
+    string patientId=1;
+    string sponsorId=2;
+    string eligibilityStartDate=3;
+    string eligibilityEndDate=4;
+    string copaymentType=5;
+    string policyNumber=6;
+    repeated BillingGroupModel billingGroups=7;
+}
+
+message GetPatientCorporateResponse {
     string patientId=1;
     string sponsorId=2;
     string eligibilityStartDate=3;
