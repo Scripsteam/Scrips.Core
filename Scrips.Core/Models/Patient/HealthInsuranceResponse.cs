@@ -21,5 +21,8 @@ public class HealthInsuranceResponse
     public string CopaymentType { get; set; }
     public bool IsReviewed { get; set; }
     public bool? IsVerified { get; set; }
+    public string AgreementName { get; set; }
+    public string AgreementId { get; set; }
+    public Guid InsuranceProviderId { get; set; }
     public List<PatientBillingGroupModel> BillingGroups { get; set; }
 }
