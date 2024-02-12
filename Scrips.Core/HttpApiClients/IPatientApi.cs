@@ -13,11 +13,17 @@ public interface IPatientApi
         [Query] Guid patientId,
         [Header("Authorization")] string authorization);
 
-    [Get("/api/Patients/{patientId}/HealthInsurance/{companyCode}")]
-    Task<ApiResponse<HealthInsuranceResponse>> PatientHealthInsuranceByPatientIdForCompanyCode(
+    [Get("/api/Patients/{patientId}/HealthInsuranceSponsor/{sponsorId}")]
+    Task<ApiResponse<HealthInsuranceResponse>> HealthInsuranceByPatientIdForSponsorId(
         Guid patientId,
-        string? companyCode,
+        Guid sponsorId,
         [Header("Authorization")] string authorization);
+
+    [Get("/api/Patients/{patientId}/PatientCorporateSponsor/{sponsorId}")]
+    Task<ApiResponse<PatientCorporateResponse>> PatientCorporateByPatientIdForSponsorId(
+    Guid patientId,
+    Guid sponsorId,
+    [Header("Authorization")] string authorization);
 
     [Get("/api/Patients/GetGuardianDetails?userId={userId}")]
     Task<GuardianDto> GetGuardianDetails(Guid userId, [Header("Authorization")] string authorization);
