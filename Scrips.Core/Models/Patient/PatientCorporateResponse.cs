@@ -4,7 +4,7 @@ public class PatientCorporateResponse
 {
     public PatientCorporateResponse()
     {
-        BillingGroups = new List<PatientCorporateBillingGroupModel>();
+        BillingGroups = new List<PatientBillingGroupModel>();
     }
     public string CorporateId { get; set; }
     public string PatientId { get; set; }
@@ -24,5 +24,5 @@ public class PatientCorporateResponse
     public string AgreementName { get; set; }
     public string AgreementId { get; set; }
     public Guid CorporateProviderId {  get; set; }
-    public List<PatientCorporateBillingGroupModel> BillingGroups { get; set; }
+    public List<PatientBillingGroupModel> BillingGroups { get; set; }
 }

@@ -665,12 +665,6 @@ message BillingGroupModel {
     string maximumCopayment=4;
 }
 
-message CorporateBillingGroupModel {
-    string id=1;
-    string category=2;
-    string value=3;
-}
-
 message UpdatePatientInsuranceResponse {
     bool response=1;
 }
@@ -714,7 +708,7 @@ message GetPatientCorporateResponse {
     string eligibilityEndDate=4;
     string discountType=5;
     string policyNumber=6;
-    repeated CorporateBillingGroupModel billingGroups=7;
+    repeated BillingGroupModel billingGroups=7;
 }
 
 message GetPatientInsurancesResponse {
