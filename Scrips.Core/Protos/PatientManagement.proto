@@ -657,16 +657,23 @@ message UpdatePatientInsuranceRequest {
     string eligibilityEndDate=7;
     repeated BillingGroupModel billingGroups=8;
 }
+
 message BillingGroupModel {
     string id=1;
     string category=2;
     string value=3;
     string maximumCopayment=4;
 }
+
+message CorporateBillingGroupModel {
+    string id=1;
+    string category=2;
+    string value=3;
+}
+
 message UpdatePatientInsuranceResponse {
     bool response=1;
 }
-
 
 message GetClaimIdfromEncounterByAppointmentIdRequest{
     string appointmentId=1;
@@ -705,9 +712,9 @@ message GetPatientCorporateResponse {
     string sponsorId=2;
     string eligibilityStartDate=3;
     string eligibilityEndDate=4;
-    string copaymentType=5;
+    string discountType=5;
     string policyNumber=6;
-    repeated BillingGroupModel billingGroups=7;
+    repeated CorporateBillingGroupModel billingGroups=7;
 }
 
 message GetPatientInsurancesResponse {

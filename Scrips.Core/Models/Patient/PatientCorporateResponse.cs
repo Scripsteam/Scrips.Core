@@ -4,7 +4,7 @@ public class PatientCorporateResponse
 {
     public PatientCorporateResponse()
     {
-        BillingGroups = new List<PatientBillingGroupModel>();
+        BillingGroups = new List<PatientCorporateBillingGroupModel>();
     }
     public string CorporateId { get; set; }
     public string PatientId { get; set; }
@@ -18,11 +18,11 @@ public class PatientCorporateResponse
     public DateTime? SubmittedDate { get; set; }
     public string FrontPhotoUrl { get; set; }
     public string BackPhotoUrl { get; set; }
-    public string CopaymentType { get; set; }
+    public string DiscountType { get; set; }
     public bool IsReviewed { get; set; }
     public bool? IsVerified { get; set; }
     public string AgreementName { get; set; }
     public string AgreementId { get; set; }
     public Guid CorporateProviderId {  get; set; }
-    public List<PatientBillingGroupModel> BillingGroups { get; set; }
+    public List<PatientCorporateBillingGroupModel> BillingGroups { get; set; }
 }
