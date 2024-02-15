@@ -36,7 +36,7 @@ public class ClonedBillingGroupDto
         {
             if (CoPayIsFixed)
             {
-                var copay = NetSum - CoPayValue;
+                var copay = NetSum > CoPayValue ? CoPayValue : NetSum;
                 return copay > 0 ? copay : 0;
             }
             else if (CoPayIsPercent)
