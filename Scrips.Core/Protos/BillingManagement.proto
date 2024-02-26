@@ -282,7 +282,7 @@ message GetCashierShiftDetail{
 	string Cash=7;
 	string Card=8;
 	string TransactionType=9;
-	string VoidReason=10;
+	string RefundReason=10;
 	string MRN = 11;
 	string TransactionDate = 12;
 	string Currency = 13;
