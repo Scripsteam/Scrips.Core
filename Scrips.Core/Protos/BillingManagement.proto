@@ -287,6 +287,7 @@ message GetCashierShiftDetail{
 	string TransactionDate = 12;
 	string Currency = 13;
 	string Location = 14;
+	string Bank = 15;
 }
 
 message GetCashierShiftDetailsRequest{
