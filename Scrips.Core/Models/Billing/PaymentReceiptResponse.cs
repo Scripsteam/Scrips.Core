@@ -27,7 +27,7 @@ public class PaymentReceiptResponse
     public PracticeResponse Practice { get; set; }
     public ExtendUserDto VoidedBy { get; set; }
     public ExtendUserDto ReceivedBy { get; set; }
-    public Guid CashierShiftId { get; set; }
+    public Guid? CashierShiftId { get; set; }
 
     public List<RefundDetailsDto> Refunds { get; set; }
 }
