@@ -288,6 +288,7 @@ message GetCashierShiftDetail{
 	string Currency = 13;
 	string Location = 14;
 	string Bank = 15;
+	string CashierShiftId = 16;
 }
 
 message GetCashierShiftDetailsRequest{
