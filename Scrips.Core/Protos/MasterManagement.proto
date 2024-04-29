@@ -75,6 +75,7 @@ service MasterManagement {
      rpc GetServiceByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
      rpc GetSpecialServiceListByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
      rpc GetHCPCSListByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
+     rpc GetVaccinationTimelineData(GetVaccinationTimelineDataRequest) returns (GetVaccinationTimelineDataResponse);
 }
 
 message GetMedicationRouteByDisplayRequest{
@@ -284,4 +285,25 @@ message GetSpecialityByIdsRequest {
 
 message GetByCodesRequest {
    repeated string codes = 1;
+}
+
+message GetVaccinationTimelineDataResponse {
+    repeated VaccinationTimelineCategory categories = 1;
+}
+
+message VaccinationTimelineCategory {
+    string id = 1;
+    string categoryName = 2;
+    string categoryNoOfDoses = 3;
+    string categoryOrder = 4;
+    repeated VaccinationTimelineCode vaccines = 5;
+}
+
+message VaccinationTimelineCode {
+    string id = 1;
+    string code = 2;
+}
+
+message GetVaccinationTimelineDataRequest {
+    string code = 1;
 }

@@ -3,7 +3,7 @@
 public class PracticeWorkingHourNew
 {
     public string Weekday { get; set; }
-    public int WeekdayId { get; set; }
+    public int WeedayId { get; set; }
     public string StartWeekDay { get; set; }
     public string EndWeekDay { get; set; }
     public string StartTime { get; set; }
