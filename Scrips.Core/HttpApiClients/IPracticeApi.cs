@@ -19,6 +19,9 @@ public interface IPracticeApi
     [Get("/api/Practice/PracticeSetupList/{organizationId}")]
     Task<List<PracticeSetupList>> PracticeSetupList(Guid organizationId, [Header("Authorization")] string token);
 
+    [Get("/api/Practice/PracticeSetupForPrimary/{organizationId}")]
+    Task<PracticeSetupList> PracticeSetupForPrimary(Guid organizationId, [Header("Authorization")] string token);
+
     [Get("/api/Practice/PracticeSetupDetails/{practiceId}")]
     Task<PracticeDetailsResponse> PracticeSetupDetails(Guid practiceId, [Header("Authorization")] string token);
 
