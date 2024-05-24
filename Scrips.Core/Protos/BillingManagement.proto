@@ -24,6 +24,7 @@ service BillingManagement {
 	rpc SetIsResivedTrueInClaim(SetIsResivedTrueInClaimRequest) returns (BaseResponse);
 	rpc GetInvoiceClaimValidationData(GetInvoiceClaimValidationDataRequest) returns (GetInvoiceClaimValidationDataResponse);
 	rpc GetAgreementDataByCompanyId(GetAgreementByCompanyIdRequest) returns (AgreementReponse);
+	rpc GetBillingProfiles(BillingProfileIdsRequest) returns (BillingProfilesResponse);
 }
 
 message GetAgreementByCompanyIdRequest{
@@ -105,6 +106,14 @@ message BillingProfileResponse {
 	string providerId=2;
 	string name=3;
 	repeated Service Services=4;
+}
+
+message BillingProfileIdsRequest {
+	string ids=1;
+}
+
+message BillingProfilesResponse {
+	repeated BillingProfileResponse billingProfiles=1;
 }
 
 message BillingGroupRequest {
