@@ -72,6 +72,10 @@ public class ProviderSearchResponse
     public string Photo { get; set; }
     public string TimeZone { get; set; }
     public Guid OrganizationId { get; set; }
+    public string OrganizationTimeZone { get; set; }
+    public string LicenceNo { get; set; }
+    public Guid LicenceAuthorityId { get; set; }
+    public DateTime? ExpirationDate { get; set; }
     public Speciality Speciality { get; set; }
     public ServiceCategory ServiceCategory { get; set; }
     public ServiceType ServiceType { get; set; }
