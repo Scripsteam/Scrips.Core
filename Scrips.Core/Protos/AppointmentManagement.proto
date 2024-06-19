@@ -173,6 +173,7 @@ message UpdateQuestionnireStatusResponse{
 
 message UpdateAppointmentRealTimeRequest{
   string appointmentId = 1;
+  string ParticipantId = 2;
 }
 
 message UpdateAppointmentRealTimeResponse{
