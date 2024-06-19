@@ -25,7 +25,7 @@ public interface IPracticeApi
     [Get("/api/Practice/PracticeSetupDetails/{practiceId}")]
     Task<PracticeDetailsResponse> PracticeSetupDetails(Guid practiceId, [Header("Authorization")] string token);
 
-    [Post("/api/Doctor/CalendarSlots")]
+    [Post("/api/Doctor/CalendarSlots3")]
     Task<List<ProviderSearchResponse>> DoctorCalendarSlots(
         [Body] ProviderSearchRequest request,
         [Header("Authorization")] string token);
