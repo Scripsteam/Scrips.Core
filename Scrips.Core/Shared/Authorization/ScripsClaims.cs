@@ -9,4 +9,5 @@ public static class ScripsClaims
     public const string IpAddress = "ipAddress";
     public const string Expiration = "exp";
     public const string OrganizationRoles = "orgRoles";
+    public const string OrganizationId = "orgId";
 }

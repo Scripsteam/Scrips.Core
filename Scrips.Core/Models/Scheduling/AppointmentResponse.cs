@@ -124,7 +124,7 @@ public class AppointmentResponse
     /// <summary>
     ///     Can be less than start/end (e.g. estimate).
     /// </summary>
-    public int ReferenceId { get; set; }
+    public string ReferenceId { get; set; }
 
     /// <summary>
     ///     The slots that this appointment is filling.
