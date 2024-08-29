@@ -76,6 +76,7 @@ service MasterManagement {
      rpc GetSpecialServiceListByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
      rpc GetHCPCSListByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
      rpc GetVaccinationTimelineData(GetVaccinationTimelineDataRequest) returns (GetVaccinationTimelineDataResponse);
+     rpc GetNationalitySystemByCode(GetNationalitySystemByCodeRequest) returns (GetNationalitySystemByCodeResponse);
 }
 
 message GetMedicationRouteByDisplayRequest{
@@ -114,6 +115,15 @@ message GetMaritalStatusByIdRequest{
 }
 
 message GetMaritalStatusByIdResponse{
+    string name=1;
+    string code=2;
+}
+
+message GetNationalitySystemByCodeRequest{
+    string code=1;
+}
+
+message GetNationalitySystemByCodeResponse{
     string name=1;
     string code=2;
 }
