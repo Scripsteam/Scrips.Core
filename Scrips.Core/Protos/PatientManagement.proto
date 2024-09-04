@@ -753,6 +753,7 @@ message DiagnosisByEncounterId{
     string encounterId=1;
     string diagnosisCode=2;
     string diagnosisDisplay=3;
+    string isPrimary=4;
 }
 
 message GetPatientIDNumbersResponse{
