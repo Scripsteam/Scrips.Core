@@ -191,5 +191,45 @@ public enum AppointmentCancellationReason
     /// <summary>
     ///     Time is not Convenient.
     /// </summary>
-    TNC
+    TNC,
+
+    /// <summary>
+    ///     Sick / Not Feeling Well
+    /// </summary>
+    Sck,
+
+    /// <summary>
+    ///     Parent/Guardian Sick
+    /// </summary>
+    GuSck,
+
+    /// <summary>
+    ///     Practitioner Unavailable
+    /// </summary>
+    ProvUA,
+
+    /// <summary>
+    ///     Traffic/Logistics
+    /// </summary>
+    Traf,
+
+    /// <summary>
+    ///     Forgot
+    /// </summary>
+    Frgt,
+
+    /// <summary>
+    ///     Insurance Declined/Rejected
+    /// </summary>
+    InD,
+
+    /// <summary>
+    ///     Work Related
+    /// </summary>
+    Wrk,
+
+    /// <summary>
+    ///     Plan Completed
+    /// </summary>
+    PlnCm
 }
