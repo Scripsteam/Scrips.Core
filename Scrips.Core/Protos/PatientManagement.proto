@@ -476,6 +476,7 @@ message Vital{
     string isDeleted = 13;
     Code code = 14;
     QuantityCode quantity = 15;
+    string isBreastFeeding = 16;
 }
 
 message Code{
