@@ -25,6 +25,7 @@ service BillingManagement {
 	rpc GetInvoiceClaimValidationData(GetInvoiceClaimValidationDataRequest) returns (GetInvoiceClaimValidationDataResponse);
 	rpc GetAgreementDataByCompanyId(GetAgreementByCompanyIdRequest) returns (AgreementReponse);
 	rpc GetBillingProfiles(BillingProfileIdsRequest) returns (BillingProfilesResponse);
+	rpc GetInvoicesByAppointmentIds(GetInvoicesByAppointmentIdsRequest) returns (GetInvoicesByAppointmentIdsResponse);
 }
 
 message GetAgreementByCompanyIdRequest{
@@ -255,6 +256,12 @@ message GetInvoiceByAppointmentIdResponse{
 	string policyNo=14;
 	string draftedOn=15;
 	repeated InvoiceDetails Services=16;
+}
+message GetInvoicesByAppointmentIdsRequest{ 
+	string appointmentIds=1;
+}
+message GetInvoicesByAppointmentIdsResponse{ 
+	repeated GetInvoiceByAppointmentIdResponse invoices=1;
 }
 
 message InvoiceDetails {
