@@ -88,4 +88,9 @@ public class AppointmentInvoiceModel
     /// Invoice Details List
     /// </summary>
     public List<InvoiceDetailsDto> Services { get; set; }
+
+    /// <summary>
+    /// AppointmentId
+    /// </summary>
+    public Guid AppointmentId { get; set; } 
 }
