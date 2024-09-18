@@ -256,6 +256,7 @@ message GetInvoiceByAppointmentIdResponse{
 	string policyNo=14;
 	string draftedOn=15;
 	repeated InvoiceDetails Services=16;
+	string appointmentId=17;
 }
 message GetInvoicesByAppointmentIdsRequest{ 
 	string appointmentIds=1;
