@@ -92,5 +92,5 @@ public class AppointmentInvoiceModel
     /// <summary>
     /// AppointmentId
     /// </summary>
-    public Guid AppointmentId { get; set; } 
+    public Guid? AppointmentId { get; set; } 
 }
