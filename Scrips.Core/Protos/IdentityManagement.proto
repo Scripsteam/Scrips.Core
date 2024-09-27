@@ -26,6 +26,33 @@ service IdentityManagement {
   rpc GetExtendUserDetailsByIds(GetExtendUserDetailsByIdsRequest) returns (GetExtendUserDetailsByIdsResponse);
   rpc CheckUserIsOnBoard(CheckUserIsOnBoardRequest) returns (CheckUserIsOnBoardResponse);
   rpc LogOutUserByUserId(LogOutUserByUserIdRequest) returns (LogOutUserByUserIdResponse);
+  rpc GetUserDeviceInfoByEmailQuery(GetUserDeviceInfoByEmailRequest) returns (GetUserDeviceInformationResponse);
+  rpc GetUserDeviceInfoById(GetUserDeviceInfoByIdRequest) returns (GetUserDeviceInformationResponse);
+}
+
+message GetUserDeviceInfoByEmailRequest{
+    string email = 1;
+}
+
+message GetUserDeviceInfoByIdRequest{
+    string userId = 1;
+}
+message UserDeviceToken{
+	string userId = 1;
+	string deviceId = 2;
+	string deviceToken = 3;
+	string deviceType = 4;
+	string userName = 5;
+	string email = 6;
+	string firstName = 7;
+	string lastName = 8;
+	string mobileNumber = 9;
+	string timeZone = 10;
+	string isOnBoard = 11;
+}
+
+message GetUserDeviceInformationResponse {
+	repeated UserDeviceToken userDeviceToken=1;
 }
 
 message LogOutUserByUserIdResponse{
