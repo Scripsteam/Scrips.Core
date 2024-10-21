@@ -28,6 +28,7 @@ service IdentityManagement {
   rpc LogOutUserByUserId(LogOutUserByUserIdRequest) returns (LogOutUserByUserIdResponse);
   rpc GetUserDeviceInfoByEmailQuery(GetUserDeviceInfoByEmailRequest) returns (GetUserDeviceInformationResponse);
   rpc GetUserDeviceInfoById(GetUserDeviceInfoByIdRequest) returns (GetUserDeviceInformationResponse);
+  rpc UpdateUserEmailAndPhone(UpdateUserRequest) returns (UpdateUserResponse);
 }
 
 message GetUserDeviceInfoByEmailRequest{
@@ -204,6 +205,8 @@ message UpdateUserRequest {
         string lastName = 3;
         string mobileNumber = 4;
         string timeZone = 5;
+        string email = 6;
+        string newEmail = 7;
 }
 
 
