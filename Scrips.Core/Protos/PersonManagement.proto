@@ -8,6 +8,7 @@ service PersonManagment{
 // Get patient by userID
 rpc GetPatientByUserId (GetPatientByUserIdRequest) returns (GetPatientByUserIdResponse);
 rpc GetPersonByUserId (GetPersonByUserIdRequest) returns (GetPersonByUserIdResponse);
+rpc UpdatePersonEmailAndPhone (UpdatePersonEmailAndPhoneRequest) returns (UpdatePersonEmailAndPhoneResponse);
 }
 
 message GetPatientByUserIdRequest{
@@ -28,4 +29,14 @@ message GetPersonByUserIdResponse{
 	string patientId=3;
 	string organizationName=4;
 	string ImageURL=5;
+}
+
+message UpdatePersonEmailAndPhoneRequest{
+	string newEmail = 1;
+	string phoneNumber = 2;
+	string oldEmail = 3;
+}
+
+message UpdatePersonEmailAndPhoneResponse{
+	string status = 1;
 }
