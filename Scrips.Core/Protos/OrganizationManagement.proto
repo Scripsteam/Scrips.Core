@@ -154,4 +154,5 @@ message OrganizationResourceBasedIntegrationResponse{
     string SocialHistorySystem = 5;
     string FamilyHistorySystem = 6;
     string LabSystem = 7;
+    string DiagnosisSystem = 8;
 }
