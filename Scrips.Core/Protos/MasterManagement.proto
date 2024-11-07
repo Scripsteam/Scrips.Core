@@ -77,6 +77,21 @@ service MasterManagement {
      rpc GetHCPCSListByCode(GetServiceByCodeAndSystemRequest) returns (GetServiceByCodeAndSystemResponse);
      rpc GetVaccinationTimelineData(GetVaccinationTimelineDataRequest) returns (GetVaccinationTimelineDataResponse);
      rpc GetNationalitySystemByCode(GetNationalitySystemByCodeRequest) returns (GetNationalitySystemByCodeResponse);
+     rpc GetAllMaritalStatus(GetAllMaritalStatusRequest) returns (GetAllMaritalStatusResponse);
+}
+
+message GetAllMaritalStatusRequest{
+	string id=1;
+}
+
+message GetAllMaritalStatusResponse{
+    repeated GetMaritalStatusResponse maritalStatusList=1;
+}
+
+message GetMaritalStatusResponse{
+	string id = 1;
+    string name = 2;
+    string Code = 3;
 }
 
 message GetMedicationRouteByDisplayRequest{
