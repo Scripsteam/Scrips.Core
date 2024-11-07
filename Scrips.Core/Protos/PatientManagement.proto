@@ -624,6 +624,7 @@ message GetPatientByIdResponse {
   string externalMRN=38;
   string practiceId=39;
   string organizationId=40;
+  string MaritalStatusDisplay=41;
 }
 message CheckPatientByIdRequest{
     string id=1;
