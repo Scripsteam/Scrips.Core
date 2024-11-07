@@ -102,6 +102,11 @@ public class PatientResponse
     public bool IsOnboarding { get; set; }
 
     /// <summary>
+    /// Marital Status.
+    /// </summary>
+    public string MaritalStatus { get; set; }
+
+    /// <summary>
     /// Full name of the patient.
     /// </summary>
     public string Name => FirstName.Trim() +
