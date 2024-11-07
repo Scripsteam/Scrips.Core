@@ -105,6 +105,11 @@ public class PatientResponse
     /// Marital Status.
     /// </summary>
     public string MaritalStatus { get; set; }
+    
+    /// <summary>
+    /// Marital Status Display.
+    /// </summary>
+    public string MaritalStatusDisplay { get; set; }
 
     /// <summary>
     /// Full name of the patient.
