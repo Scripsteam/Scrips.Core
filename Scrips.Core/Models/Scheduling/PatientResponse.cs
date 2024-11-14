@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Scrips.Core.Models.Patient;
 
 namespace Scrips.Core.Models.Scheduling;
 
@@ -141,6 +142,9 @@ public class PatientResponse
     /// Full address of the patient.
     /// </summary>
     public string FullAddress => ((!string.IsNullOrWhiteSpace(Address)) ? Address.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(City)) ? City.Trim() : string.Empty) + " " + ((!string.IsNullOrWhiteSpace(Country)) ? Country.Trim() : string.Empty);
+
+    public PatientEducationResponse PatientEducation { get; set; }
+    public PatientOccupationResponse PatientOccupation { get; set; }
 
     [JsonExtensionData]
     public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
