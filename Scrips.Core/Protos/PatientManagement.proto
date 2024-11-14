@@ -625,7 +625,29 @@ message GetPatientByIdResponse {
   string practiceId=39;
   string organizationId=40;
   string MaritalStatusDisplay=41;
+  PatientEducationResponse education=42;
+  PatientOccupationResponse occupation=43;
 }
+
+message PatientEducationResponse
+{
+    string Id = 1;
+    string PatientId = 2;
+    string EducationCode = 3;
+    string EducationDisplay = 4;
+    string EducationSystem = 5;
+    string EducationInformation = 6;
+}
+
+message PatientOccupationResponse
+{
+    string Id = 1;
+    string PatientId = 2;
+    string Employment = 3;
+    string JobRole = 4;
+    string OccupationalInformation = 5;
+}
+
 message CheckPatientByIdRequest{
     string id=1;
 }
