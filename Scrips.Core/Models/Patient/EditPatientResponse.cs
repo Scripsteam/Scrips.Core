@@ -50,7 +50,8 @@ public class EditPatientResponse
     public string ExternalMRN { get; set; }
     public List<PatientDetail> ChildPatients { get; set; }
     public PatientDetail ParentPatient { get; set; }
-
+    public PatientEducationResponse PatientEducation { get; set; }
+    public PatientOccupationResponse PatientOccupation { get; set; }
     [JsonExtensionData]
     public IDictionary<string, JToken> Extensions { get; set; } = new Dictionary<string, JToken>();
 }
@@ -81,4 +82,23 @@ public class PatientDetail
     public string UpdatedBy { get; set; }
     public DateTime? UpdatedTs { get; set; }
 
+}
+
+public class PatientEducationResponse
+{
+    public Guid? Id { get; set; }
+    public Guid? PatientId { get; set; }
+    public string EducationCode { get; set; }
+    public string EducationDisplay { get; set; }
+    public string EducationSystem { get; set; }
+    public string EducationInformation { get; set; }
+}
+
+public class PatientOccupationResponse
+{
+    public Guid? Id { get; set; }
+    public Guid? PatientId { get; set; }
+    public string Employment { get; set; }
+    public string JobRole { get; set; }
+    public string OccupationalInformation { get; set; }
 }
