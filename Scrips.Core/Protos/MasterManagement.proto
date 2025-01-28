@@ -78,6 +78,7 @@ service MasterManagement {
      rpc GetVaccinationTimelineData(GetVaccinationTimelineDataRequest) returns (GetVaccinationTimelineDataResponse);
      rpc GetNationalitySystemByCode(GetNationalitySystemByCodeRequest) returns (GetNationalitySystemByCodeResponse);
      rpc GetAllMaritalStatus(GetAllMaritalStatusRequest) returns (GetAllMaritalStatusResponse);
+     rpc GetAllLanguages(GetLanguageByIdRequest) returns (GetLanguagesResponse);
 }
 
 message GetAllMaritalStatusRequest{
@@ -255,6 +256,16 @@ string id=1;
 message GetLanguageByIdResponse{
     string name=1;
     string code=2;
+}
+
+message GetLanguagesResponse{
+    repeated LanguageData languages=1;
+}
+
+message LanguageData{
+    string id=1;
+    string name=2;
+    string code=3;
 }
 
 message GetRelationByIdRequest{
