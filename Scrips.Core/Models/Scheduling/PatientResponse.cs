@@ -138,6 +138,9 @@ public class PatientResponse
     /// </summary>
     public string Address { get; set; }
 
+    public string LanguageId { get; set; }
+    public string LanguageDisplay { get; set; }
+
     /// <summary>
     /// Full address of the patient.
     /// </summary>
