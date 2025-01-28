@@ -627,6 +627,7 @@ message GetPatientByIdResponse {
   string MaritalStatusDisplay=41;
   PatientEducationResponse education=42;
   PatientOccupationResponse occupation=43;
+  string LanguageDisplay=44;
 }
 
 message PatientEducationResponse
