@@ -22,4 +22,5 @@ public class DoctorData
     public string TimeZone { get; set; }
     public string Locations { get; set; }
     public bool? HasExternalMRN { get; set; } = false;
+    public int? MaxDocumentUploadLimit { get; set; } = 10;
 }

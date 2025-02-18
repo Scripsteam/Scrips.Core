@@ -24,4 +24,5 @@ public class StaffData
 
     public string MedicationSystem { get; set; }
     public bool? HasExternalMRN { get; set; } = false;
+    public int? MaxDocumentUploadLimit { get; set; } = 10;
 }
