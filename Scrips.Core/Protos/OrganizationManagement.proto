@@ -157,4 +157,5 @@ message OrganizationResourceBasedIntegrationResponse{
     string LabSystem = 7;
     string DiagnosisSystem = 8;
     string IntegrationType = 9;
+    string VaccinationHistorySystem = 10;
 }
