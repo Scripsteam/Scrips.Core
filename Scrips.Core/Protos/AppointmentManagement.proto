@@ -344,6 +344,7 @@ message Patient {
   string photoURL = 9;
   string phoneNumber = 10;
   string email = 11;
+  string age = 12;
 }
 
 message PracticeValueSet{
