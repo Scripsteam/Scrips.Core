@@ -16,7 +16,7 @@ public class PractitionerResponse
     public string photo { get; set; }
     public string PhonNo { get; set; }
     public HumanName name { get; set; }
-    public Speciality Speciality { get; set; }
+    public List<Speciality> Speciality { get; set; }
     public List<AddressModel> address { get; set; }
     public List<QualificationModel> qualification { get; set; }
     public List<Communication> communications { get; set; }

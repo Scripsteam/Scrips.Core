@@ -76,7 +76,7 @@ public class ProviderSearchResponse
     public string LicenceNo { get; set; }
     public Guid LicenceAuthorityId { get; set; }
     public DateTime? ExpirationDate { get; set; }
-    public Speciality Speciality { get; set; }
+    public List<Speciality> Speciality { get; set; }
     public ServiceCategory ServiceCategory { get; set; }
     public ServiceType ServiceType { get; set; }
     public IList<PracticeWorkingSlots> WorkingHours { get; set; }

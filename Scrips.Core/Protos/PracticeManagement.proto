@@ -271,7 +271,7 @@ message GetProviderByIdResponse{
     string id=1;
     string name=2;
     string photo=3;
-    string speciality=4;
+    repeated string speciality=4;
     string timeZone = 5;
     string organizationId=6;
     string phoneNo=7;
@@ -332,7 +332,7 @@ message DoctorDataResponse{
         bool Status =4;
         bool IsOnboarded =5;
         string ImageURL =6;      
-        SpecialityResponse Speciality =7;
+        repeated SpecialityResponse Speciality =7;
 }
 
 message SpecialityResponse{

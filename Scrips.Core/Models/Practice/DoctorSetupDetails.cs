@@ -9,8 +9,9 @@ public class DoctorSetupDetails
     public string EmailId { get; set; }
 
     public bool IsSuperAdmin { get; set; }
-    public string SpecialityName { get; set; }
-    public Guid SpecialityId { get; set; }
+    public List<string> SpecialityName { get; set; }
+    public string SpecialityIds { get; set; }
+    public List<Guid> SpecialityId { get; set; }
     public int ServiceCategoryId { get; set; }
     public int ServiceTypeId { get; set; }
     public bool? InvitationStatus { get; set; }
@@ -18,7 +19,7 @@ public class DoctorSetupDetails
 
     public DateTime? IsLastLogin { get; set; }
 
-    public Speciality Speciality { get; set; }
+    public List<Speciality> Speciality { get; set; }
     public string PhotoURL { get; set; }
     public string PracticeName { get; set; }
     public IssueObject Issue { get; set; }
