@@ -89,4 +89,12 @@ public class AppointmentProfileResponse
     /// is preferred profile.
     /// </summary>
     public bool? IsPreferred { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public Speciality Speciality { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public Guid SpecialityId { get; set; }
 }

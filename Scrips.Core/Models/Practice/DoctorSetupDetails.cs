@@ -19,6 +19,8 @@ public class DoctorSetupDetails
     public DateTime? IsLastLogin { get; set; }
 
     public Speciality Speciality { get; set; }
+    public List<Speciality> DoctorSpecialities { get; set; }
+    public List<Guid> DoctorSpecialityIds { get; set; }
     public string PhotoURL { get; set; }
     public string PracticeName { get; set; }
     public IssueObject Issue { get; set; }
