@@ -74,6 +74,7 @@ service PracticeManagement {
       returns (GetPractitionerOverbookCalendarSettingsResponse);
 
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
+  rpc UpdateSpecialities(UpdateSpecialitiesRequest) returns (UpdateSpecialitiesResponse);
 }
 
 message GetPracticesListRequest{
@@ -451,4 +452,14 @@ message GetDoctorDistanceDetailsByIdResponse{
     string MaxDistance=1;
     string latitude=2;
     string longitude=3;
+}
+
+message UpdateSpecialitiesRequest{
+    string providerId=1;
+    string specialities=2;
+    string userId=3;
+}
+
+message UpdateSpecialitiesResponse{
+    string status=1;
 }
