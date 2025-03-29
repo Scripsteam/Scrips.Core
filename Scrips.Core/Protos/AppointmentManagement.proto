@@ -447,6 +447,7 @@ message Appointment {
   bool waitForAppointment = 15;
   google.protobuf.Timestamp start = 16;
   google.protobuf.Timestamp end = 17;
+  Speciality speciality = 18;
 }
 
 message RealTimeUpdateRequest{
