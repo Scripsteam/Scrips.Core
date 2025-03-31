@@ -79,6 +79,11 @@ service MasterManagement {
      rpc GetNationalitySystemByCode(GetNationalitySystemByCodeRequest) returns (GetNationalitySystemByCodeResponse);
      rpc GetAllMaritalStatus(GetAllMaritalStatusRequest) returns (GetAllMaritalStatusResponse);
      rpc GetAllLanguages(GetLanguageByIdRequest) returns (GetLanguagesResponse);
+     rpc GetSpecialitiesByCodes(GetSpecialitiesByCodesRequest) returns (GetValuesSetResponse);
+}
+
+message GetSpecialitiesByCodesRequest{
+    string codes=1;
 }
 
 message GetAllMaritalStatusRequest{
