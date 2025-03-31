@@ -117,7 +117,7 @@ public class ListAppointmentResponse : ListAppointmentResponseBase
     /// <summary>
     /// Speciality
     /// </summary>
-    public Speciality Speciality { get; set; }
+    public Speciality Specialty { get; set; }
 
     /// <summary>
     /// Speciality Id

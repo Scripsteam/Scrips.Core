@@ -84,7 +84,7 @@ public class AppointmentResponse
     /// <summary>
     /// 
     /// </summary>
-    public Guid SpecialtyId { get; set; }
+    public Guid SpecialityId { get; set; }
 
     /// <summary>
     ///     Role of participant in the appointment.
