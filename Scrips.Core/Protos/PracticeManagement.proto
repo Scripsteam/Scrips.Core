@@ -75,6 +75,22 @@ service PracticeManagement {
 
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
   rpc UpdateSpecialities(UpdateSpecialitiesRequest) returns (UpdateSpecialitiesResponse);
+  rpc GetDoctorSpecialities(GetDoctorSpecialitiesRequest) returns (GetDoctorSpecialitiesResponse);
+}
+
+message GetDoctorSpecialitiesRequest{
+    string ids = 1;
+}
+
+message GetDoctorSpecialitiesResponse{
+    repeated DoctorSpecialities doctorSpecialities = 1;
+}
+
+message DoctorSpecialities{
+    string id = 1;
+    string specialityId = 2;
+    string addDoctorId = 3;
+    string isPrimary = 4;
 }
 
 message GetPracticesListRequest{
