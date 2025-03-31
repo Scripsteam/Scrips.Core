@@ -114,6 +114,15 @@ public class ListAppointmentResponse : ListAppointmentResponseBase
     /// </summary>
     public Guid? RecurringId { get; set; }
 
+    /// <summary>
+    /// Speciality
+    /// </summary>
+    public Speciality Speciality { get; set; }
+
+    /// <summary>
+    /// Speciality Id
+    /// </summary>
+    public Guid SpecialityId { get; set; }
 }
 
 public abstract class ListAppointmentResponseBase
