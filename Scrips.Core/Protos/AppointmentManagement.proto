@@ -30,6 +30,20 @@ service AppointmentManagement {
   rpc GetAppointmentDateById (GetAppointmentByIdRequest) returns (GetAppointmentDateByIdResponse);
   rpc GetPractitionersAvailability(GetPractitionersAvailabilityRequest) returns (TimePeriodCollectionMessages);
   rpc GetAppointmentsListByProvider(GetAppointmentsListByProviderRequest) returns (GetAppointmentsListByProviderResponse);
+  rpc GetAppointmentsSpecialityByIds(GetAppointmentsSpecialityByIdsRequest) returns (GetAppointmentsSpecialityByIdsResponse);
+}
+
+message GetAppointmentsSpecialityByIdsRequest{
+    string ids = 1;
+}
+
+message GetAppointmentsSpecialityByIdsResponse{
+    repeated AppointmentSpeciality AppointmentsSpecialities = 1;
+}
+
+message AppointmentSpeciality{
+    string appointmentId = 1;
+    string SpecialityCode = 2;
 }
 
 message GetAppointmentsListByProviderRequest{
@@ -447,6 +461,7 @@ message Appointment {
   bool waitForAppointment = 15;
   google.protobuf.Timestamp start = 16;
   google.protobuf.Timestamp end = 17;
+  Speciality speciality = 18;
 }
 
 message RealTimeUpdateRequest{

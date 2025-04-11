@@ -77,6 +77,9 @@ public class ProviderSearchResponse
     public Guid LicenceAuthorityId { get; set; }
     public DateTime? ExpirationDate { get; set; }
     public Speciality Speciality { get; set; }
+    public List<Speciality> DoctorSpecialities { get; set; }
+    public List<Guid> DoctorSpecialityIds { get; set; }
+    public string DoctorSpecialitiesIds { get; set; }
     public ServiceCategory ServiceCategory { get; set; }
     public ServiceType ServiceType { get; set; }
     public IList<PracticeWorkingSlots> WorkingHours { get; set; }
@@ -156,5 +159,8 @@ public class AvailableProviderResponse
     public Guid WorkingHourId { get; set; }
     public Guid SpecialityId { get; set; }
     public Speciality Speciality { get; set; }
+    public List<Speciality> DoctorSpecialities { get; set; }
+    public List<Guid> DoctorSpecialityIds { get; set; }
+    public string DoctorSpecialitiesIds { get; set; }
     public IList<PracticeWorkingSlots> WorkingHours { get; set; }
 }

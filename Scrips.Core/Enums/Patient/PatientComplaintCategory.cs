@@ -3,5 +3,5 @@
 public enum PatientComplaintCategory
 {
     ChiefComplaint,
-    AssociatedChiefComplaint
+    AssociatedComplaint
 }

@@ -80,6 +80,11 @@ public class AppointmentResponse
     ///     The specialty of a practitioner that would be required to perform the service requested in this appointment.
     /// </summary>
     public Speciality Specialty { get; set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public Guid SpecialityId { get; set; }
 
     /// <summary>
     ///     Role of participant in the appointment.

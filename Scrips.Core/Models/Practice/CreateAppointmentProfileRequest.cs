@@ -88,6 +88,11 @@ public class CreateAppointmentProfileRequest
     /// Is preferred.
     /// </summary>
     public bool IsPreferred { get; set; }
+
+    /// <summary>
+    /// SpecialtyId.
+    /// </summary>
+    public Guid SpecialityId { get; set; }
 }
 
 /// <summary>
