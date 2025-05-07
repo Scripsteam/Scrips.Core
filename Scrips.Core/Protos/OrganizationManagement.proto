@@ -37,6 +37,7 @@ message CheckOrganizationHasPatientCommunicationRequest {
 
 message CheckOrganizationHasPatientCommunicationResponse {
     string hasPatientCommunication = 1;
+    string sendUserAppUrl = 2;
 }
 
 message GetOrganizationDetailRequest{
