@@ -8,7 +8,7 @@ public class AppointmentProfileResponseList
         IsDeleted = new List<Guid>();
     }
 
-    public IList<AppointmentProfileResponse> CreateAppointmentProfileRequest { get; set; }
+    public List<AppointmentProfileResponse> CreateAppointmentProfileRequest { get; set; }
     public IList<Guid> IsDeleted { get; set; }
     public IList<LocationModel> EnabledLocation { get; set; }
 }
