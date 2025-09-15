@@ -73,6 +73,21 @@ service PatientManagement {
   rpc GetPrescriptionOrderDetails(GetPrescriptionOrderDetailsRequest) returns (GetPrescriptionOrderDetailsResponse);
   rpc GetFamilyMedicalHistoryByPatientId(GetFamilyMedicalHistoryByPatientIdRequest) returns (GetFamilyMedicalHistoryByPatientIdResponse);
   rpc UpdatePatientEncounterClaim(UpdatePatientEncounterClaimRequest) returns (UpdatePatientEncounterClaimResponse);
+  rpc GetPatientsBySearch(GetPatientsBySearchRequest) returns (GetPatientsBySearchResponse);
+}
+
+message GetPatientsBySearchRequest{
+    string organizationId=1;
+    string searchText=2;
+}
+
+message GetPatientBySearchResponse{
+    string id=1;
+    string name=2;
+}
+
+message GetPatientsBySearchResponse{
+    repeated GetPatientBySearchResponse patients=1;
 }
 
 message GetFamilyMedicalHistoryByPatientIdRequest{
