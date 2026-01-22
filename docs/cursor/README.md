@@ -6,6 +6,46 @@
 
 ---
 
+## 🚀 GETTING STARTED
+
+### For New Developers
+
+⭐ **START HERE (in this exact order):**
+
+1. **[Root README.md](../../README.md)** - Project overview (5 min)
+2. **[ONBOARDING.md](../../ONBOARDING.md)** - First 2 hours hands-on guide ⭐ **ESSENTIAL**
+3. **[CONTRIBUTING.md](../../CONTRIBUTING.md)** - Coding standards (30 min reference)
+4. **[ARCHITECTURE-DIAGRAM.md](ARCHITECTURE-DIAGRAM.md)** - Visual architecture guide (15 min)
+5. **[01-business-logic-outline.md](01-business-logic-outline.md)** - Domain overview (20 min)
+
+**Then deep dive into domain docs:**
+- Pick 2-3 domains relevant to your work
+- Each has comprehensive audit report prepended
+- Allow 1 hour per domain for initial reading
+
+**Must-read for everyone:**
+- **[09-technical-debt-inventory.md](09-technical-debt-inventory.md)** - Known issues ⚠️ **Critical**
+- **[07-framework-audit.md](07-framework-audit.md)** - Technology stack
+
+**Total onboarding time:** ~2-3 hours to productive, ~1 week to proficient
+
+### Quick Reference Table
+
+| I need to... | Read this... | Time |
+|--------------|--------------|------|
+| **Get started coding** | [ONBOARDING.md](../../ONBOARDING.md) | 2h |
+| **Understand coding standards** | [CONTRIBUTING.md](../../CONTRIBUTING.md) | 30m |
+| **See visual architecture** | [ARCHITECTURE-DIAGRAM.md](ARCHITECTURE-DIAGRAM.md) | 15m |
+| **Learn the domains** | [01-business-logic-outline.md](01-business-logic-outline.md) | 20m |
+| **Deep dive: Appointments** | [02-section-1-appointments-scheduling.md](02-section-1-appointments-scheduling.md) | 1h |
+| **Deep dive: Patients** | [02-section-2-patient-management.md](02-section-2-patient-management.md) | 1h |
+| **Deep dive: Billing** | [02-section-3-billing-financial.md](02-section-3-billing-financial.md) | 45m |
+| **Know the critical issues** | [09-technical-debt-inventory.md](09-technical-debt-inventory.md) | 1h |
+| **Understand the tech stack** | [07-framework-audit.md](07-framework-audit.md) | 30m |
+| **See all microservices** | [08-microservices-topology.md](08-microservices-topology.md) | 1h |
+
+---
+
 ## 📚 DOCUMENTATION STRUCTURE
 
 ### **New Approach: Consolidated Domain Files (9 files) + Quality Audits**
