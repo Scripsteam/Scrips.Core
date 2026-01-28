@@ -1,0 +1,7 @@
+# Scrips Engineering Standards  ## Non-Negotiables - NEVER suggest removing error handling - NEVER bypass validation for "speed" - NEVER suggest storing PHI in logs - ALL database queries must be parameterized - ALL external API calls must have timeout + retry logic - ALL user inputs must be validated AND sanitized  ## Healthcare Context - This is a regulated healthcare platform (NABIDH, Malaffi approved) - PHI (Protected Health Information) = patient names, MRNs, DOB, diagnoses - Assume HIPAA-equivalent compliance requirements - When in doubt, over-protect patient data  ## Code Style - C# naming: PascalCase for public, _camelCase for private fields - Async methods end with Async suffix - All public methods need XML documentation - No magic numbers - use named constants
+## Microservices Architecture Context - This codebase is part of a larger
+microservices system - When documenting integrations, distinguish: * Internal: Other
+Scrips services (via REST/gRPC/messaging) * External: Third-party APIs (NABIDH,
+Malaffi, Twilio, etc.) - Document which services this communicates with and how - Note
+message queue topics/events published and consumed - Identify service boundaries and
+data ownership
