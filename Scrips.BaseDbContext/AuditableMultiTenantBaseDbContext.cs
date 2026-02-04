@@ -1,6 +1,5 @@
 ﻿using Dapr.Client;
-using Finbuckle.MultiTenant.Abstractions;
-using Finbuckle.MultiTenant.EntityFrameworkCore;
+using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Scrips.Core.Models.Audit;
