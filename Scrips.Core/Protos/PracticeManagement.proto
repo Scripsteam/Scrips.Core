@@ -70,8 +70,11 @@ service PracticeManagement {
 
   rpc GetAppointmentProfileDuration (GetAppointmentProfileDurationRequest) returns (GetAppointmentProfileDurationResponse);
   
-  rpc GetPractitionerOverbookCalendarSettings (GetPractitionerOverbookCalendarSettingsRequest) 
+  rpc GetPractitionerOverbookCalendarSettings (GetPractitionerOverbookCalendarSettingsRequest)
       returns (GetPractitionerOverbookCalendarSettingsResponse);
+
+  rpc GetPractitionerOverbookCalendarSettingsBatch (GetOverbookCalendarSettingsBatchRequest)
+      returns (GetOverbookCalendarSettingsBatchResponse);
 
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
   rpc UpdateSpecialities(UpdateSpecialitiesRequest) returns (UpdateSpecialitiesResponse);
@@ -113,6 +116,22 @@ message GetPractitionerOverbookCalendarSettingsResponse {
   int32 availableSlotsToPractice = 4;
 }
 
+message GetOverbookCalendarSettingsBatchRequest {
+  string practiceId = 1;
+  repeated string practitionerIds = 2;
+}
+
+message OverbookCalendarSettingItem {
+  string practitionerId = 1;
+  int32 maxOverBookingsPerSlot = 2;
+  int32 defaultCalendarIncrements = 3;
+  int32 availableSlotsToPatient = 4;
+  int32 availableSlotsToPractice = 5;
+}
+
+message GetOverbookCalendarSettingsBatchResponse {
+  repeated OverbookCalendarSettingItem settings = 1;
+}
 
 message GetAppointmentProfileDurationResponse {
   int32  minutes = 1;
