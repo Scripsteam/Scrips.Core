@@ -1,6 +1,6 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Scrips.Core.Application.Common.Persistence;
-using System.Data.SqlClient;
 
 namespace Scrips.Infrastructure.Persistence.ConnectionString;
 
