@@ -2,7 +2,7 @@
 
 > Shared library for the Scrips healthcare platform - DTOs, models, API clients, and base infrastructure for microservices.
 
-[![.NET](https://img.shields.io/badge/.NET-7.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/7.0)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![License](https://img.shields.io/badge/license-Proprietary-red)](LICENSE)
 [![HIPAA](https://img.shields.io/badge/HIPAA-Compliant-green)]()
 [![Docs](https://img.shields.io/badge/docs-28k%20lines-blue)](docs/cursor/README.md)
@@ -41,7 +41,7 @@ Scrips.Core is the **foundational shared library** for the Scrips healthcare pla
 
 ### Prerequisites
 
-- **.NET 7.0 SDK** or later ([Download](https://dotnet.microsoft.com/download/dotnet/7.0))
+- **.NET 8.0 SDK** or later ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
 - **Visual Studio 2022** or **VS Code** with C# extension
 - **SQL Server** (for consuming microservices)
 
@@ -121,7 +121,7 @@ dotnet build
 - **Event-Driven** - Dapr pub/sub for domain events
 
 **Data Access:**
-- **Entity Framework Core 7.0** - ORM with automatic audit logging
+- **Entity Framework Core 8.0** - ORM with automatic audit logging
 - **Finbuckle.MultiTenant** - Tenant isolation via global query filters
 - **Specification Pattern** - Ardalis.Specification for reusable queries
 
@@ -193,20 +193,21 @@ Scrips.Core/
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| .NET | 7.0 ⚠️ *EOL* | Runtime framework |
-| C# | 11.0 | Primary language |
-| Entity Framework Core | 7.0.4 | ORM |
+| .NET | 8.0 (LTS) | Runtime framework |
+| C# | 12.0 | Primary language |
+| Entity Framework Core | 8.0.11 | ORM |
 | MediatR | 12.0.1 | CQRS/mediator pattern |
-| Refit | 6.3.2 | HTTP API clients |
-| Dapr | 1.10.0 | Distributed pub/sub |
+| Refit | 8.0.0 | HTTP API clients |
+| Dapr | 1.14.0 | Distributed pub/sub |
 | Finbuckle.MultiTenant | 6.10.0 | Multi-tenancy |
 | Azure.Search.Documents | 11.6.0 | AI-powered search |
-| FluentValidation | 11.5.1 | Request validation |
-| Mapster | 7.3.0 | Object mapping |
-| Ardalis.Specification | 6.1.0 | Repository pattern |
-| Serilog | 2.12.0 | Structured logging |
-
-⚠️ **CRITICAL:** .NET 7.0 reached end-of-support (May 2024). Upgrade to .NET 8+ planned.
+| FluentValidation | 11.10.0 | Request validation |
+| Mapster | 7.4.0 | Object mapping |
+| Ardalis.Specification | 8.0.0 | Repository pattern |
+| Serilog | 4.0.2 | Structured logging |
+| Newtonsoft.Json | 13.0.4 | JSON serialization |
+| Google.Protobuf | 3.33.5 | gRPC protocol buffers |
+| Asp.Versioning.Mvc | 8.1.0 | API versioning |
 
 ---
 
@@ -332,7 +333,7 @@ public interface IPatientApi
 
 | Issue | Severity | Impact | Effort | Status |
 |-------|----------|--------|--------|--------|
-| **.NET 7.0 End-of-Support** | 🔴 CRITICAL | No security patches for 8+ months | 48-68h | Planned |
+| **.NET 7.0 End-of-Support** | 🔴 CRITICAL | No security patches for 8+ months | 48-68h | **FIXED** (2026-03) -- Upgraded to .NET 8.0 LTS |
 | **Audit log loss (Dapr fire-and-forget)** | 🔴 CRITICAL | HIPAA 164.308 violation if Dapr fails | 16h | Open |
 | **MaskValueAudit incomplete** | 🔴 CRITICAL | PHI in plain text in audit logs | 8h | Open |
 | **Zero test coverage** | 🔴 HIGH | Cannot verify PHI protection | 80-120h | Open |
@@ -435,7 +436,7 @@ Not for public distribution.
 ## Roadmap
 
 ### Q1 2026 (URGENT)
-- 🔴 **Upgrade to .NET 8 LTS** (.NET 7.0 is EOL)
+- ✅ **~~Upgrade to .NET 8 LTS~~** -- **FIXED** (2026-03): All projects now target .NET 8.0 LTS
 - 🔴 **Fix audit log loss** (Implement retry + dead letter queue)
 - 🔴 **Complete MaskValueAudit application** (Apply to all PHI fields)
 
