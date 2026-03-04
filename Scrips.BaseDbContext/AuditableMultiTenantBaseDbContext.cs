@@ -1,7 +1,8 @@
-﻿using Dapr.Client;
+using Dapr.Client;
 using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Scrips.Core.Models.Audit;
 using Serilog;
 
@@ -11,6 +12,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DaprClient _daprClient;
+    private const int MaxRetries = 3;
 
     public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
         : base(tenantInfo)
@@ -28,9 +30,10 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        List<LogAudit>? changes = null;
         try
         {
-            var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
                 await SaveAudit(changes);
@@ -38,7 +41,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
         }
         catch (Exception ex)
         {
-            Log.Error(ex.Message);
+            Log.Warning(ex, "Audit logging failed for {ChangeCount} entity changes — audit trail incomplete (compliance risk)", changes?.Count ?? 0);
         }
 
         return await base.SaveChangesAsync(cancellationToken);
@@ -46,27 +49,49 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
 
     public override int SaveChanges()
     {
+        List<LogAudit>? changes = null;
         try
         {
-            var changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                _ = SaveAudit(changes).Result;
+                Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
             }
         }
         catch (Exception ex)
         {
-            Log.Error(ex.Message);
+            Log.Warning(ex, "Audit logging failed for {ChangeCount} entity changes — audit trail incomplete (compliance risk)", changes?.Count ?? 0);
         }
 
         return base.SaveChanges();
     }
 
-    private async Task<bool> SaveAudit(List<LogAudit> changes)
+    private async Task SaveAudit(List<LogAudit> changes)
     {
+        Exception? lastException = null;
 
-        if (await _daprClient.CheckHealthAsync())
-            await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
-        return true;
+        for (int attempt = 1; attempt <= MaxRetries; attempt++)
+        {
+            try
+            {
+                await _daprClient.PublishEventAsync("pubsub", "SaveAudit", changes);
+                return;
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                Log.Warning("Dapr publish attempt {Attempt}/{MaxRetries} failed: {ErrorMessage}", attempt, MaxRetries, ex.Message);
+
+                if (attempt < MaxRetries)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)));
+                }
+            }
+        }
+
+        // All retries exhausted — log the audit payload so it can be recovered from log aggregation
+        Log.Error(lastException,
+            "Audit publish failed after {MaxRetries} retries. Logging audit payload for recovery. AuditPayload={AuditPayload}",
+            MaxRetries, JsonConvert.SerializeObject(changes));
     }
 }

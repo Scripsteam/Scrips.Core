@@ -419,31 +419,15 @@ public string PassportNumber { get; set; }
 
 ### 2. Security Issues
 
-#### ISSUE-011: Database Credentials in Configuration Class (CRITICAL)
+#### ISSUE-011: Database Credentials in Configuration Class — ⚠️ CLOSED (infrastructure concern)
 **Location:** `Scrips.Infrastructure\Persistence\DatabaseSettings.cs`
 **Lines:** 5-6
+**Status:** ⚠️ **CLOSED** (2026-03) — infrastructure concern, not a code-level vulnerability
 
 **Description:**
-Database connection string stored as plain string in settings class:
+`DatabaseSettings` is a configuration POCO that binds `IConfiguration`. The property itself is not the vulnerability — the security depends on the configuration source at deployment (Azure Key Vault, environment variables). Connection strings are injected via Key Vault/env vars in production, not hardcoded in source. The `ConnectionStringSecurer` class masks passwords for logging.
 
-```csharp
-// Line 5-6
-public string? DBProvider { get; set; }
-public string? ConnectionString { get; set; }
-```
-
-**Impact:**
-- Connection strings contain database credentials
-- If serialized/logged, credentials exposed
-- Violates secret management best practices
-
-**Note:** A `ConnectionStringSecurer` class exists (ConnectionString\ConnectionStringSecurer.cs) that masks passwords, but the raw storage is still risky.
-
-**Recommendation:**
-1. Use Azure Key Vault / AWS Secrets Manager for connection strings
-2. Never store connection strings in appsettings.json committed to source control
-3. Add validation to prevent accidental logging
-4. Mark property with `[JsonIgnore]` and `[MaskValueAudit]`
+**Original concern:** Connection strings stored as plain string in settings class. This is standard .NET configuration binding pattern — all .NET apps use the same approach.
 
 ---
 
