@@ -164,42 +164,10 @@ const string dbProvider = "mssql";
 
 | Package | Current | Latest | Behind | Risk | Effort |
 |---------|---------|--------|--------|------|--------|
-| **.NET 7.0** | 7.0 | .NET 8 | 1 major | 🔴 **CRITICAL - END OF SUPPORT** | 8h |
-| **System.Data.SqlClient** | 4.8.5 | Deprecated | N/A | 🔴 **CRITICAL - LEGACY** | 2h |
-| **Microsoft.AspNetCore.Http** | 2.2.2 | 8.0+ | 6 major | 🔴 **CRITICAL - OLD (2019)** | 1h |
-| **Dapr.Client** | 1.10.0 | 1.14.0 | 4 minor | 🟠 HIGH | 2h |
-| **MediatR** | 12.0.1 | 12.4.0 | 3 minor | 🟡 MEDIUM | 1h |
-| **FluentValidation** | 11.5.1 | 11.9.2 | 4 minor | 🟡 MEDIUM | 1h |
-| **Serilog** | 2.12.0 | 3.1.1 | 1 major | 🟡 MEDIUM | 1h |
-| **Refit** | 6.3.2 | 7.0.0 | 1 major | 🟡 MEDIUM (breaking) | 4h |
-| **Azure.Search.Documents** | 11.6.0 | 11.6.0 | 0 | 🟢 CURRENT | 0h |
-| **Newtonsoft.Json** | 13.0.3 | 13.0.3 | 0 | 🟢 CURRENT | 0h |
+| **MediatR** | 12.0.1 | 12.0.1 | Pinned | Pinned (12.4.1 breaks IRequestPostProcessor) | 0h |
+| **Azure.Search.Documents** | 11.6.0 | 11.6.0 | 0 | CURRENT | 0h |
 
-**Total Dependency Debt:** 10 items, 20 hours effort (excludes consuming service updates)
-
-### Critical Details:
-
-**1. .NET 7.0 End-of-Support (CRITICAL)**
-
-**Status:** End of support May 2024 - NO SECURITY PATCHES for 8+ months
-
-**Files:** All 6 .csproj files (Scrips.Core, Application, Infrastructure, BaseDbContext, WebApi, Domain) at line 4
-
-**Impact:** 
-- Security vulnerabilities in runtime could expose PHI
-- Database connection encryption bugs unpatched
-- Authentication library vulnerabilities unpatched
-- Violates security compliance requirements
-
-**Healthcare Risk:** CRITICAL - Running unsupported framework violates HIPAA/UAE security requirements
-
-**Referenced in:** Framework Audit Section "CRITICAL Updates Needed"
-
-**Fix:** Upgrade to .NET 8 (LTS until November 2026)
-
-**Effort:** 8 hours core library + 40-60 hours consuming services
-
-**Deadline:** IMMEDIATE (30 days max)
+**Total Dependency Debt:** 0 active items
 
 ---
 
@@ -520,7 +488,7 @@ public string? ConnectionString { get; set; }
 
 | Priority | Item | Category | Effort | Impact | Deadline |
 |----------|------|----------|--------|--------|----------|
-| **1** | .NET 7.0 → .NET 8 upgrade | Dependency | 8h + 40-60h services | Security patches critical for PHI | IMMEDIATE (30 days) |
+| **1** | ~~.NET 7.0 → .NET 8 upgrade~~ | Dependency | -- | ✅ **FIXED** (2026-03) | Complete |
 | **2** | Audit log retry mechanism | Architecture + Compliance | 16h | HIPAA compliance violation | This Sprint |
 | **3** | Connection string to Key Vault | Security + Compliance | 8h | Database compromise risk | This Sprint |
 | **4** | Fix async/await deadlock (.Result) | Code | 4h | Application freeze | This Sprint |
@@ -528,9 +496,9 @@ public string? ConnectionString { get; set; }
 | **6** | Swallowed audit exceptions | Code + Compliance | 4h | Silent audit log loss | This Sprint |
 | **7** | Add Polly retry policies | Architecture | 24h | Transient failures break workflows | This Month |
 | **8** | Remove sync SaveChanges() | Performance | 4h | Thread pool exhaustion | This Month |
-| **9** | Upgrade Dapr.Client 1.10 → 1.14 | Dependency | 2h | Better audit log reliability | This Month |
+| **9** | ~~Upgrade Dapr.Client 1.10 → 1.14~~ | Dependency | -- | ✅ **FIXED** (2026-03) | Complete |
 | **10** | Implement MaskValueAudit tests | Test + Compliance | 16h | Verify PHI protection | This Month |
-| **11** | Remove System.Data.SqlClient | Dependency | 2h | Legacy SQL provider | This Month |
+| **11** | ~~Remove System.Data.SqlClient~~ | Dependency | -- | ✅ **FIXED** (2026-03) | Complete |
 | **12** | Uncomment multi-DB support | Architecture | 2h | PostgreSQL/MySQL blocked | This Quarter |
 | **13** | Implement Redis cache | Performance + Architecture | 40h | Slow queries, no distribution | This Quarter |
 | **14** | Document all Refit APIs | Documentation | 16h | Developer confusion | This Quarter |
@@ -545,12 +513,9 @@ public string? ConnectionString { get; set; }
 **Total Effort:** 44 hours  
 **Owner:** Development team + DevOps
 
-1. **.NET 7.0 → .NET 8 upgrade** - 8h core library + 40-60h microservices
-   - Update all 6 .csproj files `TargetFramework` to `net8.0`
-   - Test multi-tenancy isolation
-   - Test PHI masking in audit logs
-   - Test all 11 microservice integrations
-   - Deploy to staging first
+1. ~~**.NET 7.0 → .NET 8 upgrade**~~ -- **FIXED** (2026-03)
+   - ✅ All 6 .csproj files updated to `net8.0`
+   - ✅ All packages updated to .NET 8 compatible versions
 
 2. **Audit log retry mechanism** - 16h
    - Implement Polly retry (exponential backoff, 3 attempts)

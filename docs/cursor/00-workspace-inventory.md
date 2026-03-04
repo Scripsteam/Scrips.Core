@@ -5,7 +5,7 @@
 - Repository name: Scrips.Core
 - Total projects found: 6 (.csproj files)
 - Total files: ~274 C# files (not including infrastructure and test files)
-- Primary technology: .NET 7.0
+- Primary technology: .NET 8.0
 - Main language: C#
 
 ### Project Structure:
@@ -122,11 +122,14 @@
 
 ### Key Technologies:
 - **CQRS/Mediator**: MediatR v12.0.1
-- **ORM**: Entity Framework Core v7.0.4
-- **Validation**: FluentValidation v11.5.1
-- **Mapping**: Mapster v7.3.0
-- **Specification Pattern**: Ardalis.Specification v6.1.0
-- **Distributed Tracing/State**: Dapr.Client v1.10.0
+- **ORM**: Entity Framework Core v8.0.11
+- **Validation**: FluentValidation v11.10.0
+- **Mapping**: Mapster v7.4.0
+- **Specification Pattern**: Ardalis.Specification v8.0.0
+- **Distributed Tracing/State**: Dapr.Client v1.14.0
 - **ID Generation**: NewId v4.0.1, MassTransit (for entity IDs)
-- **Logging**: Serilog v2.12.0
-- **API Client**: Refit v6.3.2
+- **Logging**: Serilog v4.0.2
+- **API Client**: Refit v8.0.0
+- **JSON Serialization**: Newtonsoft.Json v13.0.4
+- **gRPC**: Google.Protobuf v3.33.5
+- **API Versioning**: Asp.Versioning.Mvc v8.1.0

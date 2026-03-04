@@ -7,7 +7,7 @@ Scrips.Core is a shared library for a healthcare practice management microservic
 ## 2. TECH STACK DISCOVERY
 
 **Runtime & Framework:**
-- Framework: .NET 7.0
+- Framework: .NET 8.0 (LTS)
   - File: Scrips.Core.csproj:4
   - File: Scrips.Core.Application.csproj:4
   - File: Scrips.Infrastructure.csproj:4
@@ -24,25 +24,25 @@ Scrips.Core is a shared library for a healthcare practice management microservic
   - Implementation: Missing - abstraction only
 
 **Communication:**
-- HTTP Library: Refit v6.3.2
-  - File: Scrips.Core.csproj:14
+- HTTP Library: Refit v8.0.0
+  - File: Scrips.Core.csproj:18
   - Usage: 11 HTTP API clients in HttpApiClients/ folder
 - gRPC: Protocol Buffers (9 .proto definitions)
   - File: Scrips.Core.csproj:18-26
   - Services: Appointment, Billing, Identity, Patient, Provider, Practice, Organization, Person, Master
-- Message Queue: Dapr Client v1.10.0
-  - File: Scrips.BaseDbContext.csproj:10
+- Message Queue: Dapr Client v1.14.0
+  - File: Scrips.BaseDbContext.csproj:15
   - File: AuditableBaseDbContext.cs:61 (PublishEventAsync)
   - File: Topics.cs:1-21 (10 event topics defined)
 
 **Key Dependencies:**
-- MediatR v12.0.1 (CQRS) - Scrips.Core.Application.csproj:13
-- Entity Framework Core v7.0.4 - Scrips.BaseDbContext.csproj:13
-- FluentValidation v11.5.1 - Scrips.Core.Application.csproj:10
-- Mapster v7.3.0 (mapping) - Scrips.Core.Application.csproj:12
-- Finbuckle.MultiTenant.EntityFrameworkCore v6.10.0 - Scrips.BaseDbContext.csproj:17
-- Azure.Search.Documents v11.6.0 - Scrips.Core.csproj:8
-- Serilog v2.12.0 (logging) - Scrips.Infrastructure.csproj:15
+- MediatR v12.0.1 (CQRS) - Scrips.Core.Application.csproj:17
+- Entity Framework Core v8.0.11 - Scrips.BaseDbContext.csproj:19
+- FluentValidation v11.10.0 - Scrips.Core.Application.csproj:14
+- Mapster v7.4.0 (mapping) - Scrips.Core.Application.csproj:16
+- Finbuckle.MultiTenant.EntityFrameworkCore v6.10.0 - Scrips.BaseDbContext.csproj:28
+- Azure.Search.Documents v11.6.0 - Scrips.Core.csproj:9
+- Serilog v4.0.2 (logging) - Scrips.BaseDbContext.csproj:27
 
 ## 3. MAJOR COMPONENTS
 

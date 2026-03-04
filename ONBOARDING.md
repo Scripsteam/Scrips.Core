@@ -22,8 +22,7 @@ By the end of this guide, you'll be able to:
 
 ### Required Tools
 - **Visual Studio 2022** (17.4+) OR **VS Code** with C# extension
-- **.NET 7.0 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/7.0))
-  - ⚠️ **CRITICAL:** .NET 7.0 reached end-of-support in May 2024. Upgrade to .NET 8+ is planned.
+- **.NET 8.0 SDK** ([Download](https://dotnet.microsoft.com/download/dotnet/8.0))
 - **SQL Server** (LocalDB, Express, or Developer Edition)
 - **Git** for version control
 - **Postman** or similar API testing tool (optional but recommended)
@@ -86,10 +85,10 @@ Build succeeded.
     0 Error(s)
 ```
 
-⚠️ **If build fails:** Check that you have .NET 7.0 SDK installed:
+⚠️ **If build fails:** Check that you have .NET 8.0 SDK installed:
 ```bash
 dotnet --list-sdks
-# Should show: 7.0.xxx [path]
+# Should show: 8.0.xxx [path]
 ```
 
 ### Step 4: Understanding What You Just Built
@@ -598,8 +597,8 @@ modelBuilder.Entity<YourEntity>()
 # Check installed SDKs
 dotnet --list-sdks
 
-# Install .NET 7.0 SDK
-# https://dotnet.microsoft.com/download/dotnet/7.0
+# Install .NET 8.0 SDK
+# https://dotnet.microsoft.com/download/dotnet/8.0
 ```
 
 #### Issue: "Dapr not running - audit logs fail"
@@ -630,7 +629,7 @@ dapr run --app-id patient-api --app-port 5000 -- dotnet run
 
 ### External Resources
 
-- **.NET 7 Documentation:** https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-7
+- **.NET 8 Documentation:** https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8
 - **Clean Architecture:** https://github.com/jasontaylordev/CleanArchitecture
 - **HIPAA Compliance:** https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
 - **Dapr Documentation:** https://docs.dapr.io/
@@ -645,7 +644,7 @@ Before you start coding, be aware of these CRITICAL issues (from Technical Debt 
 
 | Issue | Impact | Status | Effort |
 |-------|--------|--------|--------|
-| **.NET 7.0 End-of-Support** | No security patches for 8+ months | 🔴 URGENT | 48-68h |
+| **.NET 7.0 End-of-Support** | No security patches for 8+ months | ✅ **FIXED** (2026-03) | -- |
 | **Audit log loss (Dapr fire-and-forget)** | HIPAA violation if Dapr unavailable | 🔴 URGENT | 16h |
 | **MaskValueAudit incomplete** | PHI exposure in audit logs | 🔴 URGENT | 8h |
 | **Zero test coverage** | Cannot verify PHI protection | 🔴 HIGH | 80-120h |
@@ -725,7 +724,7 @@ Before you consider yourself "onboarded":
 - [ ] I understand Clean Architecture layers
 - [ ] I know what PHI is and how to protect it
 - [ ] I know multi-tenancy MUST be enforced (OrganizationId)
-- [ ] I know about the CRITICAL issues (.NET 7.0 EOL, audit loss, etc.)
+- [ ] I know about the CRITICAL issues (audit log loss, MaskValueAudit, etc.)
 - [ ] I've made my first code change successfully
 - [ ] I know where to find help (docs, team contacts)
 - [ ] I've read CONTRIBUTING.md coding standards
@@ -744,6 +743,6 @@ You're now ready to contribute to Scrips.Core. Remember:
 
 ---
 
-*Last updated: January 2026*  
+*Last updated: March 2026*  
 *Maintained by: Engineering Team*  
 *Questions? Create an issue or ask in #engineering-onboarding*
