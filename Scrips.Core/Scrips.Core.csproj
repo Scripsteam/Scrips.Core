@@ -2,6 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
+		<!-- Suppress NU1605: System.* packages must stay at 8.x for Kestrel/gRPC compat despite 10.x transitive refs -->
+		<NoWarn>$(NoWarn);NU1605</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -10,11 +12,11 @@
 		<PackageReference Include="Microsoft.Extensions.Primitives" Version="10.0.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.2" />
-		<PackageReference Include="System.IO.Pipelines" Version="10.0.2" />
+		<PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
 		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.6" />
-		<PackageReference Include="System.Text.Encodings.Web" Version="10.0.2" />
-		<PackageReference Include="System.Text.Json" Version="10.0.2" />
-		<PackageReference Include="System.Threading.Channels" Version="10.0.2" />
+		<PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+		<PackageReference Include="System.Threading.Channels" Version="8.0.0" />
 		<PackageReference Include="Refit" Version="8.0.0" />
 	</ItemGroup>
 
