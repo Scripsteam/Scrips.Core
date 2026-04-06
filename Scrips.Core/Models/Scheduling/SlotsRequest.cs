@@ -44,4 +44,9 @@ public class SlotsRequest
     ///     SearchFromUserApp is uses when slots are search for all location.
     /// </summary>
     public bool SearchFromUserApp { get; set; }
+
+    /// <summary>
+    ///     Organization identifier for tenant isolation.
+    /// </summary>
+    public Guid OrganizationId { get; set; }
 }
