@@ -101,6 +101,7 @@ message GetAppointmentParticipantsResponse{
 
 message GetAppointmentCustomNoteRequest {
   string appointmentId=1;
+  string organizationId=2;
 }
 
 message GetAppointmentCustomNoteResponse{
@@ -137,6 +138,7 @@ message GetPractitionerAvailabilityRequest{
   string practitionerId = 1;
   TimePeriodCollectionMessage timeCollection = 2;
   string practiceId = 3;
+  string organizationId = 4;
 }
 
 message TimePeriodCollectionMessage{
@@ -483,6 +485,7 @@ message AppointmentSponsorTypeResponse{
 message GetPractitionersAvailabilityRequest{
   TimePeriodCollectionMessages data = 1;
   string practiceId = 2;
+  string organizationId = 3;
 }
 
 message Pair {
