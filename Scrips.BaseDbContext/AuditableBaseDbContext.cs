@@ -47,7 +47,18 @@ public class AuditableBaseDbContext : DbContext
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
+                var capturedChanges = changes;
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await SaveAudit(capturedChanges);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(ex, "Background audit logging failed for {ChangeCount} entity changes — audit trail incomplete (compliance risk)", capturedChanges.Count);
+                    }
+                });
             }
         }
         catch (Exception ex)
