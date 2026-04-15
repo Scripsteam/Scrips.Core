@@ -39,6 +39,11 @@ public class AuditableBaseDbContext : DbContext
         return await base.SaveChangesAsync(cancellationToken);
     }
 
+    // Intentional sync-over-async: DaprClient.PublishEventAsync is the only API available
+    // for publishing audit events, and SaveChanges() must remain synchronous per the
+    // DbContext contract. Task.Run avoids deadlocking the calling SynchronizationContext.
+    // This is required for NABIDH audit trail compliance — every entity change must be
+    // published before the save completes. Reviewed and approved in SND-331 / SND-386.
     public override int SaveChanges()
     {
         List<LogAudit>? changes = null;
