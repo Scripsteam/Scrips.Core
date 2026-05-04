@@ -80,6 +80,174 @@ service MasterManagement {
      rpc GetAllMaritalStatus(GetAllMaritalStatusRequest) returns (GetAllMaritalStatusResponse);
      rpc GetAllLanguages(GetLanguageByIdRequest) returns (GetLanguagesResponse);
      rpc GetSpecialitiesByCodes(GetSpecialitiesByCodesRequest) returns (GetValuesSetResponse);
+
+     // ─── Clinical AI surface (REUSE per Orb build doc §3.5 H15) ─────────────
+     // Thin gRPC wrappers around Master's existing ClinicalRAGService /
+     // VectorService C# methods. Adding these RPCs lets ambient-scribe
+     // capabilities call the working RAG pipeline without duplicating it.
+     // Tracked under PROD-541 / PROD-540.
+     rpc GenerateEmbedding(GenerateEmbeddingRequest) returns (GenerateEmbeddingResponse);
+     rpc SearchAndEnhance(SearchAndEnhanceRequest) returns (SearchAndEnhanceResponse);
+     rpc GetClinicalSuggestions(ClinicalSuggestionsRequest) returns (ClinicalSuggestionsResponse);
+     rpc GenerateDocumentation(GenerateDocumentationRequest) returns (GenerateDocumentationResponse);
+}
+
+// ─── Clinical AI message types ───────────────────────────────────────────────
+
+message GenerateEmbeddingRequest {
+    string text = 1;
+}
+
+message GenerateEmbeddingResponse {
+    repeated float vector = 1;
+    int32 dimensions = 2;
+    // Model identifier, e.g. "text-embedding-ada-002" or "text-embedding-3-large".
+    string model = 3;
+}
+
+message SearchAndEnhanceRequest {
+    string text = 1;
+    string specialty = 2;
+    int32 topK = 3;
+}
+
+message SearchAndEnhanceResponse {
+    string modelVersion = 1;
+    repeated SimilarCase similarCases = 2;
+    repeated GuidelineSnippet guidelines = 3;
+}
+
+message SimilarCase {
+    string caseId = 1;
+    string text = 2;
+    double similarityScore = 3;
+    string specialty = 4;
+}
+
+message GuidelineSnippet {
+    string id = 1;
+    string title = 2;
+    string snippet = 3;
+    string source = 4;
+    double relevanceScore = 5;
+}
+
+message ClinicalSuggestionsRequest {
+    string text = 1;
+    string specialty = 2;
+}
+
+message ClinicalSuggestionsResponse {
+    repeated string keyQuestions = 1;
+    repeated Differential differentials = 2;
+    repeated string documentationElements = 3;
+    repeated ClinicalAlert alerts = 4;
+}
+
+message Differential {
+    // Clinical condition the differential names.
+    string condition = 1;
+    // Optional ICD code if Master grounded the differential against the
+    // CodeSystem store. Empty when ungrounded.
+    string icdCode = 2;
+    // ICD codesystem identifier ("ICD-10-CM", "ICD-10-AM", etc.).
+    string codesystem = 3;
+    double confidence = 4;
+    string rationale = 5;
+    // True when the icdCode was validated against the current CodeSystem
+    // version per the "LLM proposes, deterministic store disposes" rule.
+    bool validated = 6;
+}
+
+message ClinicalAlert {
+    // "info" / "warning" / "critical".
+    string severity = 1;
+    string message = 2;
+    string source = 3;
+}
+
+message GenerateDocumentationRequest {
+    string transcript = 1;
+    string specialty = 2;
+}
+
+// Rich encounter document. Narrative sections (HPI, ROS, PE, assessmentNarrative,
+// followUp, clinicalNotes) are free text the clinician edits. Structured arrays
+// (diagnoses, medications, labs, radiology, vaccinations, patientInstructions)
+// are actionable items each capturing the data points needed downstream
+// (claims, prescriptions, lab orders, EMR posting). Empty strings / arrays
+// mean the data was not present in the transcript — don't hallucinate.
+message GenerateDocumentationResponse {
+    string chiefComplaint = 1;
+
+    // Subjective
+    string historyOfPresentIllness = 2;
+    string reviewOfSystems = 3;
+
+    // Objective
+    Vitals vitals = 4;
+    string physicalExam = 5;
+
+    // Assessment
+    repeated EncounterDiagnosis diagnoses = 6;
+    string assessmentNarrative = 7;
+
+    // Plan
+    repeated EncounterMedication medications = 8;
+    repeated LabOrder labs = 9;
+    repeated RadiologyOrder radiology = 10;
+    repeated EncounterVaccination vaccinations = 11;
+    repeated string patientInstructions = 12;
+    string followUp = 13;
+    string clinicalNotes = 14;
+}
+
+message Vitals {
+    string bloodPressure = 1;
+    string heartRate = 2;
+    string temperature = 3;
+    string respiratoryRate = 4;
+    string oxygenSaturation = 5;
+    string weight = 6;
+    string height = 7;
+    string bmi = 8;
+    string pain = 9;
+}
+
+message EncounterDiagnosis {
+    string name = 1;
+    string icdCode = 2;
+    string codesystem = 3;
+    bool primary = 4;
+    string notes = 5;
+}
+
+message EncounterMedication {
+    string name = 1;
+    string dose = 2;
+    string route = 3;
+    string frequency = 4;
+    string duration = 5;
+    string instructions = 6;
+    bool isNew = 7;
+}
+
+message LabOrder {
+    string name = 1;
+    string urgency = 2;
+    string indication = 3;
+}
+
+message RadiologyOrder {
+    string modality = 1;
+    string bodyArea = 2;
+    string indication = 3;
+    string urgency = 4;
+}
+
+message EncounterVaccination {
+    string name = 1;
+    string schedule = 2;
 }
 
 message GetSpecialitiesByCodesRequest{
