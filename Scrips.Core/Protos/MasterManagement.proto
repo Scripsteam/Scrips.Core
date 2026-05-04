@@ -80,6 +80,268 @@ service MasterManagement {
      rpc GetAllMaritalStatus(GetAllMaritalStatusRequest) returns (GetAllMaritalStatusResponse);
      rpc GetAllLanguages(GetLanguageByIdRequest) returns (GetLanguagesResponse);
      rpc GetSpecialitiesByCodes(GetSpecialitiesByCodesRequest) returns (GetValuesSetResponse);
+
+     // ─── Clinical AI surface (REUSE per Orb build doc §3.5 H15) ─────────────
+     // Thin gRPC wrappers around Master's existing ClinicalRAGService /
+     // VectorService C# methods. Adding these RPCs lets ambient-scribe
+     // capabilities call the working RAG pipeline without duplicating it.
+     // Tracked under PROD-541 / PROD-540.
+     rpc GenerateEmbedding(GenerateEmbeddingRequest) returns (GenerateEmbeddingResponse);
+     rpc SearchAndEnhance(SearchAndEnhanceRequest) returns (SearchAndEnhanceResponse);
+     rpc GetClinicalSuggestions(ClinicalSuggestionsRequest) returns (ClinicalSuggestionsResponse);
+     rpc GenerateDocumentation(GenerateDocumentationRequest) returns (GenerateDocumentationResponse);
+}
+
+// ─── Clinical AI message types ───────────────────────────────────────────────
+
+// Partial-failure envelope for clinical AI responses. Set when the call
+// partially succeeded — embedding succeeded but retrieval returned 0
+// results, LLM timed out and a TA4H-only fallback was returned, parser
+// fell through to a lenient mode, etc. gRPC status codes continue to
+// handle full transport-level failures (UNAVAILABLE, DEADLINE_EXCEEDED).
+//
+// We use an optional alongside data (rather than oneof) because partial
+// failures often return BOTH partial data AND an error — e.g. SOAP draft
+// succeeded but suggestions retrieval timed out. A oneof would force the
+// caller to choose, which doesn't model the real partial-failure shape.
+message ErrorDetail {
+    // Stable machine-readable code. Examples:
+    //   PARTIAL_FAILURE   — a subordinate call failed but data is still useful
+    //   RAG_TIMEOUT       — retrieval exceeded budget
+    //   PARSER_FALLBACK   — strict JSON parse failed, lenient parser used
+    //   EMPTY_RESULT      — call succeeded but produced no usable output
+    //   UPSTREAM_ERROR    — Azure / external dep returned a failure
+    string code = 1;
+    // Human-readable summary, safe to log. No PHI.
+    string message = 2;
+    // Optional context: which sub-call failed, retry hints, model version, etc.
+    repeated string details = 3;
+}
+
+message GenerateEmbeddingRequest {
+    string text = 1;
+}
+
+message GenerateEmbeddingResponse {
+    repeated float vector = 1;
+    int32 dimensions = 2;
+    // Model identifier, e.g. "text-embedding-ada-002" or "text-embedding-3-large".
+    string model = 3;
+}
+
+message SearchAndEnhanceRequest {
+    string text = 1;
+    string specialty = 2;
+    // Number of similar cases to retrieve. Range 1–20, default 5 when 0.
+    // Server clamps out-of-range values silently — no error returned.
+    int32 topK = 3;
+
+    // No tenant/patient context fields here. The ambient scribe consumer
+    // (VideoApplication) is currently `[Authorize]`-bypassed (CRIT-002),
+    // so there's no honest source for organizationId / patientId /
+    // encounterId yet. Once auth lands, follow the standard Scrips
+    // three-tier orgId resolution and forward via gRPC metadata
+    // (header `x-organization-id`), not body fields.
+}
+
+message SearchAndEnhanceResponse {
+    string modelVersion = 1;
+    repeated SimilarCase similarCases = 2;
+    repeated GuidelineSnippet guidelines = 3;
+    // Set when the response is partial.
+    // High tag (100) intentional — reserves field numbers 4–99 for future
+    // payload additions without renumbering or shifting the error envelope.
+    ErrorDetail error = 100;
+}
+
+message SimilarCase {
+    string caseId = 1;
+    string text = 2;
+    double similarityScore = 3;
+    string specialty = 4;
+}
+
+message GuidelineSnippet {
+    string id = 1;
+    string title = 2;
+    string snippet = 3;
+    string source = 4;
+    double relevanceScore = 5;
+}
+
+message ClinicalSuggestionsRequest {
+    string text = 1;
+    string specialty = 2;
+    // Tenant context not modeled here yet — see SearchAndEnhanceRequest
+    // for rationale. Will arrive via gRPC metadata once auth lands.
+}
+
+message ClinicalSuggestionsResponse {
+    repeated KeyQuestion keyQuestions = 1;
+    repeated Differential differentials = 2;
+    repeated DocumentationElement documentationElements = 3;
+    repeated ClinicalAlert alerts = 4;
+    // High tag (100) intentional — see SearchAndEnhanceResponse.error.
+    ErrorDetail error = 100;
+}
+
+message Differential {
+    // Clinical condition the differential names.
+    string condition = 1;
+    // Optional ICD code if Master grounded the differential against the
+    // CodeSystem store. Empty when ungrounded.
+    string icdCode = 2;
+    // ICD codesystem identifier ("ICD-10-CM", "ICD-10-AM", etc.).
+    string codesystem = 3;
+    double confidence = 4;
+    string rationale = 5;
+    // True when the icdCode was validated against the current CodeSystem
+    // version per the "LLM proposes, deterministic store disposes" rule.
+    bool validated = 6;
+}
+
+enum Priority {
+    // Default for unset / unknown — treat as MEDIUM for ordering purposes.
+    PRIORITY_UNSPECIFIED = 0;
+    PRIORITY_HIGH = 1;
+    PRIORITY_MEDIUM = 2;
+    PRIORITY_LOW = 3;
+}
+
+message KeyQuestion {
+    // The question to ask the patient.
+    string text = 1;
+    // Why this question matters clinically (LLM-generated rationale).
+    string rationale = 2;
+    // Drives ordering in the UI. UNSPECIFIED falls back to MEDIUM.
+    Priority priority = 3;
+}
+
+message DocumentationElement {
+    // The documentation point to record.
+    string text = 1;
+    // Which SOAP section the element belongs to. One of "subjective",
+    // "objective", "assessment", "plan", or "" if unscoped.
+    string section = 2;
+    // Why this element matters (LLM-generated rationale).
+    string rationale = 3;
+}
+
+message ClinicalAlert {
+    // "info" / "warning" / "critical".
+    string severity = 1;
+    // Human-readable alert text.
+    string message = 2;
+    // Originating service / pipeline component.
+    string source = 3;
+    // Stable machine-readable alert code so consumers can render / triage
+    // without parsing the message string. Examples:
+    //   DRUG_INTERACTION, ALLERGY_CONFLICT, MISSING_HX, RED_FLAG_SYMPTOM.
+    // Empty when the alert was generated free-form.
+    string code = 4;
+}
+
+message GenerateDocumentationRequest {
+    string transcript = 1;
+    string specialty = 2;
+    // Tenant context not modeled here yet — see SearchAndEnhanceRequest
+    // for rationale. Will arrive via gRPC metadata once auth lands.
+}
+
+// Rich encounter document. Narrative sections (HPI, ROS, PE, assessmentNarrative,
+// followUp, clinicalNotes) are free text the clinician edits. Structured arrays
+// (diagnoses, medications, labs, radiology, vaccinations, patientInstructions)
+// are actionable items each capturing the data points needed downstream
+// (claims, prescriptions, lab orders, EMR posting). Empty strings / arrays
+// mean the data was not present in the transcript — don't hallucinate.
+message GenerateDocumentationResponse {
+    string chiefComplaint = 1;
+
+    // Subjective
+    string historyOfPresentIllness = 2;
+    string reviewOfSystems = 3;
+
+    // Objective
+    Vitals vitals = 4;
+    string physicalExam = 5;
+
+    // Assessment
+    repeated EncounterDiagnosis diagnoses = 6;
+    string assessmentNarrative = 7;
+
+    // Plan
+    repeated EncounterMedication medications = 8;
+    repeated LabOrder labs = 9;
+    repeated RadiologyOrder radiology = 10;
+    repeated EncounterVaccination vaccinations = 11;
+    repeated string patientInstructions = 12;
+    string followUp = 13;
+    string clinicalNotes = 14;
+
+    // High tag (100) intentional — see SearchAndEnhanceResponse.error.
+    ErrorDetail error = 100;
+}
+
+// Vital signs extracted from the transcript. Field values are kept as
+// strings to faithfully carry LLM-extracted text including its units
+// ("120/80 mmHg", "72 /min", "37.5 Cel", "98 %", "70 kg", "175 cm",
+// "0.5 {score}"). Unit tokens should follow UCUM (https://ucum.org)
+// because the downstream FHIR adapter parses these strings into FHIR
+// Quantity (HL7 R4 datatype: value + system="http://unitsofmeasure.org"
+// + UCUM code) for NABIDH posting. Adapter author: this contract is
+// the input shape for FHIR Quantity conversion.
+//
+// TODO (post-PROD-540): once the FHIR adapter ships, migrate measurable
+// fields here to a typed Quantity message (value + UCUM unit) so the
+// adapter doesn't have to re-parse strings. bloodPressure stays string
+// regardless (compound systolic/diastolic value handled as Observation
+// component in FHIR, not a single Quantity).
+message Vitals {
+    string bloodPressure = 1;
+    string heartRate = 2;
+    string temperature = 3;
+    string respiratoryRate = 4;
+    string oxygenSaturation = 5;
+    string weight = 6;
+    string height = 7;
+    string bmi = 8;
+    string pain = 9;
+}
+
+message EncounterDiagnosis {
+    string name = 1;
+    string icdCode = 2;
+    string codesystem = 3;
+    bool primary = 4;
+    string notes = 5;
+}
+
+message EncounterMedication {
+    string name = 1;
+    string dose = 2;
+    string route = 3;
+    string frequency = 4;
+    string duration = 5;
+    string instructions = 6;
+    bool isNew = 7;
+}
+
+message LabOrder {
+    string name = 1;
+    string urgency = 2;
+    string indication = 3;
+}
+
+message RadiologyOrder {
+    string modality = 1;
+    string bodyArea = 2;
+    string indication = 3;
+    string urgency = 4;
+}
+
+message EncounterVaccination {
+    string name = 1;
+    string schedule = 2;
 }
 
 message GetSpecialitiesByCodesRequest{
