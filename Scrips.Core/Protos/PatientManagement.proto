@@ -74,6 +74,35 @@ service PatientManagement {
   rpc GetFamilyMedicalHistoryByPatientId(GetFamilyMedicalHistoryByPatientIdRequest) returns (GetFamilyMedicalHistoryByPatientIdResponse);
   rpc UpdatePatientEncounterClaim(UpdatePatientEncounterClaimRequest) returns (UpdatePatientEncounterClaimResponse);
   rpc GetPatientsBySearch(GetPatientsBySearchRequest) returns (GetPatientsBySearchResponse);
+
+  // care-modeling (ADR-FHIR-003) — instantiate a CarePlan for a patient from a
+  // PlanDefinition's goal[]. Called by the Workflows InstantiateCarePlanActivity
+  // (separate follow-up, PROD-1307) at "Start Care Pathway". Tenant-scoped + idempotent.
+  rpc CreateCarePlan(CreateCarePlanRequest) returns (CreateCarePlanResponse);
+}
+
+// care-modeling — a single goal carried from the PlanDefinition (GoalDto shape
+// produced by Scrips.Workflows' CarePlanFromPlanDefinitionMapper).
+message CreateCarePlanGoal {
+    string sourceNodeId=1;      // provenance: authored Studio node id
+    string description=2;       // FHIR Goal.description (required)
+    string lifecycleStatus=3;   // FHIR Goal.lifecycleStatus (proposed|active|...)
+    string priority=4;          // FHIR Goal.priority (high|medium|low)
+    string targetDate=5;        // FHIR Goal.target.dueDate (ISO-8601; optional)
+}
+
+message CreateCarePlanRequest {
+    string subjectPatientId=1;        // FHIR CarePlan.subject (Patient)
+    string instantiatesCanonical=2;   // FHIR CarePlan.instantiatesCanonical (PlanDefinition canonical id)
+    string planName=3;                // optional display name
+    string createdBy=4;               // actor id for audit columns
+    repeated CreateCarePlanGoal goals=5;
+}
+
+message CreateCarePlanResponse {
+    string carePlanId=1;
+    bool alreadyExisted=2;            // true when an idempotent re-enrolment matched an existing CarePlan
+    int32 goalCount=3;
 }
 
 message GetPatientsBySearchRequest{
