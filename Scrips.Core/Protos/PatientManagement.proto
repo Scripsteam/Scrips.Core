@@ -84,11 +84,18 @@ service PatientManagement {
 // care-modeling — a single goal carried from the PlanDefinition (GoalDto shape
 // produced by Scrips.Workflows' CarePlanFromPlanDefinitionMapper).
 message CreateCarePlanGoal {
-    string sourceNodeId=1;      // provenance: authored Studio node id
-    string description=2;       // FHIR Goal.description (required)
-    string lifecycleStatus=3;   // FHIR Goal.lifecycleStatus (proposed|active|...)
-    string priority=4;          // FHIR Goal.priority (high|medium|low)
-    string targetDate=5;        // FHIR Goal.target.dueDate (ISO-8601; optional)
+    string sourceNodeId=1;          // provenance: authored Studio node id
+    string description=2;           // FHIR Goal.description (required)
+    string lifecycleStatus=3;       // FHIR Goal.lifecycleStatus (proposed|active|...)
+    string priority=4;              // FHIR Goal.priority (high|medium|low)
+    string targetDate=5;            // FHIR Goal.target.dueDate (ISO-8601; optional)
+    // E4 binding (goal <-> LOINC) — what the achievement loop (E3) reads. All optional.
+    string targetMeasureLoinc=6;    // FHIR Goal.target.measure (LOINC code, e.g. 4548-4)
+    string targetMeasureDisplay=7;  // human label for the measure (e.g. "HbA1c")
+    string targetValue=8;           // numeric target as string (precision-safe; parsed patient-side)
+    string comparator=9;            // "<" | "<=" | ">=" | ">"
+    string targetUnit=10;           // unit (e.g. "%", "mmol/L")
+    string baselineSourceNodeId=11; // prior node supplying the baseline reading
 }
 
 message CreateCarePlanRequest {
