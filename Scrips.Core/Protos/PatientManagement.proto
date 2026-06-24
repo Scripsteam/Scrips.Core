@@ -98,18 +98,54 @@ message CreateCarePlanGoal {
     string baselineSourceNodeId=11; // prior node supplying the baseline reading
 }
 
+// care-modeling — a responsible practitioner carried onto the CarePlan
+// (FHIR CarePlan.contributor / careTeam). Authored by the encounter-side
+// "Edit Care Plan" UI; persisted patient-side as a CarePlanContributor row (#907).
+message CreateCarePlanContributor {
+    string practitionerId=1;          // FHIR CarePlan.contributor reference — responsible Practitioner id (required)
+    string role=2;                    // optional role on the plan (e.g. "primary"|"consulting"|"physio"|"nutritionist")
+}
+
+// care-modeling — a problem/diagnosis this CarePlan addresses
+// (FHIR CarePlan.addresses). A problem may be carried as a reference to an existing
+// Condition (conditionId) OR as a bare code/display pair — all optional so either is valid.
+// Persisted patient-side as a CarePlanAddress row (#907).
+message CreateCarePlanAddress {
+    string conditionId=1;             // FHIR CarePlan.addresses reference — Condition id (optional)
+    string code=2;                    // problem code (e.g. ICD-10 / SNOMED) (optional)
+    string display=3;                 // human-readable problem label (optional)
+}
+
+// care-modeling — a reference to other information the plan should take into account
+// (FHIR CarePlan.supportingInfo), e.g. a Clinical Note or Lab result. Persisted
+// patient-side as a CarePlanSupportingInfo row (#907).
+message CreateCarePlanSupportingInfo {
+    string resourceType=1;            // kind of referenced resource (e.g. "DocumentReference"|"Observation") (required)
+    string resourceId=2;              // id of the referenced supporting resource (required)
+    string display=3;                 // optional human-readable label snapshot
+}
+
 message CreateCarePlanRequest {
     string subjectPatientId=1;        // FHIR CarePlan.subject (Patient)
     string instantiatesCanonical=2;   // FHIR CarePlan.instantiatesCanonical (PlanDefinition canonical id)
     string planName=3;                // optional display name
     string createdBy=4;               // actor id for audit columns
     repeated CreateCarePlanGoal goals=5;
+    // FHIR CarePlan child collections the encounter-side "Edit Care Plan" UI authors (#907).
+    // All additive + optional: the pathway InstantiateCarePlanActivity sends none of them
+    // (they are encounter-authored, not pathway-authored); an encounter writeback can send any.
+    repeated CreateCarePlanContributor contributors=6;       // FHIR CarePlan.contributor / careTeam
+    repeated CreateCarePlanAddress addresses=7;              // FHIR CarePlan.addresses (problems addressed)
+    repeated CreateCarePlanSupportingInfo supportingInfo=8;  // FHIR CarePlan.supportingInfo
 }
 
 message CreateCarePlanResponse {
     string carePlanId=1;
     bool alreadyExisted=2;            // true when an idempotent re-enrolment matched an existing CarePlan
     int32 goalCount=3;
+    int32 contributorCount=4;         // persisted CarePlan.contributor rows (#907)
+    int32 addressCount=5;             // persisted CarePlan.addresses rows (#907)
+    int32 supportingInfoCount=6;      // persisted CarePlan.supportingInfo rows (#907)
 }
 
 message GetPatientsBySearchRequest{
