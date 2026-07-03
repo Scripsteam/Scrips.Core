@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scrips.Core.Models.Audit;
+using Scrips.BaseDbContext.Outbox;
 using Serilog;
 
 namespace Scrips.BaseDbContext;
@@ -12,6 +13,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DaprClient _daprClient;
+    private readonly string? _tenantId;
     private const int MaxRetries = 3;
 
     public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
@@ -19,6 +21,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
+        _tenantId = tenantInfo?.Id;
     }
 
     public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
@@ -26,6 +29,13 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
+        _tenantId = tenantInfo?.Id;
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        OutboxModelConfig.Apply(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -36,7 +46,10 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                await SaveAudit(changes);
+                if (AuditOutboxRuntime.Enabled)
+                    Set<OutboxMessage>().Add(OutboxMessage.ForAudit(changes, _tenantId)); // committed atomically by base.SaveChangesAsync below
+                else
+                    await SaveAudit(changes);
             }
         }
         catch (Exception ex)
@@ -60,7 +73,10 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
+                if (AuditOutboxRuntime.Enabled)
+                    Set<OutboxMessage>().Add(OutboxMessage.ForAudit(changes, _tenantId)); // committed atomically by base.SaveChanges below
+                else
+                    Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
             }
         }
         catch (Exception ex)

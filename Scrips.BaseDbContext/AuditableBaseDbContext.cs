@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scrips.Core.Models.Audit;
+using Scrips.BaseDbContext.Outbox;
 using Serilog;
 
 namespace Scrips.BaseDbContext;
@@ -20,6 +21,12 @@ public class AuditableBaseDbContext : DbContext
         _daprClient = daprClient;
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        OutboxModelConfig.Apply(modelBuilder);
+    }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         List<LogAudit>? changes = null;
@@ -28,7 +35,10 @@ public class AuditableBaseDbContext : DbContext
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                await SaveAudit(changes);
+                if (AuditOutboxRuntime.Enabled)
+                    Set<OutboxMessage>().Add(OutboxMessage.ForAudit(changes, null)); // committed atomically by base.SaveChangesAsync below
+                else
+                    await SaveAudit(changes);
             }
         }
         catch (Exception ex)
@@ -52,7 +62,10 @@ public class AuditableBaseDbContext : DbContext
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
             {
-                Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
+                if (AuditOutboxRuntime.Enabled)
+                    Set<OutboxMessage>().Add(OutboxMessage.ForAudit(changes, null)); // committed atomically by base.SaveChanges below
+                else
+                    Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
             }
         }
         catch (Exception ex)
