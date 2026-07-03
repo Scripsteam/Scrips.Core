@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scrips.Core.Models.Audit;
+using Scrips.BaseDbContext.Outbox;
 using Serilog;
 
 namespace Scrips.BaseDbContext;
@@ -20,16 +21,31 @@ public class AuditableBaseDbContext : DbContext
         _daprClient = daprClient;
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        OutboxModelConfig.Apply(modelBuilder);
+    }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        if (AuditOutboxRuntime.Enabled)
+        {
+            // Outbox mode: stage the audit row in THIS SaveChanges so data + audit commit (or roll
+            // back) atomically. Do NOT swallow — a failure here must fail the save; that's the point.
+            var outboxChanges = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (outboxChanges != null && outboxChanges.Any())
+                Set<OutboxMessage>().Add(OutboxMessage.ForAudit(outboxChanges, null));
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        // Legacy inline path: best-effort publish must not block the business save.
         List<LogAudit>? changes = null;
         try
         {
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
-            {
                 await SaveAudit(changes);
-            }
         }
         catch (Exception ex)
         {
@@ -46,14 +62,21 @@ public class AuditableBaseDbContext : DbContext
     // published before the save completes. Reviewed and approved in SND-331 / SND-386.
     public override int SaveChanges()
     {
+        if (AuditOutboxRuntime.Enabled)
+        {
+            // Outbox mode: atomic with the data — do NOT swallow (see SaveChangesAsync).
+            var outboxChanges = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (outboxChanges != null && outboxChanges.Any())
+                Set<OutboxMessage>().Add(OutboxMessage.ForAudit(outboxChanges, null));
+            return base.SaveChanges();
+        }
+
         List<LogAudit>? changes = null;
         try
         {
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
-            {
                 Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
-            }
         }
         catch (Exception ex)
         {

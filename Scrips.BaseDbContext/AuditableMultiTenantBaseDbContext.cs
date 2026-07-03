@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Scrips.Core.Models.Audit;
+using Scrips.BaseDbContext.Outbox;
 using Serilog;
 
 namespace Scrips.BaseDbContext;
@@ -12,6 +13,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DaprClient _daprClient;
+    private readonly string? _tenantId;
     private const int MaxRetries = 3;
 
     public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
@@ -19,6 +21,7 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
+        _tenantId = tenantInfo?.Id;
     }
 
     public AuditableMultiTenantBaseDbContext(ITenantInfo tenantInfo, DbContextOptions option, IHttpContextAccessor httpContextAccessor, DaprClient daprClient)
@@ -26,18 +29,34 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     {
         _httpContextAccessor = httpContextAccessor;
         _daprClient = daprClient;
+        _tenantId = tenantInfo?.Id;
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        OutboxModelConfig.Apply(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        if (AuditOutboxRuntime.Enabled)
+        {
+            // Outbox mode: stage the audit row in THIS SaveChanges so data + audit commit (or roll
+            // back) atomically. Do NOT swallow — a failure here must fail the save; that's the point.
+            var outboxChanges = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (outboxChanges != null && outboxChanges.Any())
+                Set<OutboxMessage>().Add(OutboxMessage.ForAudit(outboxChanges, _tenantId));
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        // Legacy inline path: best-effort publish must not block the business save.
         List<LogAudit>? changes = null;
         try
         {
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
-            {
                 await SaveAudit(changes);
-            }
         }
         catch (Exception ex)
         {
@@ -54,14 +73,21 @@ public class AuditableMultiTenantBaseDbContext : MultiTenantDbContext
     // published before the save completes. Reviewed and approved in SND-331 / SND-386.
     public override int SaveChanges()
     {
+        if (AuditOutboxRuntime.Enabled)
+        {
+            // Outbox mode: atomic with the data — do NOT swallow (see SaveChangesAsync).
+            var outboxChanges = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
+            if (outboxChanges != null && outboxChanges.Any())
+                Set<OutboxMessage>().Add(OutboxMessage.ForAudit(outboxChanges, _tenantId));
+            return base.SaveChanges();
+        }
+
         List<LogAudit>? changes = null;
         try
         {
             changes = AuditLoggingHelper.DetectChanges(ChangeTracker, _httpContextAccessor);
             if (changes != null && changes.Any())
-            {
                 Task.Run(() => SaveAudit(changes)).GetAwaiter().GetResult();
-            }
         }
         catch (Exception ex)
         {
