@@ -22,7 +22,12 @@ public static class AuditOutboxServiceCollectionExtensions
         AuditOutboxRuntime.Enabled = enabled;
 
         if (enabled)
+        {
+            // Validator first: fails startup fast if OutboxMessage isn't mapped, so the flag can never
+            // silently drop audit events (see OutboxStartupValidator). Hosted services start in order.
+            services.AddHostedService<OutboxStartupValidator<TContext>>();
             services.AddHostedService<OutboxDrainerService<TContext>>();
+        }
 
         return services;
     }

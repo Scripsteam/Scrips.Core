@@ -18,7 +18,12 @@ public class OutboxMessage
     /// <summary>Stable idempotency key, assigned at insert. Downstream dedupes on this.</summary>
     public Guid EventId { get; set; }
 
-    /// <summary>Tenant scope; the drainer must not blur tenants on publish.</summary>
+    /// <summary>
+    /// Best-effort tenant scope, from the ambient tenant context at write time. Null for the
+    /// non-multitenant base context and for system/background writes with no tenant. Downstream
+    /// keys/dedupes on <see cref="EventId"/> (not TenantId), and the serialized change-list in
+    /// <see cref="Payload"/> carries the per-entity tenant — so a null here does not drop tenant info.
+    /// </summary>
     public string? TenantId { get; set; }
 
     /// <summary>Dapr topic (default "SaveAudit"; extensible to other events).</summary>

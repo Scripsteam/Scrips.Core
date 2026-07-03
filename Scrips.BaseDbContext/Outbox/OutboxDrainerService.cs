@@ -77,7 +77,7 @@ UPDATE [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
 
     private async Task DrainBatchAsync(DbConnection conn, DaprClient dapr, CancellationToken ct)
     {
-        var claimed = new List<(long Id, string? TenantId, string Topic, string Payload)>();
+        var claimed = new List<(long Id, Guid EventId, string? TenantId, string Topic, string Payload)>();
 
         using (var claim = conn.CreateCommand())
         {
@@ -85,7 +85,7 @@ UPDATE [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
             claim.CommandText = $@"
 UPDATE TOP (@batch) [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
    SET Status = {OutboxStatus.Claimed}, ClaimedUtc = SYSUTCDATETIME(), ClaimCount = ClaimCount + 1
-OUTPUT inserted.Id, inserted.TenantId, inserted.Topic, inserted.Payload
+OUTPUT inserted.Id, inserted.EventId, inserted.TenantId, inserted.Topic, inserted.Payload
  WHERE Status = {OutboxStatus.Pending};";
             AddParam(claim, "@batch", Math.Max(1, _opts.BatchSize));
             using var reader = await claim.ExecuteReaderAsync(ct);
@@ -93,9 +93,10 @@ OUTPUT inserted.Id, inserted.TenantId, inserted.Topic, inserted.Payload
             {
                 claimed.Add((
                     reader.GetInt64(0),
-                    reader.IsDBNull(1) ? null : reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetString(3)));
+                    reader.GetGuid(1),
+                    reader.IsDBNull(2) ? null : reader.GetString(2),
+                    reader.GetString(3),
+                    reader.GetString(4)));
             }
         }
 
@@ -109,8 +110,15 @@ OUTPUT inserted.Id, inserted.TenantId, inserted.Topic, inserted.Payload
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Outbox publish failed for row {Id} ({Context})", row.Id, typeof(TContext).Name);
-                await MarkFailedAsync(conn, row.Id, ct);
+                var (status, attempts) = await MarkFailedAsync(conn, row.Id, ct);
+                if (status == OutboxStatus.DeadLetter)
+                    _logger.LogError(ex,
+                        "Outbox DEAD-LETTER: audit event {EventId} (tenant {TenantId}) dead-lettered after {Attempts} publish attempts ({Context}) — audit-completeness gap, needs recovery",
+                        row.EventId, row.TenantId ?? "(none)", attempts, typeof(TContext).Name);
+                else
+                    _logger.LogWarning(ex,
+                        "Outbox publish failed for event {EventId} (attempt {Attempts}, {Context}); will retry",
+                        row.EventId, attempts, typeof(TContext).Name);
             }
         }
     }
@@ -124,18 +132,23 @@ OUTPUT inserted.Id, inserted.TenantId, inserted.Topic, inserted.Payload
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    /// <summary>Only a real publish failure counts toward DeadLetter, so pod churn can't silently drop audit.</summary>
-    private async Task MarkFailedAsync(DbConnection conn, long id, CancellationToken ct)
+    /// <summary>Only a real publish failure counts toward DeadLetter, so pod churn can't silently drop audit.
+    /// Returns the resulting (Status, Attempts) so the caller can log a dead-letter loudly.</summary>
+    private async Task<(byte Status, int Attempts)> MarkFailedAsync(DbConnection conn, long id, CancellationToken ct)
     {
         using var cmd = conn.CreateCommand();
         cmd.CommandText = $@"UPDATE [{OutboxModelConfig.TableName}]
    SET Attempts = Attempts + 1,
        Status = CASE WHEN Attempts + 1 >= @max THEN {OutboxStatus.DeadLetter} ELSE {OutboxStatus.Pending} END,
        ClaimedUtc = NULL
+OUTPUT inserted.Status, inserted.Attempts
  WHERE Id = @id;";
         AddParam(cmd, "@id", id);
         AddParam(cmd, "@max", Math.Max(1, _opts.MaxAttempts));
-        await cmd.ExecuteNonQueryAsync(ct);
+        using var reader = await cmd.ExecuteReaderAsync(ct);
+        if (await reader.ReadAsync(ct))
+            return (reader.GetByte(0), reader.GetInt32(1));
+        return (OutboxStatus.Pending, 0);
     }
 
     private static void AddParam(DbCommand cmd, string name, object value)
