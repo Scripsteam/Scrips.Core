@@ -102,11 +102,20 @@ OUTPUT inserted.Id, inserted.EventId, inserted.TenantId, inserted.Topic, inserte
 
         foreach (var row in claimed)
         {
+            if (ct.IsCancellationRequested) break;
             try
             {
+                // Per-publish timeout: a hung sidecar must not stall the whole drain loop.
+                using var pubCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                pubCts.CancelAfter(TimeSpan.FromSeconds(Math.Max(1, _opts.PublishTimeoutSeconds)));
+
                 var changes = JsonSerializer.Deserialize<List<LogAudit>>(row.Payload) ?? new List<LogAudit>();
-                await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, ct);
+                await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, pubCts.Token);
                 await MarkPublishedAsync(conn, row.Id, ct);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                break; // shutdown — leave the row Claimed for the reaper; not a publish failure
             }
             catch (Exception ex)
             {

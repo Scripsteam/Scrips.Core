@@ -20,6 +20,10 @@ public class AuditOutboxOptions
     /// <summary>Drainer poll interval (seconds).</summary>
     public int PollSeconds { get; set; } = 5;
 
+    /// <summary>Per-publish timeout — bounds a hung Dapr sidecar so one stuck publish can't stall the drain loop.
+    /// Keep it well below <see cref="VisibilityTimeoutMinutes"/> so a timed-out publish is retried before the reaper reclaims the row.</summary>
+    public int PublishTimeoutSeconds { get; set; } = 30;
+
     /// <summary>Reaper visibility timeout — MUST exceed the max time a healthy batch takes to publish.</summary>
     public int VisibilityTimeoutMinutes { get; set; } = 5;
 }
