@@ -48,6 +48,7 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
 
                 await ReapStaleClaimsAsync(conn, stoppingToken);
                 await DrainBatchAsync(conn, dapr, stoppingToken);
+                await PurgePublishedAsync(conn, stoppingToken);
             }
             catch (Exception ex)
             {
@@ -73,6 +74,30 @@ UPDATE [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
         var reclaimed = await cmd.ExecuteNonQueryAsync(ct);
         if (reclaimed > 0)
             _logger.LogWarning("Outbox reaper reclaimed {Count} stale Claimed rows ({Context}) — pod churn or short timeout", reclaimed, typeof(TContext).Name);
+    }
+
+    /// <summary>Hard cap on rows deleted per purge pass — protects prod from a misconfigured PurgeBatchSize.</summary>
+    private const int MaxPurgeBatch = 5000;
+
+    /// <summary>Retention (PROD-1479): one bounded DELETE per tick of Published rows past the retention window,
+    /// so the table + PHI-at-rest footprint stays bounded. DeadLetter rows are deliberately NOT purged (retention policy: PROD-1481).</summary>
+    private async Task PurgePublishedAsync(DbConnection conn, CancellationToken ct)
+    {
+        if (_opts.PublishedRetentionDays <= 0) return; // disabled
+
+        using var cmd = conn.CreateCommand();
+        // COALESCE(ProcessedUtc, CreatedUtc): a Published row that somehow has a null ProcessedUtc
+        // (race/bug) still purges by age instead of leaking PHI forever. Batch is hard-capped so a
+        // misconfigured PurgeBatchSize can't turn this into a large blocking DELETE.
+        cmd.CommandText = $@"
+DELETE TOP (@n) FROM [{OutboxModelConfig.TableName}]
+ WHERE Status = {OutboxStatus.Published}
+   AND COALESCE(ProcessedUtc, CreatedUtc) < DATEADD(day, -@days, SYSUTCDATETIME());";
+        AddParam(cmd, "@n", Math.Clamp(_opts.PurgeBatchSize, 1, MaxPurgeBatch));
+        AddParam(cmd, "@days", _opts.PublishedRetentionDays);
+        var purged = await cmd.ExecuteNonQueryAsync(ct);
+        if (purged > 0)
+            _logger.LogDebug("Outbox retention purged {Count} Published rows ({Context})", purged, typeof(TContext).Name);
     }
 
     private async Task DrainBatchAsync(DbConnection conn, DaprClient dapr, CancellationToken ct)

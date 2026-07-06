@@ -26,6 +26,13 @@ public class AuditOutboxOptions
 
     /// <summary>Reaper visibility timeout — MUST exceed the max time a healthy batch takes to publish.</summary>
     public int VisibilityTimeoutMinutes { get; set; } = 5;
+
+    /// <summary>Retention: Published rows are purged after this many days — bounds the table and the PHI-at-rest
+    /// window (PROD-1479). DeadLetter rows are NOT auto-purged (retained for investigation). 0 or less disables purge.</summary>
+    public int PublishedRetentionDays { get; set; } = 7;
+
+    /// <summary>Rows deleted per purge pass — one bounded DELETE per drain tick, so retention never runs long.</summary>
+    public int PurgeBatchSize { get; set; } = 1000;
 }
 
 /// <summary>
