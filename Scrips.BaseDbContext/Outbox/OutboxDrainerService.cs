@@ -48,6 +48,7 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
 
                 await ReapStaleClaimsAsync(conn, stoppingToken);
                 await DrainBatchAsync(conn, dapr, stoppingToken);
+                await PurgePublishedAsync(conn, stoppingToken);
             }
             catch (Exception ex)
             {
@@ -73,6 +74,24 @@ UPDATE [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
         var reclaimed = await cmd.ExecuteNonQueryAsync(ct);
         if (reclaimed > 0)
             _logger.LogWarning("Outbox reaper reclaimed {Count} stale Claimed rows ({Context}) — pod churn or short timeout", reclaimed, typeof(TContext).Name);
+    }
+
+    /// <summary>Retention (PROD-1479): one bounded DELETE per tick of Published rows past the retention window,
+    /// so the table + PHI-at-rest footprint stays bounded. DeadLetter rows are deliberately NOT purged.</summary>
+    private async Task PurgePublishedAsync(DbConnection conn, CancellationToken ct)
+    {
+        if (_opts.PublishedRetentionDays <= 0) return; // disabled
+
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = $@"
+DELETE TOP (@n) FROM [{OutboxModelConfig.TableName}]
+ WHERE Status = {OutboxStatus.Published}
+   AND ProcessedUtc < DATEADD(day, -@days, SYSUTCDATETIME());";
+        AddParam(cmd, "@n", Math.Max(1, _opts.PurgeBatchSize));
+        AddParam(cmd, "@days", _opts.PublishedRetentionDays);
+        var purged = await cmd.ExecuteNonQueryAsync(ct);
+        if (purged > 0)
+            _logger.LogDebug("Outbox retention purged {Count} Published rows ({Context})", purged, typeof(TContext).Name);
     }
 
     private async Task DrainBatchAsync(DbConnection conn, DaprClient dapr, CancellationToken ct)
