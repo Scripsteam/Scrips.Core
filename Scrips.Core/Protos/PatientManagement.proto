@@ -44,6 +44,7 @@ service PatientManagement {
   rpc GetEncounterByClaimId(GetEncounterByClaimIdRequest) returns (GetEncounterByClaimIdResponse);
   rpc GetEncounterNumberById(GetEncounterNumberByIdRequest) returns (GetEncounterNumberByIdResponse);
   rpc GetEncountersBaseInfoByIds(EncountersBaseInfoRequest) returns (EncountersBaseInfoResponse);
+  rpc GetEncounterByAppointmentId(GetEncounterByAppointmentIdRequest) returns (EncounterBaseInfoResponse);
 
   //Get patient contact details by ResidentialAddressId
   rpc GetPatientAddresByResidentialAddressId (GetPatientAddresByResidentialAddressIdRequest) returns (GetPatientAddresByResidentialAddressIdResponce);
@@ -784,6 +785,10 @@ message UpdatePatientInsuranceResponse {
 }
 
 message GetClaimIdfromEncounterByAppointmentIdRequest{
+    string appointmentId=1;
+}
+
+message GetEncounterByAppointmentIdRequest{
     string appointmentId=1;
 }
 
