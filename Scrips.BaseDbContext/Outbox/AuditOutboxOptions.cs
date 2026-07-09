@@ -33,6 +33,32 @@ public class AuditOutboxOptions
 
     /// <summary>Rows deleted per purge pass — one bounded DELETE per drain tick, so retention never runs long.</summary>
     public int PurgeBatchSize { get; set; } = 1000;
+
+    // ---- DeadLetter recovery + retention (PROD-1481) ----
+
+    /// <summary>Scheduled DeadLetter recovery pass: re-queue dead-lettered rows so the normal drainer
+    /// re-publishes them (transient outages self-heal into LogAudit). Re-publish only — never a direct
+    /// audit-DB write. Off → dead-letters stay put for manual investigation.</summary>
+    public bool RecoveryEnabled { get; set; } = true;
+
+    /// <summary>UTC hour (0–23) at which the daily recovery + scrub pass runs — keep it off-peak.
+    /// The pass fires once per day the process is alive during this hour.</summary>
+    public int RecoveryRunAtUtcHour { get; set; } = 2;
+
+    /// <summary>Recovery CYCLES before a row is treated as terminal-poison. Distinct from <see cref="MaxAttempts"/>
+    /// (per-cycle publish failures): each recovery cycle resets Attempts to give a fresh publish budget, so this
+    /// is "how many nightly full-retry cycles" — sized for multi-day outage tolerance.</summary>
+    public int RecoveryMaxAttempts { get; set; } = 5;
+
+    /// <summary>Rows re-queued / scrubbed per recovery pass — bounded like the drain/purge batches.</summary>
+    public int RecoveryBatchSize { get; set; } = 200;
+
+    /// <summary>Retention (PROD-1481 / UAE Federal Law 2/2019 — ≥25yr health-data retention + no premature
+    /// destruction): terminal-poison DeadLetter rows are NEVER deleted. When true, once a row exhausts
+    /// <see cref="RecoveryMaxAttempts"/> its clinical <c>Payload</c> is scrubbed to an empty change-list
+    /// (metadata row kept forever) — bounds PHI-at-rest without destroying the audit-trail record.
+    /// Default OFF: enabling scrub-on-terminal is a compliance decision, gated on the PROD-1481 sign-off.</summary>
+    public bool ScrubTerminalPayload { get; set; } = false;
 }
 
 /// <summary>
