@@ -23,6 +23,9 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
     private readonly AuditOutboxOptions _opts;
     private readonly ILogger<OutboxDrainerService<TContext>> _logger;
 
+    /// <summary>Last day (UTC) the recovery pass ran — gates it to once per day at the configured hour.</summary>
+    private DateOnly _lastRecoveryDay;
+
     public OutboxDrainerService(IServiceScopeFactory scopeFactory,
         IOptions<AuditOutboxOptions> opts, ILogger<OutboxDrainerService<TContext>> logger)
     {
@@ -49,6 +52,8 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
                 await ReapStaleClaimsAsync(conn, stoppingToken);
                 await DrainBatchAsync(conn, dapr, stoppingToken);
                 await PurgePublishedAsync(conn, stoppingToken);
+                if (_opts.RecoveryEnabled)
+                    await MaybeRunRecoveryAsync(conn, stoppingToken);
             }
             catch (Exception ex)
             {
@@ -100,6 +105,59 @@ DELETE TOP (@n) FROM [{OutboxModelConfig.TableName}]
             _logger.LogDebug("Outbox retention purged {Count} Published rows ({Context})", purged, typeof(TContext).Name);
     }
 
+    /// <summary>Once-per-day gate for the DeadLetter recovery + scrub passes at the configured off-peak hour.</summary>
+    private async Task MaybeRunRecoveryAsync(DbConnection conn, CancellationToken ct)
+    {
+        var now = DateTime.UtcNow;
+        var today = DateOnly.FromDateTime(now);
+        if (now.Hour != _opts.RecoveryRunAtUtcHour || _lastRecoveryDay == today) return;
+
+        var requeued = await RecoverDeadLettersAsync(conn, ct);
+        var scrubbed = _opts.ScrubTerminalPayload ? await ScrubTerminalDeadLettersAsync(conn, ct) : 0;
+        _lastRecoveryDay = today; // set after success — a throw retries on the next tick within the hour
+        if (requeued > 0 || scrubbed > 0)
+            _logger.LogInformation("Outbox recovery pass ({Context}): re-queued {Requeued}, scrubbed {Scrubbed} terminal-poison",
+                typeof(TContext).Name, requeued, scrubbed);
+    }
+
+    /// <summary>Scheduled recovery: re-queue eligible DeadLetter rows so the normal drainer re-publishes them
+    /// (transient outages self-heal into LogAudit). Resets Attempts to 0 (fresh publish budget) and bumps
+    /// RecoveryAttempts (the cycle cap). Re-publish only — it never writes the audit DB directly, so per-service
+    /// DB isolation holds.</summary>
+    private async Task<int> RecoverDeadLettersAsync(DbConnection conn, CancellationToken ct)
+    {
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = $@"
+UPDATE TOP (@batch) [{OutboxModelConfig.TableName}] WITH (ROWLOCK, READPAST)
+   SET Status = {OutboxStatus.Pending}, Attempts = 0, RecoveryAttempts = RecoveryAttempts + 1, ClaimedUtc = NULL
+ WHERE Status = {OutboxStatus.DeadLetter} AND RecoveryAttempts < @rmax;";
+        AddParam(cmd, "@batch", Math.Max(1, _opts.RecoveryBatchSize));
+        AddParam(cmd, "@rmax", Math.Max(1, _opts.RecoveryMaxAttempts));
+        var n = await cmd.ExecuteNonQueryAsync(ct);
+        if (n > 0)
+            _logger.LogWarning("Outbox recovery re-queued {Count} dead-lettered audit events for re-publish ({Context})", n, typeof(TContext).Name);
+        return n;
+    }
+
+    /// <summary>Terminal-poison rows (exhausted RecoveryMaxAttempts) are NEVER deleted — health-data retention
+    /// duty (PROD-1481 / UAE Federal Law 2/2019). Their clinical Payload is scrubbed to an empty change-list,
+    /// keeping the metadata row (EventId/TenantId/Topic/Attempts/CreatedUtc) as the audit-completeness record.</summary>
+    private async Task<int> ScrubTerminalDeadLettersAsync(DbConnection conn, CancellationToken ct)
+    {
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = $@"
+UPDATE TOP (@batch) [{OutboxModelConfig.TableName}] WITH (ROWLOCK)
+   SET Payload = @scrub, ScrubbedUtc = SYSUTCDATETIME()
+ WHERE Status = {OutboxStatus.DeadLetter} AND RecoveryAttempts >= @rmax AND ScrubbedUtc IS NULL;";
+        AddParam(cmd, "@batch", Math.Max(1, _opts.RecoveryBatchSize));
+        AddParam(cmd, "@rmax", Math.Max(1, _opts.RecoveryMaxAttempts));
+        AddParam(cmd, "@scrub", OutboxMessage.ScrubbedPayload);
+        var n = await cmd.ExecuteNonQueryAsync(ct);
+        if (n > 0)
+            _logger.LogWarning("Outbox scrubbed {Count} terminal-poison DeadLetter payloads to metadata-only ({Context})", n, typeof(TContext).Name);
+        return n;
+    }
+
     private async Task DrainBatchAsync(DbConnection conn, DaprClient dapr, CancellationToken ct)
     {
         var claimed = new List<(long Id, Guid EventId, string? TenantId, string Topic, string Payload)>();
@@ -135,7 +193,12 @@ OUTPUT inserted.Id, inserted.EventId, inserted.TenantId, inserted.Topic, inserte
                 pubCts.CancelAfter(TimeSpan.FromSeconds(Math.Max(1, _opts.PublishTimeoutSeconds)));
 
                 var changes = JsonSerializer.Deserialize<List<LogAudit>>(row.Payload) ?? new List<LogAudit>();
-                await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, pubCts.Token);
+                // Carry the outbox EventId as the CloudEvent id so the consumer can dedupe
+                // (insert-if-not-exists on LogAudit). Makes at-least-once redelivery — the reaper
+                // retry AND the scheduled recovery re-queue — idempotent. Additive: the data payload
+                // is unchanged (still List<LogAudit>), so it's backward-compatible with the consumer.
+                var pubMeta = new Dictionary<string, string> { ["cloudevent.id"] = row.EventId.ToString() };
+                await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, pubMeta, pubCts.Token);
                 await MarkPublishedAsync(conn, row.Id, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)

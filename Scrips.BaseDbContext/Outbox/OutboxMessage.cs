@@ -15,7 +15,8 @@ public class OutboxMessage
     /// <summary>Identity — drain order.</summary>
     public long Id { get; set; }
 
-    /// <summary>Stable idempotency key, assigned at insert. Downstream dedupes on this.</summary>
+    /// <summary>Stable idempotency key, assigned at insert. Published as the CloudEvent id
+    /// (<c>cloudevent.id</c>) so the consumer can dedupe on it (insert-if-not-exists on LogAudit).</summary>
     public Guid EventId { get; set; }
 
     /// <summary>
@@ -43,11 +44,25 @@ public class OutboxMessage
     /// <summary>Claim/reclaim count — churn signal, kept off the dead-letter budget.</summary>
     public int ClaimCount { get; set; }
 
+    /// <summary>Recovery CYCLES attempted by the scheduled DeadLetter recovery pass (PROD-1481). Distinct from
+    /// <see cref="Attempts"/> (per-cycle publish failures) — caps how many times a dead-lettered row is re-queued
+    /// before it's treated as terminal-poison. Original <see cref="Attempts"/> is reset to 0 on each requeue so
+    /// a fresh publish budget applies; this counter is what bounds the retries.</summary>
+    public int RecoveryAttempts { get; set; }
+
     /// <summary>Set on claim; drives the reaper visibility-timeout.</summary>
     public DateTime? ClaimedUtc { get; set; }
 
     /// <summary>Set on publish; drives retention purge.</summary>
     public DateTime? ProcessedUtc { get; set; }
+
+    /// <summary>Set when a terminal-poison row's clinical <c>Payload</c> is scrubbed to metadata-only
+    /// (PROD-1481 scrub-never-delete). Non-null ⇒ no clinical content remains; row is kept for the audit trail.</summary>
+    public DateTime? ScrubbedUtc { get; set; }
+
+    /// <summary>Payload after scrub — an empty change-list. Stays valid <c>List&lt;LogAudit&gt;</c> JSON,
+    /// carries no clinical content.</summary>
+    public const string ScrubbedPayload = "[]";
 
     public static OutboxMessage ForAudit(List<LogAudit> changes, string? tenantId) => new()
     {
