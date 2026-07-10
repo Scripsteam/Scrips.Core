@@ -1,8 +1,11 @@
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Text.Json;
 using Dapr.Client;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -42,12 +45,14 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
             try
             {
                 await using var scope = _scopeFactory.CreateAsyncScope();
-                var ctx = scope.ServiceProvider.GetRequiredService<TContext>();
                 var dapr = scope.ServiceProvider.GetRequiredService<DaprClient>();
 
-                var conn = ctx.Database.GetDbConnection();
-                if (conn.State != ConnectionState.Open)
-                    await conn.OpenAsync(stoppingToken);
+                // Get the connection from the registered options WITHOUT activating the context.
+                // A multi-tenant (Finbuckle) context can't be constructed in a background scope
+                // (no ambient tenant → tenant factory returns null); the outbox SQL is all raw ADO,
+                // so a bare connection is all the drainer needs.
+                await using var conn = new SqlConnection(OutboxConnectionResolver.Resolve<TContext>(scope.ServiceProvider));
+                await conn.OpenAsync(stoppingToken);
 
                 await ReapStaleClaimsAsync(conn, stoppingToken);
                 await DrainBatchAsync(conn, dapr, stoppingToken);
@@ -254,5 +259,28 @@ OUTPUT inserted.Status, inserted.Attempts
         p.ParameterName = name;
         p.Value = value;
         cmd.Parameters.Add(p);
+    }
+}
+
+/// <summary>
+/// Resolves the outbox DB connection string from the registered <see cref="DbContextOptions{TContext}"/>
+/// WITHOUT constructing the context — so the background drainer/validator work for multi-tenant
+/// (Finbuckle) contexts too, which can't be activated outside a request scope (no ambient tenant).
+/// The outbox table lives in the context's single (shared) database; all outbox SQL is raw ADO.
+/// </summary>
+internal static class OutboxConnectionResolver
+{
+    public static string Resolve<TCtx>(IServiceProvider sp) where TCtx : DbContext
+    {
+        var options = sp.GetRequiredService<DbContextOptions<TCtx>>();
+        var cs = options.Extensions
+            .OfType<RelationalOptionsExtension>()
+            .Select(e => e.ConnectionString)
+            .FirstOrDefault(s => !string.IsNullOrWhiteSpace(s));
+        if (string.IsNullOrWhiteSpace(cs))
+            throw new InvalidOperationException(
+                $"Outbox: could not resolve a connection string from DbContextOptions<{typeof(TCtx).Name}>. " +
+                "Register the context with UseSqlServer(connectionString) so the outbox drainer can reach the DB.");
+        return cs!;
     }
 }

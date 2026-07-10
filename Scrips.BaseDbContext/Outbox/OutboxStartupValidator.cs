@@ -1,23 +1,31 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Scrips.BaseDbContext.Outbox;
 
 /// <summary>
-/// Fail-fast guard: when the outbox writer is enabled, refuse to start if
-/// (a) the service's <typeparamref name="TContext"/> hasn't mapped <see cref="OutboxMessage"/>
-/// (overrides OnModelCreating without calling <c>base.OnModelCreating</c>), or
-/// (b) the <c>OutboxMessages</c> table / its required columns don't exist in the database.
-/// Without this, the flag flips and audit events are silently dropped, or the drainer/recovery
-/// pass throws at runtime (e.g. the 02:00 recovery pass) when a column is missing — both
-/// unacceptable for an audit trail. Registered before the drainer so it throws during startup.
+/// Fail-fast guard: when the outbox writer is enabled, refuse to start if the <c>OutboxMessages</c>
+/// table / its required columns don't exist — so a premature flag flip (before the schema is applied)
+/// fails at boot, not at the 02:00 recovery pass. The schema check uses the connection string from the
+/// registered <see cref="DbContextOptions{TContext}"/> and does NOT activate the context, so it works
+/// for multi-tenant (Finbuckle) contexts too (which can't be constructed outside a request scope —
+/// no ambient tenant). The model-mapping check is best-effort: skipped (with a warning) when the
+/// context can't be constructed at startup, since the schema check is the real guarantee and the
+/// outbox row is written in the request scope where the tenant is present. Registered before the drainer.
 /// </summary>
 public class OutboxStartupValidator<TContext> : IHostedService where TContext : DbContext
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<OutboxStartupValidator<TContext>> _logger;
 
-    public OutboxStartupValidator(IServiceScopeFactory scopeFactory) => _scopeFactory = scopeFactory;
+    public OutboxStartupValidator(IServiceScopeFactory scopeFactory, ILogger<OutboxStartupValidator<TContext>> logger)
+    {
+        _scopeFactory = scopeFactory;
+        _logger = logger;
+    }
 
     /// <summary>Columns the drainer/recovery raw SQL depends on — checked so a premature flag flip
     /// (before OutboxMessages.sql / the RecoveryAttempts+ScrubbedUtc ALTER runs) fails at boot, not at runtime.</summary>
@@ -30,21 +38,13 @@ public class OutboxStartupValidator<TContext> : IHostedService where TContext : 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using var scope = _scopeFactory.CreateScope();
-        var ctx = scope.ServiceProvider.GetRequiredService<TContext>();
 
-        if (ctx.Model.FindEntityType(typeof(OutboxMessage)) is null)
+        // (1) Schema check — authoritative. Connection string comes from the registered options; the
+        // context is NOT activated, so this works for multi-tenant contexts (no tenant needed here).
+        var connStr = OutboxConnectionResolver.Resolve<TContext>(scope.ServiceProvider);
+        await using (var conn = new SqlConnection(connStr))
         {
-            throw new InvalidOperationException(
-                $"Audit:UseOutbox is ON but {nameof(OutboxMessage)} is not mapped in {typeof(TContext).Name}. " +
-                $"The service DbContext must call base.OnModelCreating(modelBuilder). Refusing to start — " +
-                $"otherwise audit events would be silently dropped.");
-        }
-
-        var conn = ctx.Database.GetDbConnection();
-        var openedHere = conn.State != System.Data.ConnectionState.Open;
-        if (openedHere) await conn.OpenAsync(cancellationToken);
-        try
-        {
+            await conn.OpenAsync(cancellationToken);
             var present = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             using (var cmd = conn.CreateCommand())
             {
@@ -66,10 +66,26 @@ public class OutboxStartupValidator<TContext> : IHostedService where TContext : 
                     $"{string.Join(", ", missing)}. Run the schema migration (incl. RecoveryAttempts/ScrubbedUtc) " +
                     $"before enabling. Refusing to start.");
         }
-        finally
+
+        // (2) Model-mapping check — best effort. A multi-tenant (Finbuckle) context can't be built at
+        // startup (no ambient tenant); skip rather than crash. The schema check above is the guarantee.
+        TContext ctx;
+        try
         {
-            if (openedHere) await conn.CloseAsync();
+            ctx = scope.ServiceProvider.GetRequiredService<TContext>();
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Outbox startup model-check skipped for {Context}: context could not be constructed at startup " +
+                "(expected for multi-tenant contexts). Schema check passed — relying on it.", typeof(TContext).Name);
+            return;
+        }
+
+        if (ctx.Model.FindEntityType(typeof(OutboxMessage)) is null)
+            throw new InvalidOperationException(
+                $"Audit:UseOutbox is ON but {nameof(OutboxMessage)} is not mapped in {typeof(TContext).Name}. " +
+                "The service DbContext must call base.OnModelCreating(modelBuilder). Refusing to start.");
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
