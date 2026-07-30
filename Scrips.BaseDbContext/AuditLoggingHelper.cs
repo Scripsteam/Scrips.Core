@@ -31,7 +31,17 @@ public class AuditLoggingHelper
         {
             var entry = new AuditEntityEntry();
             if (user is not null) // will there be changes without user like signup!?
-                entry.User = Guid.Parse(user);
+            {
+                // MUST NOT throw. This runs inside SaveChanges, and on the audit-outbox path
+                // the caller deliberately does not swallow (data + audit commit atomically) —
+                // so a malformed claim here aborts the business write, not just the audit.
+                // A `sub` claim is not guaranteed to be a GUID: machine-to-machine principals
+                // carry a client id. Keep the raw value rather than discarding attribution.
+                if (Guid.TryParse(user, out var userId))
+                    entry.User = userId;
+                else
+                    entry.UserRaw = user;
+            }
 
             entry.Entity = change.Entity.GetType().Name;
             entry.Ip = ip;
