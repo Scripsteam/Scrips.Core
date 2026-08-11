@@ -197,13 +197,40 @@ OUTPUT inserted.Id, inserted.EventId, inserted.TenantId, inserted.Topic, inserte
                 using var pubCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 pubCts.CancelAfter(TimeSpan.FromSeconds(Math.Max(1, _opts.PublishTimeoutSeconds)));
 
-                var changes = JsonSerializer.Deserialize<List<LogAudit>>(row.Payload) ?? new List<LogAudit>();
                 // Carry the outbox EventId as the CloudEvent id so the consumer can dedupe
                 // (insert-if-not-exists on LogAudit). Makes at-least-once redelivery — the reaper
                 // retry AND the scheduled recovery re-queue — idempotent. Additive: the data payload
                 // is unchanged (still List<LogAudit>), so it's backward-compatible with the consumer.
                 var pubMeta = new Dictionary<string, string> { ["cloudevent.id"] = row.EventId.ToString() };
-                await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, pubMeta, pubCts.Token);
+
+                // PROD-1868: two payload lanes, keyed on Topic.
+                //
+                // The audit lane is UNCHANGED and deliberately still deserializes to
+                // List<LogAudit> before publishing, so Dapr applies exactly the same
+                // serialization it always has. Passing audit rows through the generic
+                // lane would re-emit the STORED json instead, and the stored form
+                // (JsonSerializer.Serialize with default options ⇒ PascalCase) differs
+                // from what Dapr writes for a typed object (web defaults ⇒ camelCase).
+                // That would silently change the SaveAudit wire format for every
+                // service on this library. Hence the branch rather than a blanket
+                // passthrough.
+                //
+                // The generic lane publishes the stored json VERBATIM (JsonElement is
+                // written as-is), so a producer controls its own wire format and the
+                // outbox is a transport, not a re-serializer. Producers must therefore
+                // store payloads already shaped as the consumer expects — see
+                // OutboxMessage.ForIntegrationEvent, which uses web defaults to match
+                // what an inline DaprClient.PublishEventAsync would have sent.
+                if (row.Topic == OutboxTopics.SaveAudit)
+                {
+                    var changes = JsonSerializer.Deserialize<List<LogAudit>>(row.Payload) ?? new List<LogAudit>();
+                    await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, changes, pubMeta, pubCts.Token);
+                }
+                else
+                {
+                    using var doc = JsonDocument.Parse(row.Payload);
+                    await dapr.PublishEventAsync(_opts.PubSubName, row.Topic, doc.RootElement, pubMeta, pubCts.Token);
+                }
                 await MarkPublishedAsync(conn, row.Id, ct);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
