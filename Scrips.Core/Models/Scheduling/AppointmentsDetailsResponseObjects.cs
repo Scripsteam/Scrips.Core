@@ -141,6 +141,14 @@ public abstract class ListAppointmentResponseBase
     public Guid Id { get; set; }
 
     /// <summary>
+    ///     When the booking itself was made (BC0a lead time: Start − CreatedOn).
+    ///     Nullable on the wire — projections that predate this field simply
+    ///     omit it; it says WHEN the booking was created, never how long the
+    ///     booking took (that needs a BC0b start marker).
+    /// </summary>
+    public DateTime? CreatedOn { get; set; }
+
+    /// <summary>
     ///     When appointment is to take place
     /// </summary>
     public DateTime Start { get; set; }

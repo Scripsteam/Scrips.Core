@@ -9,6 +9,13 @@ namespace Scrips.Core.Models.Scheduling;
 public class AppointmentResponse
 {
     /// <summary>
+    ///     When the booking itself was made (BC0a lead time: Start − CreatedOn).
+    ///     Nullable on the wire; says WHEN the booking was created, never how
+    ///     long booking took (that needs a BC0b start marker).
+    /// </summary>
+    public DateTime? CreatedOn { get; set; }
+
+    /// <summary>
     ///     Constructor.
     /// </summary>
     public AppointmentResponse()
