@@ -259,6 +259,12 @@ message GetTenantRolesById {
         string TenantId = 5;
         string OrganizationId = 6;
         bool IsNurse = 7;        
+        // Stable persona identity from dbo.TenantRoles.TenantMasterId. RoleName above is
+        // administrator-editable (TenantRoleService.EditRole) so it cannot be matched on;
+        // this can. Carried as a string like RoleId and TenantId above: the column is
+        // NULLABLE, and "" says absent where an int32 0 would be indistinguishable from a
+        // real id. Parse with int.TryParse and treat empty as no persona.
+        string TenantMasterId = 8;
 }
 message GetUserDetailsRequest {
 	repeated string userIds=1;
