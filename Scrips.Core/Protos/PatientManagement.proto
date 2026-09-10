@@ -841,12 +841,24 @@ message GetPatientInsurancesResponse {
 
 message GetPatientPackagesRequest {
     string patientId=1;
+    // Billing Agreement ids (AgreementType = "Patient") to filter the patient's enrolments by.
+    // EMPTY MEANS ALL: the server returns every non-insurance payer enrolment the patient has and
+    // the caller filters. This is a load-bearing contract, not an accident of implementation --
+    // Billing relies on it to enumerate before it knows which package ids it cares about. Do not
+    // "fix" the server to return nothing for an empty list.
     repeated string sponsorIds=2;
 }
 
+// Singular by design. This is one enrolment row; GetPatientPackagesResponse (plural) is the
+// envelope that repeats it. Same shape as GetPatientInsuranceResponse inside
+// GetPatientInsurancesResponse above -- renaming either one to "match" the other would be a
+// breaking change across all 20 consumers of this proto.
 message GetPatientPackageResponse {
     string patientId=1;
     string sponsorId=2;
+    // Dates are strings, matching the rest of this proto (see GetPatientInsuranceResponse).
+    // They are whatever DateTime.ToString() produced server-side, NOT a pinned format --
+    // callers must parse defensively and must not assume ISO-8601 or a fixed culture.
     string eligibilityStartDate=3;
     string eligibilityEndDate=4;
     string discountType=5;
