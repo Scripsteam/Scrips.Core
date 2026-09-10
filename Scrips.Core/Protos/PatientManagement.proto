@@ -39,6 +39,11 @@ service PatientManagement {
   rpc UpdatePatientInsurance(UpdatePatientInsuranceRequest) returns (UpdatePatientInsuranceResponse);
   rpc GetPatientInsurance(GetPatientInsuranceRequest) returns (GetPatientInsuranceResponse);
   rpc GetPatientCorporate(GetPatientCorporateRequest) returns (GetPatientCorporateResponse);
+  // Patient package enrolments. A "patient package" is a Billing Agreement whose AgreementType
+  // is "Patient"; Billing owns that catalogue, so it passes the package agreement ids it wants in
+  // sponsorIds and Patient returns this patient's enrolment terms for them. Leave sponsorIds empty
+  // to get every non-insurance payer enrolment the patient has and filter on the caller side.
+  rpc GetPatientPackages(GetPatientPackagesRequest) returns (GetPatientPackagesResponse);
   rpc GetClaimIdfromEncounterByAppointmentId(GetClaimIdfromEncounterByAppointmentIdRequest) returns (GetClaimIdfromEncounterByAppointmentIdResponse);
 
   rpc GetEncounterByClaimId(GetEncounterByClaimIdRequest) returns (GetEncounterByClaimIdResponse);
@@ -832,6 +837,25 @@ message GetPatientCorporateResponse {
 
 message GetPatientInsurancesResponse {
    repeated GetPatientInsuranceResponse patientInsurances=1;
+}
+
+message GetPatientPackagesRequest {
+    string patientId=1;
+    repeated string sponsorIds=2;
+}
+
+message GetPatientPackageResponse {
+    string patientId=1;
+    string sponsorId=2;
+    string eligibilityStartDate=3;
+    string eligibilityEndDate=4;
+    string discountType=5;
+    string policyNumber=6;
+    repeated BillingGroupModel billingGroups=7;
+}
+
+message GetPatientPackagesResponse {
+   repeated GetPatientPackageResponse patientPackages=1;
 }
 
 message GetEncounterByClaimIdRequest {
