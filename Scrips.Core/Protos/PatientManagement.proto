@@ -857,8 +857,11 @@ message GetPatientPackageResponse {
     string patientId=1;
     string sponsorId=2;
     // Dates are strings, matching the rest of this proto (see GetPatientInsuranceResponse).
-    // They are whatever DateTime.ToString() produced server-side, NOT a pinned format --
-    // callers must parse defensively and must not assume ISO-8601 or a fixed culture.
+    // NOT ISO-8601: the server emits DateTime.ToString(CultureInfo.InvariantCulture), i.e. the
+    // general ("G") format. Parse invariantly. Two known losses, verified by test:
+    //   - sub-second precision is dropped (the value round-trips only to the second);
+    //   - DateTimeKind is dropped, so a UTC value parses back as Unspecified -- treat these as UTC.
+    // Empty string means the patient has no eligibility start date recorded.
     string eligibilityStartDate=3;
     string eligibilityEndDate=4;
     string discountType=5;
