@@ -419,6 +419,7 @@ message GetResourceByIdRequest {
   string id = 1;
 }
 // One device. roomId is the dbo.PracticeExamRooms id the device is allocated to; empty = no room.
+// technicianId is the dbo.AddStaff id of the technician assigned to it; empty = none.
 message GetResourceByIdResponse {
   string id = 1;
   string name = 2;
@@ -427,6 +428,7 @@ message GetResourceByIdResponse {
   string roomId = 5;
   bool isArchived = 6;
   string subtype = 7;
+  string technicianId = 8;   // dbo.AddStaff id of the assigned technician; empty = none
 }
 // Comma-separated ids, same convention as GetRoomsRequest.roomIds.
 message GetResourcesRequest {
