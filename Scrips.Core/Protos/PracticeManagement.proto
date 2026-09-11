@@ -48,6 +48,10 @@ service PracticeManagement {
   rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
   rpc GetRooms (GetRoomsRequest) returns (GetRoomsResponse);
 
+  // Device registry (PROD-2008). Additive; GetRoomById/GetRooms stay as they are (rooms are places).
+  rpc GetResourceById (GetResourceByIdRequest) returns (GetResourceByIdResponse);
+  rpc GetResources (GetResourcesRequest) returns (GetResourcesResponse);
+
   rpc GetLocationBasedOnAppointmentProfile(AppointmentProfileLocationRequest) returns (AppointmentProfileLocationResponse);
   rpc DeactivateLocations(DeactivateLocationsRequest) returns(.Practice.DeactivateLocationsResponse);
   
@@ -67,6 +71,10 @@ service PracticeManagement {
   rpc GetPracticeTrnNumbersByIds(Common.Ids) returns (TrnNumberResponse);
   rpc GetPractitionerPresence (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
   rpc GetPractitionerPresence2 (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
+
+  // Bookable hours of a non-practitioner schedule actor: a Device (Practice.Resource) or a
+  // Location (dbo.PracticeExamRooms). v1 = the practice's working hours minus vacation.
+  rpc GetActorPresence (GetActorPresenceRequest) returns (GetPractitionerPresenceResponse);
 
   rpc GetAppointmentProfileDuration (GetAppointmentProfileDurationRequest) returns (GetAppointmentProfileDurationResponse);
   
@@ -148,6 +156,14 @@ message GetPractitionerPresenceRequest{
 
 message GetPractitionerPresenceResponse{
     repeated DateTimePeriod value=1;
+}
+
+message GetActorPresenceRequest{
+    string actorId =1;
+    string actorType =2;   // "Device" | "Location"
+    string practiceId =3;
+    string from =4;
+    string to = 5;
 }
 
 message DateTimePeriod
@@ -398,6 +414,26 @@ message GetRoomsRequest {
 }
 message GetRoomsResponse {
 	repeated GetRoomByIdResponse rooms=1;
+}
+message GetResourceByIdRequest {
+  string id = 1;
+}
+// One device. roomId is the dbo.PracticeExamRooms id the device is allocated to; empty = no room.
+message GetResourceByIdResponse {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+  string practiceId = 4;
+  string roomId = 5;
+  bool isArchived = 6;
+  string subtype = 7;
+}
+// Comma-separated ids, same convention as GetRoomsRequest.roomIds.
+message GetResourcesRequest {
+  string resourceIds = 1;
+}
+message GetResourcesResponse {
+  repeated GetResourceByIdResponse resources = 1;
 }
 message DeactivateLocationsRequest{
     string locations=1;

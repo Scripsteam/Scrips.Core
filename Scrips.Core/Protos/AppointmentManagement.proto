@@ -118,6 +118,8 @@ message V2Schedule {
   string createdById = 7;
   string updatedById = 8;
   bool isArchive =9;
+  // HL7 R4 Schedule.actor target: Practitioner | Device | Location | ... Empty = Practitioner (legacy callers).
+  string actorType = 10;
 }
 
 message GetAppointmentStatusByIdRequest{
