@@ -39,11 +39,6 @@ service PatientManagement {
   rpc UpdatePatientInsurance(UpdatePatientInsuranceRequest) returns (UpdatePatientInsuranceResponse);
   rpc GetPatientInsurance(GetPatientInsuranceRequest) returns (GetPatientInsuranceResponse);
   rpc GetPatientCorporate(GetPatientCorporateRequest) returns (GetPatientCorporateResponse);
-  // Patient package enrolments. A "patient package" is a Billing Agreement whose AgreementType
-  // is "Patient"; Billing owns that catalogue, so it passes the package agreement ids it wants in
-  // sponsorIds and Patient returns this patient's enrolment terms for them. Leave sponsorIds empty
-  // to get every non-insurance payer enrolment the patient has and filter on the caller side.
-  rpc GetPatientPackages(GetPatientPackagesRequest) returns (GetPatientPackagesResponse);
   rpc GetClaimIdfromEncounterByAppointmentId(GetClaimIdfromEncounterByAppointmentIdRequest) returns (GetClaimIdfromEncounterByAppointmentIdResponse);
 
   rpc GetEncounterByClaimId(GetEncounterByClaimIdRequest) returns (GetEncounterByClaimIdResponse);
@@ -837,40 +832,6 @@ message GetPatientCorporateResponse {
 
 message GetPatientInsurancesResponse {
    repeated GetPatientInsuranceResponse patientInsurances=1;
-}
-
-message GetPatientPackagesRequest {
-    string patientId=1;
-    // Billing Agreement ids (AgreementType = "Patient") to filter the patient's enrolments by.
-    // EMPTY MEANS ALL: the server returns every non-insurance payer enrolment the patient has and
-    // the caller filters. This is a load-bearing contract, not an accident of implementation --
-    // Billing relies on it to enumerate before it knows which package ids it cares about. Do not
-    // "fix" the server to return nothing for an empty list.
-    repeated string sponsorIds=2;
-}
-
-// Singular by design. This is one enrolment row; GetPatientPackagesResponse (plural) is the
-// envelope that repeats it. Same shape as GetPatientInsuranceResponse inside
-// GetPatientInsurancesResponse above -- renaming either one to "match" the other would be a
-// breaking change across all 20 consumers of this proto.
-message GetPatientPackageResponse {
-    string patientId=1;
-    string sponsorId=2;
-    // Dates are strings, matching the rest of this proto (see GetPatientInsuranceResponse).
-    // NOT ISO-8601: the server emits DateTime.ToString(CultureInfo.InvariantCulture), i.e. the
-    // general ("G") format. Parse invariantly. Two known losses, verified by test:
-    //   - sub-second precision is dropped (the value round-trips only to the second);
-    //   - DateTimeKind is dropped, so a UTC value parses back as Unspecified -- treat these as UTC.
-    // Empty string means the patient has no eligibility start date recorded.
-    string eligibilityStartDate=3;
-    string eligibilityEndDate=4;
-    string discountType=5;
-    string policyNumber=6;
-    repeated BillingGroupModel billingGroups=7;
-}
-
-message GetPatientPackagesResponse {
-   repeated GetPatientPackageResponse patientPackages=1;
 }
 
 message GetEncounterByClaimIdRequest {
