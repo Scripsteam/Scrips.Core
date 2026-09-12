@@ -479,6 +479,7 @@ message ResourceAppointmentProfile {
   bool isDefault = 7;
   bool inAppBooking = 8;
   bool isArchived = 9;
+  string billingProfileId = 10;  // empty = none; Scrips.Billing dbo.BillingProfile.Id the device booking prices with by default (PROD-2154)
 }
 message GetResourceAppointmentProfilesResponse {
   repeated ResourceAppointmentProfile profiles = 1;
