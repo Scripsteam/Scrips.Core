@@ -480,6 +480,10 @@ message ResourceAppointmentProfile {
   bool inAppBooking = 8;
   bool isArchived = 9;
   string billingProfileId = 10;  // empty = none; Scrips.Billing dbo.BillingProfile.Id the device booking prices with by default (PROD-2154)
+  string serviceId = 11;         // empty = none; Scrips.Billing dbo.Service.Id this product IS: the priced service whose
+                                 // ServiceLocationFee gives the product its price (PROD-2165, "a product is a name, a
+                                 // duration and a price"). Takes precedence over billingProfileId, which stays and keeps
+                                 // working: a service is one priced line, a billing profile is a bundle.
 }
 message GetResourceAppointmentProfilesResponse {
   repeated ResourceAppointmentProfile profiles = 1;
