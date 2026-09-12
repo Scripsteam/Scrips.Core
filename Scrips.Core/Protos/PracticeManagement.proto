@@ -72,8 +72,10 @@ service PracticeManagement {
   rpc GetPractitionerPresence (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
   rpc GetPractitionerPresence2 (GetPractitionerPresenceRequest) returns (GetPractitionerPresenceResponse);
 
-  // Bookable hours of a non-practitioner schedule actor: a Device (Practice.Resource) or a
-  // Location (dbo.PracticeExamRooms). v1 = the practice's working hours minus vacation.
+  // Bookable hours of a non-practitioner schedule actor. Device (Practice.Resource) only today: the
+  // device's OWN working hours minus its vacations, in the organization's time zone (ruling 2026-09-12).
+  // Empty value = the device has no working hours = not bookable (trailer x-presence-empty-reason).
+  // NotFound: unknown, archived or foreign device. InvalidArgument: any other actorType.
   rpc GetActorPresence (GetActorPresenceRequest) returns (GetPractitionerPresenceResponse);
 
   rpc GetAppointmentProfileDuration (GetAppointmentProfileDurationRequest) returns (GetAppointmentProfileDurationResponse);
@@ -83,6 +85,12 @@ service PracticeManagement {
 
   rpc GetPractitionerOverbookCalendarSettingsBatch (GetOverbookCalendarSettingsBatchRequest)
       returns (GetOverbookCalendarSettingsBatchResponse);
+
+  // Device schedule (PROD-2007, ruling 2026-09-12). Read by Scheduling in phase 2b (S11 overbooking, S12 duration).
+  rpc GetResourceOverbookCalendarSettingsBatch (GetResourceOverbookCalendarSettingsBatchRequest)
+      returns (GetResourceOverbookCalendarSettingsBatchResponse);
+  rpc GetResourceAppointmentProfiles (GetResourceAppointmentProfilesRequest)
+      returns (GetResourceAppointmentProfilesResponse);
 
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
   rpc UpdateSpecialities(UpdateSpecialitiesRequest) returns (UpdateSpecialitiesResponse);
@@ -436,6 +444,44 @@ message GetResourcesRequest {
 }
 message GetResourcesResponse {
   repeated GetResourceByIdResponse resources = 1;
+}
+
+// Per-device calendar settings for a set of devices (Practice.ResourceCalendarSettings). A device
+// with no settings row is simply absent: the caller defaults its overbooking to 0. At most 500 ids.
+message GetResourceOverbookCalendarSettingsBatchRequest {
+  repeated string resourceIds = 1;
+}
+message ResourceOverbookCalendarSettingItem {
+  string resourceId = 1;
+  int32 maxOverBookingsPerSlot = 2;
+  int32 defaultCalendarIncrements = 3;
+  int32 availableSlotsToPatient = 4;
+  int32 availableSlotsToPractice = 5;
+}
+message GetResourceOverbookCalendarSettingsBatchResponse {
+  repeated ResourceOverbookCalendarSettingItem settings = 1;
+}
+
+// A device's products (Practice.ResourceAppointmentProfiles): "duration is a product, not a setting".
+// NotFound for an unknown device; an archived device still answers (a booked appointment may need
+// its profile's duration). includeArchived=false returns live profiles only.
+message GetResourceAppointmentProfilesRequest {
+  string resourceId = 1;
+  bool includeArchived = 2;
+}
+message ResourceAppointmentProfile {
+  string id = 1;
+  string resourceId = 2;
+  string profileName = 3;
+  int32 minutesDuration = 4;
+  string color = 5;              // empty = none
+  string appointmentTypeId = 6;  // empty = none
+  bool isDefault = 7;
+  bool inAppBooking = 8;
+  bool isArchived = 9;
+}
+message GetResourceAppointmentProfilesResponse {
+  repeated ResourceAppointmentProfile profiles = 1;
 }
 message DeactivateLocationsRequest{
     string locations=1;
