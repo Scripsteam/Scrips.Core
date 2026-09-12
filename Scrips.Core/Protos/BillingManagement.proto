@@ -203,6 +203,9 @@ message InvoiceRequest{
 	string policyNo=14;
 	string addedServices=15;
 	string tenantId=16;
+	// PROD-2153: device (resource) booking; empty when the invoice is for a practitioner.
+	string resourceId=17;
+	string resourceName=18;
 }
 message InvoiceRequest2{
 	string invoiceId=1;
@@ -225,6 +228,9 @@ message InvoiceRequest2{
 	string providerName=18;
 	string providerPhoto=19;
 	string tenantId=20;
+	// PROD-2153: device (resource) booking; empty when the invoice is for a practitioner.
+	string resourceId=21;
+	string resourceName=22;
 }
 message InvoiceResponse{
 	string invoiceId=1;
