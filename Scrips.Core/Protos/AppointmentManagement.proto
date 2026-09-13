@@ -1,4 +1,4 @@
-syntax = "proto3";
+﻿syntax = "proto3";
 
 option csharp_namespace = "Scrips.Core.GrpcApiClients";
 
@@ -29,6 +29,17 @@ service AppointmentManagement {
   rpc GetAppointmentCustomNote (GetAppointmentCustomNoteRequest) returns (GetAppointmentCustomNoteResponse);
   rpc GetAppointmentDateById (GetAppointmentByIdRequest) returns (GetAppointmentDateByIdResponse);
   rpc GetPractitionersAvailability(GetPractitionersAvailabilityRequest) returns (TimePeriodCollectionMessages);
+  // PROD-2185: the device equivalent of GetPractitionersAvailability, for PROD-2181's device
+  // calendar card feed. It is a SEPARATE rpc, not a flag on the practitioner one, because the
+  // practitioner path is wrong for a device twice over: its overbooking batch is keyed by
+  // ProviderId so a device id resolves to an allowance of 0, and it subtracts EVERY slot row
+  // rather than only the busy-class ones (SlotStatusExtensions.OccupiesResource), so a Free or
+  // EnteredInError device row would eat availability. Andrew, 2026-09-13: device surfaces get
+  // their own endpoints mirroring the practitioner ones rather than overloading them.
+  //
+  // This file is the CLIENT copy. The server copy lives in Scrips.AppointmentScheduling
+  // (API/Protos/AppointmentManagement.proto) and the two must stay in step.
+  rpc GetResourcesAvailability(GetResourcesAvailabilityRequest) returns (TimePeriodCollectionMessages);
   rpc GetAppointmentsListByProvider(GetAppointmentsListByProviderRequest) returns (GetAppointmentsListByProviderResponse);
   rpc GetAppointmentsSpecialityByIds(GetAppointmentsSpecialityByIdsRequest) returns (GetAppointmentsSpecialityByIdsResponse);
 }
@@ -488,6 +499,24 @@ message GetPractitionersAvailabilityRequest{
   TimePeriodCollectionMessages data = 1;
   string practiceId = 2;
   string organizationId = 3;
+}
+
+// PROD-2185: device availability for many devices at once. `data` is a device id -> presence pair
+// per device; presence is supplied BY THE CALLER, which is what keeps this usable from
+// PracticeManagement -- the single-device REST path resolves presence by calling back into
+// PracticeManagement, so PM consuming that would be a PM -> Scheduling -> PM loop.
+//
+// No practiceId, deliberately. The practitioner request carries one only to key
+// GetPractitionerOverbookCalendarSettingsBatch(ids, practiceId); a device's allowance lives in
+// Practice.ResourceCalendarSettings keyed by ResourceId alone, so there is nothing here for a
+// practice to key. Nor is it the tenant boundary: organizationId is, and it is what the slot read
+// is scoped by. Carrying an ignored practiceId would advertise a scoping guarantee this rpc does
+// not honour -- a caller could pass a device from one practice and a practiceId from another and
+// get an answer that silently ignored it. The caller already knows which practice each device
+// belongs to, because it chose the ids.
+message GetResourcesAvailabilityRequest{
+  TimePeriodCollectionMessages data = 1;
+  string organizationId = 2;
 }
 
 message Pair {
