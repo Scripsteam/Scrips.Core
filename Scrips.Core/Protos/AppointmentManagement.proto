@@ -506,17 +506,24 @@ message GetPractitionersAvailabilityRequest{
 // PracticeManagement -- the single-device REST path resolves presence by calling back into
 // PracticeManagement, so PM consuming that would be a PM -> Scheduling -> PM loop.
 //
-// No practiceId, deliberately. The practitioner request carries one only to key
-// GetPractitionerOverbookCalendarSettingsBatch(ids, practiceId); a device's allowance lives in
-// Practice.ResourceCalendarSettings keyed by ResourceId alone, so there is nothing here for a
-// practice to key. Nor is it the tenant boundary: organizationId is, and it is what the slot read
-// is scoped by. Carrying an ignored practiceId would advertise a scoping guarantee this rpc does
-// not honour -- a caller could pass a device from one practice and a practiceId from another and
-// get an answer that silently ignored it. The caller already knows which practice each device
-// belongs to, because it chose the ids.
+// practiceId is ENFORCED here, not carried for symmetry with the practitioner request. A device
+// belongs to exactly one practice (PracticeResource.PracticeId is required and single-valued), and
+// every slot reaches a practice through the schedule that owns it -- V2.Schedule.PracticeId is
+// non-nullable -- so the device slot read filters on it directly. A device id from another practice
+// contributes no occupancy rather than being trusted to have been filtered upstream: the caller
+// does filter by practice today, but that is a property of one call site, not of this rpc.
+//
+// It is not the tenant boundary -- organizationId is, and the slot read is scoped by both -- but it
+// is a real second scope, and an unparseable practiceId is rejected the same way as an unparseable
+// organizationId. An older client that omits it sends "", which is rejected rather than treated as
+// unscoped, so PracticeManagement must send practiceId BEFORE this deploys.
+//
+// Note practiceId does NOT key the device's overbooking allowance the way it does for
+// practitioners: that lives in Practice.ResourceCalendarSettings keyed by ResourceId alone.
 message GetResourcesAvailabilityRequest{
   TimePeriodCollectionMessages data = 1;
   string organizationId = 2;
+  string practiceId = 3;
 }
 
 message Pair {
