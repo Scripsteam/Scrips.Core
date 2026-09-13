@@ -1,4 +1,4 @@
-namespace Scrips.Core.Models.Practice;
+﻿namespace Scrips.Core.Models.Practice;
 
 /// <summary>
 /// The Devices calendar's card feed: one practice, one date range, every live device with its
@@ -76,10 +76,17 @@ public class DeviceSlotsAppointmentProfile
 }
 
 /// <summary>
-/// One window the device is present, in UTC. WeedayId uses the SAME Mon=1..Sun=7 convention the
-/// practitioner path emits, because the frontend's working-hours label matches on it and reads
-/// Start/End as the fallback for StartTime/EndTime -- so the existing helper works on a device row
-/// with no translation.
+/// One window the device is present, in UTC. WeedayId is Mon=1..Sun=7 -- the convention the frontend's
+/// working-hours label matches on -- and Start/End are read as its fallback for StartTime/EndTime, so
+/// the existing helper works on a device row with no translation.
+///
+/// This is NOT what the practitioner path emits, despite appearances. ProviderSlot2Part3 writes
+/// `(int)(EnumWeekDays)(int)DayOfWeek`, which looks like a conversion and is an identity cast:
+/// EnumWeekDays is Monday=0..Sunday=6 while System.DayOfWeek is Sunday=0..Saturday=6, so int->enum->int
+/// returns (int)DayOfWeek unchanged and Sunday comes out as 0. The label never matches that, and
+/// practitioner rows only survive it because they also carry StartWeekDay/EndWeekDay name strings the
+/// helper falls back to. A device row has no such field, so it emits the real convention instead.
+/// Mon-Sat are identical either way; Sunday is the only divergence.
 /// </summary>
 public class DeviceWorkingWindow
 {
