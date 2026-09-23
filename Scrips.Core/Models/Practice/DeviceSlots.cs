@@ -32,6 +32,15 @@ public class DeviceSlotsRequest
 
     /// <summary>How many free slots to carry on each card. The strip shows 3.</summary>
     public int SlotCount { get; set; } = 3;
+
+    /// <summary>
+    /// PROD-2456. The product the caller is booking: its device's slots are cut at THIS product's
+    /// MinutesDuration, the way SlotsRequest.AppointmentProfileId drives a practitioner's
+    /// Appointment/Slots grid. Null: every device is cut at its default product, as before -- which is
+    /// what the Devices-tab card feed relies on. It must be a live product of a live device in scope,
+    /// or the request is refused rather than silently answered in the default duration.
+    /// </summary>
+    public Guid? AppointmentProfileId { get; set; }
 }
 
 /// <summary>One free slot on a device, in UTC.</summary>
