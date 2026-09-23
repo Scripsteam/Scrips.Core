@@ -246,6 +246,17 @@ message GenerateDocumentationRequest {
     string specialty = 2;
     // Tenant context not modeled here yet — see SearchAndEnhanceRequest
     // for rationale. Will arrive via gRPC metadata once auth lands.
+    //
+    // The dictating clinician arrives on that channel NOW, as the gRPC metadata headers
+    // `x-clinician-discipline` (Prescriber | NonPrescriber) and `x-clinician-tenant-role-id`
+    // (Identity's raw tenantRoleId; 20 is the non-prescriber role). Scrips.VideoApplication
+    // resolves both from the caller's signed token and sends them; this service reads them in
+    // MasterManagementService.GenerateDocumentation and refuses the call when they are absent.
+    //
+    // They are deliberately NOT fields on this message. A discipline in the request body is a
+    // permission the client asserts about itself, and removing exactly that was the point of the
+    // change on the calling side — see ClinicianContextHeaders for the whole argument. Do not
+    // add one back here.
 }
 
 // Rich encounter document. Narrative sections (HPI, ROS, PE, assessmentNarrative,
@@ -314,6 +325,12 @@ message EncounterDiagnosis {
     string codesystem = 3;
     bool primary = 4;
     string notes = 5;
+
+    // Added by schema encounter-from-transcript/2. How firmly the clinician holds this:
+    // "confirmed", "suspected" or "ruled-out". Empty when the model did not say, and an
+    // empty certainty is NOT a confirmed one — a consumer that treats it as confirmation
+    // recreates PROD-1951, where a condition only being worked up was offered as a diagnosis.
+    string certainty = 6;
 }
 
 message EncounterMedication {
@@ -324,6 +341,28 @@ message EncounterMedication {
     string duration = 5;
     string instructions = 6;
     bool isNew = 7;
+
+    // Added by schema encounter-from-transcript/2. Additive only: tags 1-7 above keep their
+    // numbers and their meanings, because four other services are reading this contract.
+
+    // "drug" or "supplement". Supplements are core therapy in a longevity practice and are
+    // recorded exactly like drugs, so this is what tells them apart afterwards.
+    string category = 8;
+
+    // The instruction in the speaker's own words. An interval schedule loses its meaning in sig
+    // abbreviations — "twice weekly" is not BID — so the spoken form is carried alongside
+    // `frequency` rather than replaced by it. PROD-2018 is what happens without it.
+    string sigVerbatim = 9;
+
+    // Who said it: "provider", "patient" or "other" (nurse, family, guardian).
+    string speaker = 10;
+
+    // What was decided: "new-order", "continuing", "patient-reported", "advised-against" or
+    // "mentioned". ONLY "new-order" may become an order proposal. Every other value is a record
+    // of something said and must still be rendered — a mention with no action is not a mention
+    // to discard. The server rejects "new-order" for a non-prescribing discipline by rewriting
+    // it to "mentioned"; the entry itself is never removed.
+    string disposition = 11;
 }
 
 message LabOrder {
