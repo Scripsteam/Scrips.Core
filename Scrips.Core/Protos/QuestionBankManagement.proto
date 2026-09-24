@@ -1,0 +1,77 @@
+syntax = "proto3";
+option csharp_namespace = "Scrips.Core.GrpcApiClients";
+
+package QuestionBank;
+
+// Scrips.QuestionBank owns the encounter template (Questionnaire) and the clinician's answers to it
+// (QuestionnaireResponse). This contract lets Scrips.Patient freeze the answers at sign and read
+// them back as the narrative the post-visit summary (and so MDM^T02/T08) carries.
+//
+// PROD-2579 / PROD-2531 (ambient B5 remainder + B3).
+//
+// Both rpcs name the tenant explicitly (organizationId): the caller is a service, not a user, so
+// there is no orgId claim to take it from. Both fail with an RpcException, never an empty
+// response, when the answer cannot be produced: an empty response reads as "no template
+// narrative" and would let a summary leave without the signed content.
+service QuestionBankManagement {
+  // At sign, stamp status `completed` on the encounter's QuestionnaireResponse revision that was
+  // current at signedAtUtc (the newest row with UpdatedOn <= signedAtUtc), and return its id.
+  // An `amended` revision keeps its status. Idempotent. It is the one write QuestionBank allows on
+  // a signed encounter, and it never changes the answers or UpdatedOn.
+  rpc FreezeEncounterResponse(FreezeEncounterResponseRequest) returns (FreezeEncounterResponseResponse);
+
+  // The encounter's template narrative as of asOfUtc: the revision current at that instant,
+  // rendered against its Questionnaire into ordered sections. asOfUtc empty = the newest revision
+  // (an unsigned encounter's draft).
+  rpc GetEncounterNarrative(GetEncounterNarrativeRequest) returns (GetEncounterNarrativeResponse);
+}
+
+message FreezeEncounterResponseRequest{
+    string encounterId=1;
+    string organizationId=2;
+    // UTC, ISO-8601 round-trip ("o"). Required.
+    string signedAtUtc=3;
+}
+
+message FreezeEncounterResponseResponse{
+    // False when the encounter has no QuestionnaireResponse at or before signedAtUtc (an encounter
+    // documented without a template). Not an error.
+    bool found=1;
+    string questionnaireResponseId=2;
+    // The frozen revision's status after the stamp: "completed", or "amended" for an amendment.
+    string status=3;
+}
+
+message GetEncounterNarrativeRequest{
+    string encounterId=1;
+    string organizationId=2;
+    // UTC, ISO-8601 round-trip ("o"). Empty = newest revision.
+    string asOfUtc=3;
+}
+
+message GetEncounterNarrativeResponse{
+    // False when there is no revision at or before asOfUtc. Not an error.
+    bool found=1;
+    string questionnaireResponseId=2;
+    string status=3;
+    string questionnaireId=4;
+    // UTC "o" of the revision's UpdatedOn.
+    string revisionUpdatedAtUtc=5;
+    // In template order. Only answered items appear. Answers whose linkId the template does not
+    // declare are kept, in a final section, never dropped.
+    repeated EncounterNarrativeSection sections=6;
+}
+
+message EncounterNarrativeSection{
+    string linkId=1;
+    string title=2;
+    repeated EncounterNarrativeEntry entries=3;
+}
+
+message EncounterNarrativeEntry{
+    string linkId=1;
+    // The template item's text; the linkId when the template gives none.
+    string label=2;
+    // Every answer of the item, rendered and joined with ", ".
+    string value=3;
+}
