@@ -65,6 +65,11 @@ service PatientManagement {
   rpc GetPatientvaccinationList(GetPatientvaccinationListRequest) returns (GetPatientvaccinationListResponse);
   rpc GetConditionStatusListData(GetConditionStatusListDataRequest) returns (GetConditionStatusListDataResponse);
   rpc GetLastTwoSignLockByPatientAndEncounter(GetLastTwoSignLockByPatientAndEncounterRequest) returns (GetLastTwoSignLockByPatientAndEncounterResponse);
+  // PROD-2547 (B5) — the authoritative "is this encounter's note signed?" answer, read by
+  // QuestionBank at QuestionnaireResponse write time so a late write to a signed note is refused.
+  // Unlike the other reads in this service, a failure MUST surface as an RpcException, never as an
+  // empty response: an empty response reads as "unsigned" and would let the write through.
+  rpc GetEncounterSignState(GetEncounterSignStateRequest) returns (GetEncounterSignStateResponse);
   rpc GetAssessmentPlanById(GetAssessmentPlanByIdRequest) returns (GetAssessmentPlanByIdResponse);
   rpc GetConditionByPatientId(GetConditionByPatientIdRequest) returns (GetConditionStatusListDataResponse);
   rpc GetPostVisitSummary(GetPostVisitSummaryRequest) returns (GetPostVisitSummaryResponse);
@@ -330,6 +335,21 @@ message SignLock{
     string updateddate =11;
     string updatedBy =12;
     string patientAssessmentPlanId =13;
+}
+
+// PROD-2547 (B5). "Signed" = the encounter has a provider (non-nurse) SignLockEncounter row — the
+// clinical attestation that completes the encounter. A nurse-only sign does not lock the note.
+message GetEncounterSignStateRequest{
+    string encounterId=1;
+}
+
+message GetEncounterSignStateResponse{
+    bool signed=1;
+    // UTC, ISO-8601 round-trip ("o") format, of the earliest provider sign. Empty when unsigned.
+    string signedAtUtc=2;
+    // "locked" when signed by a provider, "unsigned" otherwise. A string so later states
+    // (e.g. "amended") can be added without a breaking change.
+    string lockState=3;
 }
 
 message GetEncounterInfoByEncounterIdRequest{
