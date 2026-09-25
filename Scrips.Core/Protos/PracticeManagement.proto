@@ -37,6 +37,10 @@ service PracticeManagement {
   rpc GetStaffsByIds (GetStaffsByIdsRequest) returns (GetStaffsByIdsResponse);
 
   rpc GetDoctorByUserId (DoctorDataRequest) returns (DoctorDataResponse);
+  // PROD-2674. Read-only userId -> doctor (provider) id, for authorization and authorship checks.
+  // Unlike GetDoctorByUserId (the login routine) it writes nothing and makes no downstream calls.
+  // Empty DoctorId = the user is not a doctor.
+  rpc GetDoctorIdByUserId (DoctorIdByUserIdRequest) returns (DoctorIdByUserIdResponse);
   rpc GetDoctorsByIds (GetDoctorsByIdsRequest) returns (GetDoctorsByIdsResponse);
 
   rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
@@ -382,6 +386,17 @@ message GetStaffResponse{
 }
 message DoctorDataRequest{
         string UserId=1;
+}
+
+// PROD-2674
+message DoctorIdByUserIdRequest{
+        string UserId=1;
+}
+
+// PROD-2674. Both empty when the user is not a doctor.
+message DoctorIdByUserIdResponse{
+        string DoctorId=1;
+        string OrganizationId=2;
 }
 
 
