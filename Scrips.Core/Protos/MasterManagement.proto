@@ -228,17 +228,30 @@ message DocumentationElement {
 }
 
 message ClinicalAlert {
-    // "info" / "warning" / "critical".
+    // CLOSED SET: "critical" / "warning" / "info", or "" when NOT ASSESSED.
+    // Since PROD-2599 Master derives it from `code` where the check decides it
+    // (ALLERGY_CONFLICT and RED_FLAG_SYMPTOM are critical, MISSING_HX is info,
+    // DRUG_INTERACTION is never below warning) and otherwise keeps a model value
+    // only if it is one of the three words. Anything else is sent as "", never
+    // coerced to "info" or "critical". A Master older than PROD-2599 sends the
+    // constant "info" with an empty code — a placeholder, not an assessment — so a
+    // consumer should only believe "info" when `code` is non-empty.
     string severity = 1;
-    // Human-readable alert text.
+    // The finding: what was noticed, as human-readable text.
     string message = 2;
     // Originating service / pipeline component.
     string source = 3;
     // Stable machine-readable alert code so consumers can render / triage
-    // without parsing the message string. Examples:
+    // without parsing the message string. CLOSED SET:
     //   DRUG_INTERACTION, ALLERGY_CONFLICT, MISSING_HX, RED_FLAG_SYMPTOM.
-    // Empty when the alert was generated free-form.
+    // Empty when the alert was generated free-form (or the model named a code
+    // outside the set).
     string code = 4;
+    // PROD-2599: what the clinician is advised to do about the finding
+    // (e.g. "Confirm the allergy before prescribing"). Free text from the model,
+    // AI-generated and unverified; "" when none was given. Never an instruction
+    // any service executes — display only.
+    string recommendedAction = 5;
 }
 
 message GenerateDocumentationRequest {
