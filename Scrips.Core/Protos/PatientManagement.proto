@@ -85,6 +85,69 @@ service PatientManagement {
   // PlanDefinition's goal[]. Called by the Workflows InstantiateCarePlanActivity
   // (separate follow-up, PROD-1307) at "Start Care Pathway". Tenant-scoped + idempotent.
   rpc CreateCarePlan(CreateCarePlanRequest) returns (CreateCarePlanResponse);
+
+  // PROD-2683 / PROD-2702 - ambient recording consent and recording parts.
+  // CheckAmbientRecordingConsent is the server-side consent gate the recorder asks before it
+  // records. It FAILS CLOSED: any error is DENIED, and AMBIENT_CONSENT_UNSPECIFIED (the proto
+  // default) must be read as a denial, never as a grant.
+  // Begin/CompleteAmbientRecordingPart are declared here only; they are implemented later.
+  rpc CheckAmbientRecordingConsent (AmbientRecordingConsentRequest) returns (AmbientRecordingConsentResponse);
+  rpc BeginAmbientRecordingPart (BeginAmbientRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
+  rpc CompleteAmbientRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
+}
+
+// PROD-2683 - ask whether ambient recording is consented for this encounter.
+message AmbientRecordingConsentRequest {
+    string encounterId = 1;
+    string organizationId = 2;
+}
+
+// PROD-2683 - the consent decision. Carries no names and no PHI.
+message AmbientRecordingConsentResponse {
+    enum ConsentStatus {
+        AMBIENT_CONSENT_UNSPECIFIED = 0; // the default; a consumer MUST treat it as denied
+        AMBIENT_CONSENT_GRANTED = 1;
+        AMBIENT_CONSENT_DENIED = 2;
+    }
+    ConsentStatus status = 1;
+    string reasonCode = 2;          // machine reason for the decision, e.g. "error"
+    bool isMinor = 3;
+    string requiredSignerRole = 4;  // who must sign, e.g. guardian for a minor
+    string consentRecordId = 5;     // the consent record the decision rests on, if any
+    string expiresAtUtc = 6;        // ISO-8601 UTC; empty when the consent does not expire
+}
+
+// PROD-2702 - start one part of an ambient recording (declared only; implemented later).
+message BeginAmbientRecordingPartRequest {
+    string organizationId = 1;
+    string encounterId = 2;
+    string userId = 3;
+    string recordingKey = 4;
+    string videoSessionId = 5;
+    string consentRecordId = 6;
+}
+
+message BeginAmbientRecordingPartResponse {
+    string recordingId = 1;
+    string partId = 2;
+    int32 partIndex = 3;
+    string blobName = 4;
+    bool accepted = 5;
+    string refusalReason = 6;
+}
+
+// PROD-2702 - close one part of an ambient recording (declared only; implemented later).
+message CompleteAmbientRecordingPartRequest {
+    string partId = 1;
+    int64 bytes = 2;
+    int64 durationMs = 3;
+    bool partial = 4;
+    bool degraded = 5;
+    bool committed = 6;
+}
+
+message CompleteAmbientRecordingPartResponse {
+    bool ok = 1;
 }
 
 // care-modeling — a single goal carried from the PlanDefinition (GoalDto shape

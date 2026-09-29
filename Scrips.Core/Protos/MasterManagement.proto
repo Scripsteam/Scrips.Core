@@ -257,6 +257,11 @@ message ClinicalAlert {
 message GenerateDocumentationRequest {
     string transcript = 1;
     string specialty = 2;
+    // PROD-2685 (matches Scrips.Master PR #307, commit 7219d21). The SNOMED CT code of the
+    // clinician's specialty, from Practice (PracticeValueSetResponse.code), e.g. 394537008 =
+    // Paediatric specialty. Like `specialty` it is prompt context, never a permission: it only
+    // chooses a prompt on the side the discipline header already decided. Empty = not known.
+    string specialty_code = 3;
     // Tenant context not modeled here yet — see SearchAndEnhanceRequest
     // for rationale. Will arrive via gRPC metadata once auth lands.
     //
@@ -344,6 +349,13 @@ message EncounterDiagnosis {
     // empty certainty is NOT a confirmed one — a consumer that treats it as confirmation
     // recreates PROD-1951, where a condition only being worked up was offered as a diagnosis.
     string certainty = 6;
+
+    // PROD-2687: terminology match of the dictated diagnosis against the code system.
+    // codeStatus: "matched" | "unmatched" | "" (empty = not checked; NOT the same as matched).
+    // matchedCode / matchedDisplay are set only when codeStatus is "matched".
+    string codeStatus = 7;
+    string matchedCode = 8;
+    string matchedDisplay = 9;
 }
 
 message EncounterMedication {
@@ -376,6 +388,22 @@ message EncounterMedication {
     // to discard. The server rejects "new-order" for a non-prescribing discipline by rewriting
     // it to "mentioned"; the entry itself is never removed.
     string disposition = 11;
+
+    // PROD-2687: terminology match of the dictated medication.
+    // codeStatus: "matched" | "unmatched" | "" (empty = not checked; NOT the same as matched).
+    // matchedCode / matchedSystem / matchedDisplay are set only when codeStatus is "matched".
+    string codeStatus = 12;
+    string matchedCode = 13;
+    string matchedSystem = 14;
+    string matchedDisplay = 15;
+
+    // PROD-2611: cross-check of the structured sig against the spoken instruction (sigVerbatim).
+    // sigStatus: "agree" | "contested" | "" (empty = not checked; NOT the same as agree).
+    // sigConflicts: the points where the structured sig and the spoken words disagree.
+    // sigUncovered: parts of the spoken instruction the structured sig does not carry.
+    string sigStatus = 16;
+    repeated string sigConflicts = 17;
+    repeated string sigUncovered = 18;
 }
 
 message LabOrder {
