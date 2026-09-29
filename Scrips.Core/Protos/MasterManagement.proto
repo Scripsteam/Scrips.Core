@@ -351,7 +351,11 @@ message EncounterDiagnosis {
     string certainty = 6;
 
     // PROD-2687: terminology match of the dictated diagnosis against the code system.
-    // codeStatus: "matched" | "unmatched" | "" (empty = not checked; NOT the same as matched).
+    // codeStatus: "matched" | "unmatched" | "unchecked" | "" (same values as Master's copy, Master #310).
+    //   "matched"   - icdCode was found exactly; matchedCode / matchedDisplay are set.
+    //   "unmatched" - the proposed code is not in the code system; icdCode is cleared to "".
+    //   "unchecked" - the lookup failed or timed out; icdCode is cleared too. Treat like "unmatched".
+    //   ""          - no code was proposed. NOT the same as matched.
     // matchedCode / matchedDisplay are set only when codeStatus is "matched".
     string codeStatus = 7;
     string matchedCode = 8;
