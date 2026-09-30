@@ -24,6 +24,13 @@ service QuestionBankManagement {
   // rendered against its Questionnaire into ordered sections. asOfUtc empty = the newest revision
   // (an unsigned encounter's draft).
   rpc GetEncounterNarrative(GetEncounterNarrativeRequest) returns (GetEncounterNarrativeResponse);
+
+  // PROD-2740. The sign gate's server twin: the required template items the signer's steps show
+  // that the revision current at asOfUtc (same resolution as FreezeEncounterResponse) leaves
+  // unanswered. Judged against the encounter's current Questionnaire; enableWhen, role steps,
+  // gender pruning, answer-absent-reason and bulk-default provenance follow the client renderer.
+  // Carries no answer values.
+  rpc GetUnansweredRequiredItems(UnansweredRequiredItemsRequest) returns (UnansweredRequiredItemsResponse);
 }
 
 message FreezeEncounterResponseRequest{
@@ -74,4 +81,34 @@ message EncounterNarrativeEntry{
     string label=2;
     // Every answer of the item, rendered and joined with ", ".
     string value=3;
+}
+
+message UnansweredRequiredItemsRequest{
+    string encounterId=1;
+    string organizationId=2;
+    // UTC, ISO-8601 round-trip ("o"). Empty = newest revision.
+    string asOfUtc=3;
+    // The signer's role: "physician" | "nurse" | "allied-health". Picks the steps that are checked.
+    string signerRole=4;
+    // "male" | "female" | "" (unknown: nothing is pruned by sex).
+    string patientSex=5;
+}
+
+message UnansweredRequiredItemsResponse{
+    // False when there is no revision at or before asOfUtc. Not an error.
+    bool found=1;
+    string questionnaireResponseId=2;
+    // False when the current template's hash differs from the pin the response recorded
+    // (PROD-2537), so the items were judged against a template the clinician did not see.
+    bool templatePinMatches=3;
+    // In template order. Empty = every required item is answered.
+    repeated UnansweredRequiredItem items=4;
+}
+
+message UnansweredRequiredItem{
+    string linkId=1;
+    // The template item's text; the linkId when the template gives none.
+    string text=2;
+    // The encounter step the item belongs to: "hpi" | "ros" | "pe" | "risk" | "ap" | "allied-plan".
+    string step=3;
 }
