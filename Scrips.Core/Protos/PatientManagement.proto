@@ -94,6 +94,14 @@ service PatientManagement {
   rpc CheckAmbientRecordingConsent (AmbientRecordingConsentRequest) returns (AmbientRecordingConsentResponse);
   rpc BeginAmbientRecordingPart (BeginAmbientRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
   rpc CompleteAmbientRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
+
+  // PROD-2901 - exact, organization-scoped phone -> patient lookup for an inbound WhatsApp sender, so
+  // free text can reach the automation waiting on that patient. Cluster-internal: called by
+  // Scrips.Workflows only. It returns patient ids and nothing else (no names, no phone numbers).
+  // Never fuzzy: unlike GetPatientsBySearch (LIKE on name/MRN/phone), a patient matches only when
+  // its normalised number equals the sender's. More than one id means the number is shared
+  // (e.g. a parent and child): the caller must not guess between them.
+  rpc FindPatientsByPhone (FindPatientsByPhoneRequest) returns (FindPatientsByPhoneResponse);
 }
 
 // PROD-2683 - ask whether ambient recording is consented for this encounter.
@@ -1031,4 +1039,19 @@ message UpdatePatientEncounterClaimRequest {
 }
 message UpdatePatientEncounterClaimResponse {
     bool Success=1;
+}
+
+// PROD-2901 - find the patients of one organization whose phone number is the sender's.
+message FindPatientsByPhoneRequest {
+    string organization_id = 1;   // required, non-empty GUID; the search never leaves this organization
+    string e164_digits = 2;       // the sender's number, international digits without "+" (WhatsApp wa_id). PHI
+}
+
+// PROD-2901 - ids only. Empty when nobody matches; more than one entry when the number is shared.
+message FindPatientsByPhoneResponse {
+    repeated PatientMatch matches = 1;
+}
+
+message PatientMatch {
+    string patient_id = 1;
 }
