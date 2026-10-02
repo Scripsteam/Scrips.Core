@@ -25,6 +25,15 @@ service AppointmentManagement {
   rpc GetAppointmentStatusById (GetAppointmentStatusByIdRequest) returns (GetAppointmentStatusByIdResponse);
   rpc CreateScheduleForActor(V2Schedule) returns (V2Schedule);
   rpc UpdateScheduleForActor(V2Schedule) returns (V2Schedule);
+  // PROD-2521: the remove half of the lifecycle contract CreateScheduleForActor opened. Keyed by the
+  // actor alone, unlike UpdateScheduleForActor (ActorId + LocationId + PracticeId), which can never
+  // reach a practitioner's default "General Schedule" because that row has no location.
+  // isArchive = true archives EVERY schedule the actor has in the organization (practitioner deleted
+  // or deactivated, device archived). isArchive = false restores only the actor's DEFAULT schedule(s):
+  // a location schedule's archive state follows its location, which only PracticeManagement knows, so
+  // it restores those itself. Reads actorId, actorType, organizationId, updatedById and isArchive.
+  // Slots (blocks, appointments) on the schedules are never touched.
+  rpc ArchiveSchedulesForActor(V2Schedule) returns (V2Schedule);
   rpc GetAppointmentParticipants (GetAppointmentParticipantsRequest) returns (GetAppointmentParticipantsResponse);
   rpc GetAppointmentCustomNote (GetAppointmentCustomNoteRequest) returns (GetAppointmentCustomNoteResponse);
   rpc GetAppointmentDateById (GetAppointmentByIdRequest) returns (GetAppointmentDateByIdResponse);
