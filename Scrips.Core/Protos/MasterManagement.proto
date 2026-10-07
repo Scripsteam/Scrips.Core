@@ -398,10 +398,13 @@ message EncounterMedication {
     // codeStatus:
     //   "matched"   - exactly one DDC product; matchedSystem = "DDC". Only this status may show a code or
     //                 pre-fill an order.
-    //   "ambiguous" - the name matched but more than one product is left: the name and "Choose product...".
-    //   "unmatched" - no tier matched: the name as plain text and "Choose drug...".
-    //   "unchecked" - the lookup failed or timed out. Treat exactly like "unmatched" (fail closed).
-    //   ""          - not checked. NOT the same as matched.
+    //   "ambiguous" - the name matched, but more than one product is left. No code is set.
+    //   "unmatched" - no tier matched the name. No code is set.
+    //   "unchecked" - a lookup was attempted and failed or timed out. No code is set. Treat exactly like
+    //                 "unmatched" (fail closed).
+    //   ""          - no lookup was attempted: an older record made before this check existed, or a
+    //                 medication with no name. It is NOT matched and NOT "unchecked". A consumer must show
+    //                 it like "unmatched": no code, and no order pre-filled with a product.
     // matchedCode / matchedSystem / matchedDisplay are set only when codeStatus is "matched".
     string codeStatus = 12;
     string matchedCode = 13;
