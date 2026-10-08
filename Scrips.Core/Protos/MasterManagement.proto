@@ -393,8 +393,18 @@ message EncounterMedication {
     // it to "mentioned"; the entry itself is never removed.
     string disposition = 11;
 
-    // PROD-2687: terminology match of the dictated medication.
-    // codeStatus: "matched" | "unmatched" | "" (empty = not checked; NOT the same as matched).
+    // PROD-2687: deterministic DDC match of the dictated medication (decision 30 Sep, Confluence DOC 4459823109
+    // item 1). No fuzzy matching.
+    // codeStatus:
+    //   "matched"   - exactly one DDC product; matchedSystem = "DDC". Only this status may show a code or
+    //                 pre-fill an order.
+    //   "ambiguous" - the name matched, but more than one product is left. No code is set.
+    //   "unmatched" - no tier matched the name. No code is set.
+    //   "unchecked" - a lookup was attempted and failed or timed out. No code is set. Treat exactly like
+    //                 "unmatched" (fail closed).
+    //   ""          - no lookup was attempted: an older record made before this check existed, or a
+    //                 medication with no name. It is NOT matched and NOT "unchecked". A consumer must show
+    //                 it like "unmatched": no code, and no order pre-filled with a product.
     // matchedCode / matchedSystem / matchedDisplay are set only when codeStatus is "matched".
     string codeStatus = 12;
     string matchedCode = 13;
@@ -403,7 +413,9 @@ message EncounterMedication {
 
     // PROD-2611: cross-check of the structured sig against the spoken instruction (sigVerbatim).
     // sigStatus: "agree" | "contested" | "" (empty = not checked; NOT the same as agree).
-    // sigConflicts: the points where the structured sig and the spoken words disagree.
+    //   "contested" also when the dictated route and the model's route differ (decision 30 Sep, item 2).
+    // sigConflicts: the points where the structured sig and the spoken words disagree. A route conflict
+    //   starts with "route: ".
     // sigUncovered: parts of the spoken instruction the structured sig does not carry.
     string sigStatus = 16;
     repeated string sigConflicts = 17;
