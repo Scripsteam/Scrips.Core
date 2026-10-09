@@ -45,7 +45,10 @@ public static class AmbientWireValues
         public const string Urgent = "urgent";
         public const string Stat = "stat";
 
-        public static readonly string[] All = { Routine, Urgent, Stat };
+        /// <summary>No urgency: a performed procedure, or none was given.</summary>
+        public const string NotGiven = "";
+
+        public static readonly string[] All = { Routine, Urgent, Stat, NotGiven };
     }
 
     /// <summary>speaker on medications and findings.</summary>
@@ -66,6 +69,6 @@ public static class AmbientWireValues
         public const string Normal = "normal";
         public const string NotStated = "";
 
-        public static readonly string[] All = { Present, Absent, Normal };
+        public static readonly string[] All = { Present, Absent, Normal, NotStated };
     }
 }
