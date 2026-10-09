@@ -307,6 +307,18 @@ message GenerateDocumentationResponse {
     string followUp = 13;
     string clinicalNotes = 14;
 
+    // PROD-3179: procedures the clinician performs or orders in this visit (not labs, imaging or vaccines).
+    repeated EncounterProcedure procedures = 15;
+
+    // PROD-3180: structured copies of what was said, next to the free-text reviewOfSystems (3) and
+    // physicalExam (5), which stay. Only what was said: a system nobody asked about or examined has
+    // no entry, and an absent system is NOT a normal one. Every entry is a suggestion; the client
+    // ticks a matching template option or adds the text to that section's notes, and the clinician
+    // chooses.
+    repeated ClinicalFinding rosFindings = 16;
+    repeated ClinicalFinding examFindings = 17;
+    repeated ClinicalFinding riskFindings = 18;
+
     // High tag (100) intentional — see SearchAndEnhanceResponse.error.
     ErrorDetail error = 100;
 }
@@ -357,9 +369,17 @@ message EncounterDiagnosis {
     //   "unchecked" - the lookup failed or timed out; icdCode is cleared too. Treat like "unmatched".
     //   ""          - no code was proposed. NOT the same as matched.
     // matchedCode / matchedDisplay are set only when codeStatus is "matched".
+    // PROD-3179: when the proposed code is not found exactly, or none was proposed, Master searches the
+    // diagnosis NAME with the app's diagnosis search (GetDiagnosisList: every word in code + display +
+    // definition). Exactly one row: "matched" (icdCode stays "", matchedCode carries the code). Two or more:
+    //   "ambiguous" - no code is set; the clinician picks in the search.
+    // None: "unmatched". A lookup that fails or takes over 5 s: "unchecked". A consumer shows matchedCode,
+    // never icdCode.
     string codeStatus = 7;
     string matchedCode = 8;
     string matchedDisplay = 9;
+    // PROD-3179: the code system of matchedCode as stored in the ICD-10 catalogue. Set only when "matched".
+    string matchedSystem = 10;
 }
 
 message EncounterMedication {
@@ -422,10 +442,29 @@ message EncounterMedication {
     repeated string sigUncovered = 18;
 }
 
+// PROD-3179: catalogue match of a suggested order, made by Master in GenerateDocumentation with the SAME
+// predicate as the app's own search for that kind, so "matched" means the app search returns exactly this
+// one row for the same text. Same values on LabOrder, RadiologyOrder, EncounterVaccination and
+// EncounterProcedure:
+//   "matched"   - exactly one catalogue row; matchedCode / matchedSystem / matchedDisplay are set. Only this
+//                 status may pre-fill a code. It is still a suggestion: the clinician chooses.
+//   "ambiguous" - two or more rows matched. No code is set; the clinician picks in the search.
+//   "unmatched" - no row matched. No code is set.
+//   "unchecked" - the lookup failed or took longer than 5 s. No code is set. Treat exactly like "unmatched".
+//   ""          - no lookup was made (an empty name, a non-prescribing discipline, or an older record).
+//                 NOT matched.
+// matchedCode / matchedSystem / matchedDisplay are "" unless codeStatus is "matched". matchedSystem is the
+// catalogue's system ("CPT" for labs and procedures, "DDC" for vaccines); the radiology catalogue has no
+// system column, so it is "" for radiology.
 message LabOrder {
     string name = 1;
     string urgency = 2;
     string indication = 3;
+    // PROD-3179: matched on name (the lab search LabOrderSearch.Matches, system CPT, clinician aliases included).
+    string codeStatus = 4;
+    string matchedCode = 5;
+    string matchedSystem = 6;
+    string matchedDisplay = 7;
 }
 
 message RadiologyOrder {
@@ -433,11 +472,49 @@ message RadiologyOrder {
     string bodyArea = 2;
     string indication = 3;
     string urgency = 4;
+    // PROD-3179: matched on "<modality> <bodyArea>" (the radiology search GetRadiologyList).
+    string codeStatus = 5;
+    string matchedCode = 6;
+    string matchedSystem = 7;
+    string matchedDisplay = 8;
 }
 
 message EncounterVaccination {
     string name = 1;
     string schedule = 2;
+    // PROD-3179: matched on name (the encounter vaccine search: DDC products flagged IsVaccine).
+    string codeStatus = 3;
+    string matchedCode = 4;
+    string matchedSystem = 5;
+    string matchedDisplay = 6;
+}
+
+// PROD-3179: a procedure the clinician performs or orders in this visit (a joint injection, an ECG,
+// spirometry, wound suturing). Never a lab test, an imaging study, a vaccine or a referral.
+message EncounterProcedure {
+    string name = 1;          // as spoken
+    string bodySite = 2;      // as spoken; "" if not said
+    string indication = 3;    // as said; "" if not said
+    string status = 4;        // "performed" (done in this visit) | "ordered" (ordered or scheduled in this visit)
+    // Matched on name (the procedure search GetProcedureCodesList: CPT code or display contains the name).
+    string codeStatus = 5;
+    string matchedCode = 6;
+    string matchedSystem = 7;
+    string matchedDisplay = 8;
+}
+
+// PROD-3180: one review-of-systems, physical-exam or risk finding, as said. Never inferred.
+message ClinicalFinding {
+    // The body system or risk area, lower case. ROS and exam: "constitutional", "eyes", "ent", "cardiovascular",
+    // "respiratory", "gastrointestinal", "genitourinary", "musculoskeletal", "skin", "neurological",
+    // "psychiatric", "endocrine", "hematologic", "allergic-immunologic"; exam also "general". Risk: "smoking",
+    // "alcohol", "substance-use", "physical-activity", "diet", "sleep", "occupational", "family-history",
+    // "sexual-health". When none fits, the word that was said.
+    string category = 1;
+    string finding = 2;   // in the speaker's words: "chest clear to auscultation", "no chest pain"
+    string value = 3;     // the result or amount as spoken: "clear", "20 pack-years"; "" when none
+    bool negated = 4;     // true only when said to be absent or normal ("denies", "no", "clear", "never smoked")
+    string speaker = 5;   // "provider" | "patient" | "other"; a parent speaking for a child follows the transcript label
 }
 
 message GetSpecialitiesByCodesRequest{
