@@ -371,10 +371,12 @@ message EncounterDiagnosis {
     // matchedCode / matchedDisplay are set only when codeStatus is "matched".
     // PROD-3179: when the proposed code is not found exactly, or none was proposed, Master searches the
     // diagnosis NAME with the app's diagnosis search (GetDiagnosisList: every word in code + display +
-    // definition). Exactly one row: "matched" (icdCode stays "", matchedCode carries the code). Two or more:
+    // definition). Exactly one row: "matched"; matchedCode carries the code and icdCode is cleared to "" (the
+    // model's code was not this one). Two or more:
     //   "ambiguous" - no code is set; the clinician picks in the search.
-    // None: "unmatched". A lookup that fails or takes over 5 s: "unchecked". A consumer shows matchedCode,
-    // never icdCode.
+    // None: "unmatched". A lookup that fails or misses the 5 s deadline: "unchecked". The name search changes
+    // icdCode ONLY on "matched"; otherwise it leaves icdCode as the code check left it. A consumer shows
+    // matchedCode, never icdCode. Values: Scrips.Core.Shared.Ambient.AmbientWireValues.CodeStatus.
     string codeStatus = 7;
     string matchedCode = 8;
     string matchedDisplay = 9;
@@ -501,6 +503,8 @@ message EncounterProcedure {
     string matchedCode = 6;
     string matchedSystem = 7;
     string matchedDisplay = 8;
+    // For an "ordered" procedure: "routine" | "urgent" | "stat" ("routine" unless said). "" for "performed".
+    string urgency = 9;
 }
 
 // PROD-3180: one review-of-systems, physical-exam or risk finding, as said. Never inferred.
@@ -513,9 +517,15 @@ message ClinicalFinding {
     string category = 1;
     string finding = 2;   // in the speaker's words: "chest clear to auscultation", "no chest pain"
     string value = 3;     // the result or amount as spoken: "clear", "20 pack-years"; "" when none
-    bool negated = 4;     // true only when said to be absent or normal ("denies", "no", "clear", "never smoked")
+    // "present" - the finding is there ("crackles at the right base", "smokes a pack a day").
+    // "absent"  - said NOT to be there ("no chest pain", "denies fever", "never smoked").
+    // "normal"  - examined or asked and said to be normal ("chest clear", "heart sounds normal").
+    // ""        - not stated. Never read as absent or normal.
+    string assertion = 4;
     string speaker = 5;   // "provider" | "patient" | "other"; a parent speaking for a child follows the transcript label
 }
+// Wire values (codeStatus, procedure status, speaker, assertion, urgency) are listed once, in
+// Scrips.Core/Shared/Ambient/AmbientWireValues.cs.
 
 message GetSpecialitiesByCodesRequest{
     string codes=1;
