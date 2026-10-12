@@ -90,6 +90,10 @@ service MasterManagement {
      rpc SearchAndEnhance(SearchAndEnhanceRequest) returns (SearchAndEnhanceResponse);
      rpc GetClinicalSuggestions(ClinicalSuggestionsRequest) returns (ClinicalSuggestionsResponse);
      rpc GenerateDocumentation(GenerateDocumentationRequest) returns (GenerateDocumentationResponse);
+     // PROD-3195: drug-name vocabulary for the organization's medication system (DDC or DOH).
+     // Used by the ambient scribe to correct misheard drug names. Additive and read-only.
+     // If knownVersion equals the current version, notModified = true and entries is empty.
+     rpc GetDrugNameVocabulary(GetDrugNameVocabularyRequest) returns (GetDrugNameVocabularyResponse);
 }
 
 // ─── Clinical AI message types ───────────────────────────────────────────────
@@ -792,4 +796,24 @@ message VaccinationTimelineCode {
 
 message GetVaccinationTimelineDataRequest {
     string code = 1;
+}
+
+// PROD-3195: drug-name vocabulary
+message GetDrugNameVocabularyRequest {
+    string organizationId = 1;
+    string knownVersion = 2; // version the caller already holds; empty = none
+}
+
+message GetDrugNameVocabularyResponse {
+    string version = 1;      // hash of the entry set
+    string system = 2;       // medication system used: DDC or DOH
+    bool notModified = 3;    // true when knownVersion == version; entries is empty
+    repeated DrugNameEntry entries = 4;
+}
+
+message DrugNameEntry {
+    string name = 1;                 // normalised display name
+    string kind = 2;                 // ingredient | trade | alias
+    string code = 3;                 // one representative catalogue code
+    repeated string strengths = 4;   // distinct normalised strengths, e.g. "500 mg"
 }
