@@ -133,6 +133,8 @@ message BeginAmbientRecordingPartRequest {
     string recordingKey = 4;
     string videoSessionId = 5;
     string consentRecordId = 6;
+    // True when the caller runs with AmbientScribe:Consent:Required=false. Old clients send false.
+    bool consentNotRequired = 7;
 }
 
 message BeginAmbientRecordingPartResponse {
