@@ -94,6 +94,11 @@ service MasterManagement {
      // Used by the ambient scribe to correct misheard drug names. Additive and read-only.
      // If knownVersion equals the current version, notModified = true and entries is empty.
      rpc GetDrugNameVocabulary(GetDrugNameVocabularyRequest) returns (GetDrugNameVocabularyResponse);
+
+    // PROD-3195 phase 2: diagnosis-name vocabulary (ICD-10 display names plus common synonyms).
+    // Used by the ambient scribe to correct misheard diagnosis terms. Additive and read-only.
+    // If knownVersion equals the current version, notModified = true and entries is empty.
+    rpc GetDiagnosisVocabulary(GetDiagnosisVocabularyRequest) returns (GetDiagnosisVocabularyResponse);
 }
 
 // ─── Clinical AI message types ───────────────────────────────────────────────
@@ -823,4 +828,29 @@ message DrugNameEntry {
     DrugNameKind kind = 2;           // ingredient | trade | alias
     string code = 3;                 // one representative catalogue code
     repeated string strengths = 4;   // distinct normalised strengths, e.g. "500 mg"
+}
+
+// PROD-3195 phase 2: diagnosis-name vocabulary
+message GetDiagnosisVocabularyRequest {
+    string organizationId = 1;
+    string knownVersion = 2; // version the caller already holds; empty = none
+}
+
+message GetDiagnosisVocabularyResponse {
+    string version = 1;      // hash of the entry set
+    string system = 2;       // diagnosis system used: "ICD-10"
+    bool notModified = 3;    // true when knownVersion == version; entries is empty
+    repeated DiagnosisNameEntry entries = 4;
+}
+
+enum DiagnosisNameKind {
+    DIAGNOSIS_NAME_KIND_UNSPECIFIED = 0;
+    DIAGNOSIS_NAME_KIND_DISPLAY = 1;   // catalogue display name
+    DIAGNOSIS_NAME_KIND_SYNONYM = 2;   // common abbreviation or synonym
+}
+
+message DiagnosisNameEntry {
+    string name = 1;                   // normalised name
+    DiagnosisNameKind kind = 2;        // display | synonym
+    string code = 3;                   // ICD-10 code
 }
