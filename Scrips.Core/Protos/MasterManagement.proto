@@ -864,12 +864,15 @@ message DiagnosisNameEntry {
 message GetOrderVocabularyRequest {
     string organizationId = 1;
     string knownVersion = 2; // version the caller already holds; empty = none
+    // true = return only the organization's own published clinic tests and panels (organizationScoped = true);
+    // false = return only the shared catalogue plus aliases (organizationScoped = false), whatever organizationId is.
+    bool tenantOnly = 3;
 }
 
 message GetOrderVocabularyResponse {
     string version = 1;            // hash of the entry set
     bool notModified = 2;          // true when knownVersion == version; entries is empty
-    bool organizationScoped = 3;   // true when entries depend on the organization (tenant lab catalogue)
+    bool organizationScoped = 3;   // true when this is the organization's own list (tenantOnly)
     repeated OrderNameEntry entries = 4;
 }
 
