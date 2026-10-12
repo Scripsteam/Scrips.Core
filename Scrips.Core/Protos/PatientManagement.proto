@@ -95,8 +95,8 @@ service PatientManagement {
   rpc BeginAmbientRecordingPart (BeginAmbientRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
   rpc CompleteAmbientRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
 
-  // PROD-3195: Video records the drug-name (and later other) corrections its corrector made to the
-  // ambient transcript. INTERNAL: Video is the only caller. The result is per segment; one stale or
+  // PROD-3195: Video records the corrections its corrector made to the
+  // ambient transcript, in the domains medication | diagnosis | order | text. INTERNAL: Video is the only caller. The result is per segment; one stale or
   // refused segment never fails the others. A malformed request is the only rpc error (InvalidArgument).
   rpc RecordAmbientTranscriptCorrections (RecordAmbientTranscriptCorrectionsRequest) returns (RecordAmbientTranscriptCorrectionsResponse);
 
@@ -165,7 +165,8 @@ message CompleteAmbientRecordingPartResponse {
     bool ok = 1;
 }
 
-// PROD-3195 - one correction or flag the corrector made. Offsets index the segment's basis_text.
+// PROD-3195 - one correction or flag the corrector made. start_index and length are in UTF-16 code units
+// (a C# string index) into the segment's basis_text.
 message TranscriptCorrectionItem {
     int32 start_index = 1;
     int32 length = 2;
