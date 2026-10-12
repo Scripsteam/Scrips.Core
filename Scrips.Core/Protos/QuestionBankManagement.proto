@@ -31,6 +31,13 @@ service QuestionBankManagement {
   // gender pruning, answer-absent-reason and bulk-default provenance follow the client renderer.
   // Carries no answer values.
   rpc GetUnansweredRequiredItems(UnansweredRequiredItemsRequest) returns (UnansweredRequiredItemsResponse);
+
+  // PROD-2744. Whether a Questionnaire (template) is readable in organizationId, with the same read
+  // scope as GET api/questions/{id}: the global base catalog or that organization's own templates.
+  // Called by Scrips.Workflows when a care-model step that presents a form starts. Over HTTP the
+  // engine's service token carries no orgId claim, so it can see only the global catalog and every
+  // org-authored form read as missing. Carries no item content.
+  rpc GetQuestionnaire(GetQuestionnaireRequest) returns (GetQuestionnaireResponse);
 }
 
 message FreezeEncounterResponseRequest{
@@ -111,4 +118,17 @@ message UnansweredRequiredItem{
     string text=2;
     // The encounter step the item belongs to: "hpi" | "ros" | "pe" | "risk" | "ap" | "allied-plan".
     string step=3;
+}
+
+message GetQuestionnaireRequest{
+    string questionnaireId=1;
+    string organizationId=2;
+}
+
+message GetQuestionnaireResponse{
+    // False when no template with this id is readable in the organization. Not an error.
+    bool found=1;
+    string title=2;
+    // The template's FHIR publication status: "draft" | "active" | "retired".
+    string status=3;
 }
