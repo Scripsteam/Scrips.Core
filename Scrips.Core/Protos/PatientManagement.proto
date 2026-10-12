@@ -196,6 +196,9 @@ message TranscriptCorrectionSegment {
     repeated TranscriptCorrectionItem corrections = 4;
     // practitioner | patient. Used only when the segment has no stored original yet.
     string role = 5;
+    // The segment's position in the session transcript (0-based). Used as the Sequence of a new original;
+    // an existing original keeps its Sequence.
+    int32 sequence = 6;
 }
 
 message RecordAmbientTranscriptCorrectionsRequest {
