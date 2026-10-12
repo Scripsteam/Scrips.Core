@@ -866,6 +866,7 @@ message GetOrderVocabularyRequest {
     string knownVersion = 2; // version the caller already holds; empty = none
     // true = return only the organization's own published clinic tests and panels (organizationScoped = true);
     // false = return only the shared catalogue plus aliases (organizationScoped = false), whatever organizationId is.
+    // When tenantOnly = true, organizationId is required: a blank or invalid organization returns empty entries.
     bool tenantOnly = 3;
 }
 
@@ -888,5 +889,6 @@ message OrderNameEntry {
     OrderNameKind kind = 2;        // lab | imaging | procedure
     string code = 3;               // code in `system`
     string system = 4;             // code system of `code`, e.g. "LOINC", "CPT", or the internal catalogue name
+    // alias is a separate flag. kind (lab | imaging | procedure) is a different axis from alias, unlike diagnosis, where kind carries synonym.
     bool alias = 5;                // true for a common abbreviation or spoken form
 }
