@@ -99,6 +99,11 @@ service MasterManagement {
     // Used by the ambient scribe to correct misheard diagnosis terms. Additive and read-only.
     // If knownVersion equals the current version, notModified = true and entries is empty.
     rpc GetDiagnosisVocabulary(GetDiagnosisVocabularyRequest) returns (GetDiagnosisVocabularyResponse);
+
+    // PROD-3195 phase 3: order-name vocabulary (lab tests/panels, imaging, procedures plus common aliases).
+    // Used by the ambient scribe to correct misheard order terms. Additive and read-only.
+    // If knownVersion equals the current version, notModified = true and entries is empty.
+    rpc GetOrderVocabulary(GetOrderVocabularyRequest) returns (GetOrderVocabularyResponse);
 }
 
 // ─── Clinical AI message types ───────────────────────────────────────────────
@@ -853,4 +858,37 @@ message DiagnosisNameEntry {
     string name = 1;                   // normalised name
     DiagnosisNameKind kind = 2;        // display | synonym
     string code = 3;                   // ICD-10 code
+}
+
+// PROD-3195 phase 3: order-name vocabulary
+message GetOrderVocabularyRequest {
+    string organizationId = 1;
+    string knownVersion = 2; // version the caller already holds; empty = none
+    // true = return only the organization's own published clinic tests and panels (organizationScoped = true);
+    // false = return only the shared catalogue plus aliases (organizationScoped = false), whatever organizationId is.
+    // When tenantOnly = true, organizationId is required: a blank or invalid organization returns empty entries.
+    bool tenantOnly = 3;
+}
+
+message GetOrderVocabularyResponse {
+    string version = 1;            // hash of the entry set
+    bool notModified = 2;          // true when knownVersion == version; entries is empty
+    bool organizationScoped = 3;   // true when this is the organization's own list (tenantOnly)
+    repeated OrderNameEntry entries = 4;
+}
+
+enum OrderNameKind {
+    ORDER_NAME_KIND_UNSPECIFIED = 0;
+    ORDER_NAME_KIND_LAB = 1;
+    ORDER_NAME_KIND_IMAGING = 2;
+    ORDER_NAME_KIND_PROCEDURE = 3;
+}
+
+message OrderNameEntry {
+    string name = 1;               // normalised name
+    OrderNameKind kind = 2;        // lab | imaging | procedure
+    string code = 3;               // code in `system`
+    string system = 4;             // code system of `code`, e.g. "LOINC", "CPT", or the internal catalogue name
+    // alias is a separate flag. kind (lab | imaging | procedure) is a different axis from alias, unlike diagnosis, where kind carries synonym.
+    bool alias = 5;                // true for a common abbreviation or spoken form
 }
