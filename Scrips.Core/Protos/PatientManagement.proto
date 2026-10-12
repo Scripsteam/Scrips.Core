@@ -95,6 +95,11 @@ service PatientManagement {
   rpc BeginAmbientRecordingPart (BeginAmbientRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
   rpc CompleteAmbientRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
 
+  // PROD-3195: Video records the drug-name (and later other) corrections its corrector made to the
+  // ambient transcript. INTERNAL: Video is the only caller. The result is per segment; one stale or
+  // refused segment never fails the others. A malformed request is the only rpc error (InvalidArgument).
+  rpc RecordAmbientTranscriptCorrections (RecordAmbientTranscriptCorrectionsRequest) returns (RecordAmbientTranscriptCorrectionsResponse);
+
   // PROD-2901 - exact, organization-scoped phone -> patient lookup for an inbound WhatsApp sender, so
   // free text can reach the automation waiting on that patient. Cluster-internal: called by
   // Scrips.Workflows only. It returns patient ids and nothing else (no names, no phone numbers).
@@ -158,6 +163,60 @@ message CompleteAmbientRecordingPartRequest {
 
 message CompleteAmbientRecordingPartResponse {
     bool ok = 1;
+}
+
+// PROD-3195 - one correction or flag the corrector made. Offsets index the segment's basis_text.
+message TranscriptCorrectionItem {
+    int32 start_index = 1;
+    int32 length = 2;
+    string heard_text = 3;
+    // medication | diagnosis | order | text
+    string domain = 4;
+    // auto only. Empty on a flag.
+    string corrected_text = 5;
+    // flag only (an LLM pick, or a single close match). Empty on an auto.
+    string suggested_correction = 6;
+    // Empty for the text domain (no catalogue).
+    string catalogue_code = 7;
+    string catalogue_system = 8;
+    // 0..1
+    double score = 9;
+    // phonetic | edit | llm | rule
+    string method = 10;
+    // auto | flag. An llm method is only valid with flag.
+    string decision = 11;
+}
+
+message TranscriptCorrectionSegment {
+    string segment_id = 1;
+    string speaker = 2;
+    // The EXACT text the corrector saw. Autos are accepted only while the segment's latest stored text
+    // equals it; otherwise the segment is stale (its flags are still recorded).
+    string basis_text = 3;
+    repeated TranscriptCorrectionItem corrections = 4;
+    // practitioner | patient. Used only when the segment has no stored original yet.
+    string role = 5;
+}
+
+message RecordAmbientTranscriptCorrectionsRequest {
+    string organization_id = 1;
+    string encounter_id = 2;
+    // The clinician the session ran for. Stored as CreatedBy.
+    string user_id = 3;
+    repeated TranscriptCorrectionSegment segments = 4;
+}
+
+message TranscriptCorrectionSegmentResult {
+    string segment_id = 1;
+    // recorded | stale | refused
+    string status = 2;
+    // Empty when recorded. For stale: basis-text-changed. For refused: org-mismatch, encounter-not-found,
+    // encounter-signed, store-unavailable, invalid, conflict or error.
+    string reason = 3;
+}
+
+message RecordAmbientTranscriptCorrectionsResponse {
+    repeated TranscriptCorrectionSegmentResult results = 1;
 }
 
 // care-modeling — a single goal carried from the PlanDefinition (GoalDto shape
