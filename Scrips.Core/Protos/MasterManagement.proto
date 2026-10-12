@@ -811,9 +811,16 @@ message GetDrugNameVocabularyResponse {
     repeated DrugNameEntry entries = 4;
 }
 
+enum DrugNameKind {
+    DRUG_NAME_KIND_UNSPECIFIED = 0;
+    DRUG_NAME_KIND_INGREDIENT = 1;
+    DRUG_NAME_KIND_TRADE = 2;
+    DRUG_NAME_KIND_ALIAS = 3;
+}
+
 message DrugNameEntry {
     string name = 1;                 // normalised display name
-    string kind = 2;                 // ingredient | trade | alias
+    DrugNameKind kind = 2;           // ingredient | trade | alias
     string code = 3;                 // one representative catalogue code
     repeated string strengths = 4;   // distinct normalised strengths, e.g. "500 mg"
 }
