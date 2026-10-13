@@ -40,11 +40,17 @@ service QuestionBankManagement {
   // new revision (copy-on-write), so every earlier sign still reads exactly what was signed.
   //
   // One transaction. Idempotent on signId: the same signId and the same manifest return the same
-  // result, so a retry converges. Refusals are FAILED_PRECONDITION with the code as the status detail:
+  // result, so a retry converges. Refusals are FAILED_PRECONDITION. The code is in the response
+  // TRAILER "error-code" (RpcException.Trailers.GetValue("error-code")), so a caller maps it without
+  // parsing the message text; the status detail text is for logs only:
   //   "manifest-stale"  a listed set's head revision or version moved after the signer loaded it
-  //                     (the message names the sets); nothing is recorded, the signer reloads.
+  //                     (the detail names the sets); nothing is recorded, the signer reloads.
   //   "sign-id-reused"  the signId was already recorded with another manifest.
-  // An empty manifest records the current heads with no stale check (until PA sends manifests).
+  // An empty manifest records the current heads with no stale check. It is the transition until PA
+  // sends manifests (tracked in PROD-3199); QuestionBank logs every empty-manifest sign at Warning.
+  //
+  // This replaces FreezeEncounterResponse for a sign that sends it. FreezeEncounterResponse stays for
+  // the legacy sign path (one revision: the main template's answer set) until Patient moves to this rpc.
   rpc RecordSignSnapshot(RecordSignSnapshotRequest) returns (RecordSignSnapshotResponse);
 }
 
@@ -70,7 +76,9 @@ message GetEncounterNarrativeRequest{
     // UTC, ISO-8601 round-trip ("o"). Empty = newest revision.
     string asOfUtc=3;
     // Optional. When set, the narrative of exactly the revisions RecordSignSnapshot recorded for this
-    // sign; asOfUtc is ignored. NOT_FOUND when no snapshot has this signId.
+    // sign; asOfUtc is ignored. NOT_FOUND when no snapshot has this signId FOR THIS organizationId AND
+    // encounterId: a signId of another encounter or another organization reads as not found, never as
+    // that note.
     string signId=4;
 }
 
