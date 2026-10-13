@@ -16,8 +16,9 @@ package QuestionBank;
 service QuestionBankManagement {
   // At sign, stamp status `completed` on the encounter's QuestionnaireResponse revision that was
   // current at signedAtUtc (the newest row with UpdatedOn <= signedAtUtc), and return its id.
-  // An `amended` revision keeps its status. Idempotent. It is the one write QuestionBank allows on
-  // a signed encounter, and it never changes the answers or UpdatedOn.
+  // An `amended` revision keeps its status. Idempotent. It never changes the answers or UpdatedOn.
+  // Since PR C (Flutter sign model) the frozen revision is never edited again: a later save on the
+  // encounter makes a new revision, so this as-of read still finds what was signed.
   rpc FreezeEncounterResponse(FreezeEncounterResponseRequest) returns (FreezeEncounterResponseResponse);
 
   // The encounter's template narrative as of asOfUtc: the revision current at that instant,
@@ -31,6 +32,20 @@ service QuestionBankManagement {
   // gender pruning, answer-absent-reason and bulk-default provenance follow the client renderer.
   // Carries no answer values.
   rpc GetUnansweredRequiredItems(UnansweredRequiredItemsRequest) returns (UnansweredRequiredItemsResponse);
+
+  // Multi-template PR C, Flutter sign model (Andrew approved 14 Oct 2026). A sign never locks the
+  // encounter: the nurse or the provider keeps editing and can sign again, any number of times. Each
+  // sign records a snapshot: the exact head revision of every answer set that is not
+  // entered-in-error, linked to signId. A recorded revision never changes again; a later save makes a
+  // new revision (copy-on-write), so every earlier sign still reads exactly what was signed.
+  //
+  // One transaction. Idempotent on signId: the same signId and the same manifest return the same
+  // result, so a retry converges. Refusals are FAILED_PRECONDITION with the code as the status detail:
+  //   "manifest-stale"  a listed set's head revision or version moved after the signer loaded it
+  //                     (the message names the sets); nothing is recorded, the signer reloads.
+  //   "sign-id-reused"  the signId was already recorded with another manifest.
+  // An empty manifest records the current heads with no stale check (until PA sends manifests).
+  rpc RecordSignSnapshot(RecordSignSnapshotRequest) returns (RecordSignSnapshotResponse);
 }
 
 message FreezeEncounterResponseRequest{
@@ -54,6 +69,9 @@ message GetEncounterNarrativeRequest{
     string organizationId=2;
     // UTC, ISO-8601 round-trip ("o"). Empty = newest revision.
     string asOfUtc=3;
+    // Optional. When set, the narrative of exactly the revisions RecordSignSnapshot recorded for this
+    // sign; asOfUtc is ignored. NOT_FOUND when no snapshot has this signId.
+    string signId=4;
 }
 
 message GetEncounterNarrativeResponse{
@@ -111,4 +129,42 @@ message UnansweredRequiredItem{
     string text=2;
     // The encounter step the item belongs to: "hpi" | "ros" | "pe" | "risk" | "ap" | "allied-plan".
     string step=3;
+}
+
+message RecordSignSnapshotRequest{
+    string organizationId=1;
+    string encounterId=2;
+    // One GUID per sign attempt. A retry of the same sign reuses it. Patient keeps it on its sign record.
+    string signId=3;
+    // UTC, ISO-8601 round-trip ("o"). Required.
+    string signedAtUtc=4;
+    // Recorded for the audit only. It filters nothing: a sign records every answer set, whoever wrote it.
+    string signerUserId=5;
+    // Every answer set the signer loaded, as GET /api/questionnaire-responses/answer-sets returned it.
+    // Empty = record the current heads with no stale check.
+    repeated SignManifestEntry manifest=6;
+}
+
+message SignManifestEntry{
+    string answerSetId=1;
+    int32 revision=2;
+    // The set's meta.versionId when the signer loaded it.
+    int32 version=3;
+}
+
+message RecordSignSnapshotResponse{
+    // True when this signId was already recorded with the same manifest (a retry).
+    bool replayed=1;
+    // In note order. Empty when the encounter has no answer set (documented without a template).
+    repeated SignSnapshotEntry entries=2;
+}
+
+message SignSnapshotEntry{
+    string answerSetId=1;
+    // The QuestionnaireResponse row that was recorded. It never changes after this call.
+    string questionnaireResponseId=2;
+    int32 revision=3;
+    string status=4;
+    // "primary" | "inserted".
+    string role=5;
 }
