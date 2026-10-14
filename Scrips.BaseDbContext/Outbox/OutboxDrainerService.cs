@@ -54,6 +54,11 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
                 await using var conn = new SqlConnection(OutboxConnectionResolver.Resolve<TContext>(scope.ServiceProvider));
                 await conn.OpenAsync(stoppingToken);
 
+                // Pooled sessions can carry another caller's isolation level (SERIALIZABLE/SNAPSHOT) because
+                // sp_reset_connection does not reliably reset it. READPAST requires READ COMMITTED or
+                // REPEATABLE READ (else SQL error 650), so force it before any outbox statement runs.
+                await SetReadCommittedAsync(conn, stoppingToken);
+
                 await ReapStaleClaimsAsync(conn, stoppingToken);
                 await DrainBatchAsync(conn, dapr, stoppingToken);
                 await PurgePublishedAsync(conn, stoppingToken);
@@ -70,6 +75,15 @@ public class OutboxDrainerService<TContext> : BackgroundService where TContext :
             catch (TaskCanceledException) { break; }
         }
     }
+
+    private static async Task SetReadCommittedAsync(DbConnection conn, CancellationToken ct)
+    {
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = ReadCommittedSql;
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    internal const string ReadCommittedSql = "SET TRANSACTION ISOLATION LEVEL READ COMMITTED;";
 
     /// <summary>Visibility timeout: reclaim rows a dead pod left Claimed. Resets state only — never touches Attempts.</summary>
     private async Task ReapStaleClaimsAsync(DbConnection conn, CancellationToken ct)
