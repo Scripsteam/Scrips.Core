@@ -18,6 +18,8 @@ service OrganizationConfiguration {
   rpc GetV1Organizations(GetOrganizationDetailsRequest) returns (V1OrganizationDetails);
   rpc GetBasicV1OrganizationByIds(GetOrganizationDetailsRequest) returns (BasicV1OrganizationDetail);
   rpc GetOrganizationResourceBasedIntegration(OrganizationResourceBasedIntegrationRequest) returns (OrganizationResourceBasedIntegrationResponse);
+  // Settings > Clinic services: every per-organization switch, so the next switch needs no new RPC.
+  rpc GetOrganizationClinicServices(GetOrganizationClinicServicesRequest) returns (GetOrganizationClinicServicesResponse);
 }
 
 message BasicV1Organization {
@@ -159,4 +161,21 @@ message OrganizationResourceBasedIntegrationResponse{
     string DiagnosisSystem = 8;
     string IntegrationType = 9;
     string VaccinationHistorySystem = 10;
+}
+
+message GetOrganizationClinicServicesRequest {
+    string organizationId = 1;
+}
+
+// The organization's Clinic services switches (Organization.OrganizationSettings).
+// settingsFound: false when the organization has no settings row; every switch then holds its column default
+// (documentIntake true, the others false). A caller that must fail closed treats an RPC error as "off".
+// The server sets EVERY field on every reply (proto3 cannot tell an unset bool from false), so documentIntake = false always
+// means the organization switched it off.
+message GetOrganizationClinicServicesResponse {
+    bool settingsFound = 1;
+    bool sendsTestsToLabs = 2;
+    bool physiciansMayChangeLab = 3;
+    bool booksDevices = 4;
+    bool documentIntake = 5;
 }
