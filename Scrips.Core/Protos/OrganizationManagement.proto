@@ -170,6 +170,8 @@ message GetOrganizationClinicServicesRequest {
 // The organization's Clinic services switches (Organization.OrganizationSettings).
 // settingsFound: false when the organization has no settings row; every switch then holds its column default
 // (documentIntake true, the others false). A caller that must fail closed treats an RPC error as "off".
+// The server sets EVERY field on every reply (proto3 cannot tell an unset bool from false), so documentIntake = false always
+// means the organization switched it off.
 message GetOrganizationClinicServicesResponse {
     bool settingsFound = 1;
     bool sendsTestsToLabs = 2;
