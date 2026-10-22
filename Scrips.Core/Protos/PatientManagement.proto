@@ -112,7 +112,9 @@ service PatientManagement {
   // (set by the physician; the care model's default until then) and with the care model's safety limits, which apply to
   // every patient. Rule-based, no AI. CODES ONLY in the answer, never a value. FAILS CLOSED: anything uncertain is
   // "no-data", never "met". Called by Scrips.Workflows (WaitForObservation compare mode). A malformed request is the only
-  // rpc error (InvalidArgument). Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled.
+  // rpc error (InvalidArgument); an unauthenticated caller or one with no organization is Unauthenticated / PermissionDenied.
+  // Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled. Calls per observation per caller are capped
+  // (no-data / rate-limited) and audited, so caller-chosen safety limits cannot binary-search a result.
   rpc EvaluateObservationAgainstGoal (EvaluateObservationAgainstGoalRequest) returns (EvaluateObservationAgainstGoalResponse);
 }
 
@@ -1137,12 +1139,16 @@ message GoalSafetyLimit {
     string unit=4;                    // the limit's unit (UCUM)
 }
 
+// AUTHENTICATED: a bearer token is required. The organization is the CALLER's: the token's orgId claim, or (machine
+// client_credentials tokens only) the organizationid metadata header. organizationId below, when sent, must equal it.
 message EvaluateObservationAgainstGoalRequest {
     string patientId=1;               // required, non-empty GUID
-    string organizationId=2;          // required, non-empty GUID; must match the caller's organizationid metadata when sent
+    string organizationId=2;          // optional; when sent it must equal the caller's organization (never a source of it)
     string observationId=3;           // required, non-empty GUID: the LabObservation that was received
     string loinc=4;                   // required: the measure being compared
-    repeated GoalSafetyLimit safetyLimits=5; // the care model's safety limits (any LOINC; only this LOINC's are used)
+    repeated GoalSafetyLimit safetyLimits=5; // the care model's safety limits; at most 4 for this LOINC, 20 in all
+    string carePlanId=6;              // optional: the care plan whose goal to compare against. Absent and two active plans
+                                      // carry different targets for the LOINC: no-data / ambiguous-target
 }
 
 // Codes only. A consumer branches on these; no value, unit or name ever crosses here.
