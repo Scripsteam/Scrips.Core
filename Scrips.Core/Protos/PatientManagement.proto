@@ -86,6 +86,14 @@ service PatientManagement {
   // (separate follow-up, PROD-1307) at "Start Care Pathway". Tenant-scoped + idempotent.
   rpc CreateCarePlan(CreateCarePlanRequest) returns (CreateCarePlanResponse);
 
+  // Conditional goals (Samer, 23 Oct 2026, ELLMS): adds ONE goal to an existing CarePlan when the care-model run REACHES
+  // that goal's step, so a goal exists for a patient only on the branch the run took (e.g. "HbA1c goal (diabetes only)"
+  // only for a diabetic patient). Called by the Workflows AddCarePlanGoal activity. Tenant-scoped like CreateCarePlan
+  // (organizationid header; the plan must be the patient's, in that org). IDEMPOTENT on (carePlanId, goal.sourceNodeId)
+  // among live goals: a repeat answers alreadyExisted and changes nothing. The citation and definition status are recorded
+  // only from the Workflows machine token, as on CreateCarePlan.
+  rpc AddCarePlanGoal(AddCarePlanGoalRequest) returns (AddCarePlanGoalResponse);
+
   // PROD-2683 / PROD-2702 - ambient recording consent and recording parts.
   // CheckAmbientRecordingConsent is the server-side consent gate the recorder asks before it
   // records. It FAILS CLOSED: any error is DENIED, and AMBIENT_CONSENT_UNSPECIFIED (the proto
@@ -116,6 +124,17 @@ service PatientManagement {
   // Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled. Calls per observation per caller are capped
   // (no-data / rate-limited) and audited, so caller-chosen safety limits cannot binary-search a result.
   rpc EvaluateObservationAgainstGoal (EvaluateObservationAgainstGoalRequest) returns (EvaluateObservationAgainstGoalResponse);
+
+  // Goal achievement (source-of-truth decision, Samer and Andrew, 23 Oct 2026): dbo.Goal in Scrips.Patient owns a goal's
+  // target AND its achievementStatus. Scrips.Workflows sends the met / not-met / no-data result of a comparison here;
+  // Patient re-derives it from its OWN target (the same rule as EvaluateObservationAgainstGoal) and stores it only when
+  // they agree. A no-data never overwrites a stored status. Patient alone then projects the Goal to Aidbox (one-way).
+  // status "derive" (no goalId): Patient compares the observation itself and records its own met / not-met for the goal it
+  // names. For status maintenance outside a routing comparison; it never counts against EvaluateObservationAgainstGoal's
+  // per-observation cap. Idempotent: the same observation and status again is "unchanged". Off (CarePlanTargets:Enabled false) it answers
+  // not-recorded / feature-disabled. Same authentication and organization rule as EvaluateObservationAgainstGoal.
+  // CODES ONLY: no value crosses here.
+  rpc RecordGoalAchievement (RecordGoalAchievementRequest) returns (RecordGoalAchievementResponse);
 }
 
 // PROD-2683 - ask whether ambient recording is consented for this encounter.
@@ -296,6 +315,13 @@ message CreateCarePlanRequest {
     // they make a goal's default target an approved clinic default. Optional; absent = not approved.
     string definitionVersion=9;
     string definitionStatus=10;
+    // Re-enrolment (Samer, 23 Oct 2026): when the plan already exists (same patient + instantiatesCanonical), make its
+    // LIVE goals match this request's goals instead of returning it untouched. A live goal whose sourceNodeId and
+    // definition (description, LOINC, comparator, value, unit) are in the request is kept; every other live goal is
+    // RETIRED (FHIR Goal.lifecycleStatus "cancelled", soft-deleted, with a status-history row naming the reason): the row
+    // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added.
+    // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
+    bool reconcileGoals=11;
 }
 
 message CreateCarePlanResponse {
@@ -305,6 +331,21 @@ message CreateCarePlanResponse {
     int32 contributorCount=4;         // persisted CarePlan.contributor rows (#907)
     int32 addressCount=5;             // persisted CarePlan.addresses rows (#907)
     int32 supportingInfoCount=6;      // persisted CarePlan.supportingInfo rows (#907)
+    int32 addedGoalCount=7;           // reconcileGoals on an existing plan: goals added
+    int32 retiredGoalCount=8;         // reconcileGoals on an existing plan: live goals retired (cancelled, history kept)
+}
+
+message AddCarePlanGoalRequest {
+    string subjectPatientId=1;        // the patient (must own the plan, in the caller's organization)
+    string carePlanId=2;              // the plan InstantiateCarePlan created for this run
+    CreateCarePlanGoal goal=3;        // the goal, as on CreateCarePlan (sourceNodeId required: the idempotency key)
+    string definitionVersion=4;       // as CreateCarePlanRequest.definitionVersion
+    string definitionStatus=5;        // as CreateCarePlanRequest.definitionStatus
+}
+
+message AddCarePlanGoalResponse {
+    string goalId=1;                  // the new goal, or the live goal already on the plan for this sourceNodeId
+    bool alreadyExisted=2;            // true when a live goal with this sourceNodeId was already on the plan
 }
 
 message GetPatientsBySearchRequest{
@@ -1168,4 +1209,22 @@ message EvaluateObservationAgainstGoalResponse {
     string goalId=5;                  // the goal compared against; empty when none
     string carePlanId=6;              // its care plan; empty when none
     string targetKind=7;              // "patient-own" (a physician set it) | "clinic-default" (a cited, published care-model default) | "none"
+}
+
+// AUTHENTICATED, organization as for EvaluateObservationAgainstGoalRequest.
+message RecordGoalAchievementRequest {
+    string patientId=1;               // required, non-empty GUID
+    string organizationId=2;          // optional; when sent it must equal the caller's organization
+    string observationId=3;           // required, non-empty GUID: the LabObservation the result was computed from
+    string loinc=4;                   // required: the measure compared
+    string goalId=5;                  // required, non-empty GUID: the goal EvaluateObservationAgainstGoal named (empty for "derive")
+    string carePlanId=6;              // optional: its care plan
+    string status=7;                  // required: "met" | "not-met" | "no-data" | "derive"
+}
+
+// Codes only.
+message RecordGoalAchievementResponse {
+    string outcome=1;                 // "recorded" | "unchanged" | "not-recorded"
+    string reason=2;                  // why not-recorded (a code); empty otherwise
+    string achievementStatus=3;       // the FHIR goal-achievement code now stored ("achieved" | "not-achieved"); empty when none
 }
