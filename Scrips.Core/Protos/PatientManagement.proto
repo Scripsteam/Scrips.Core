@@ -124,6 +124,17 @@ service PatientManagement {
   // Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled. Calls per observation per caller are capped
   // (no-data / rate-limited) and audited, so caller-chosen safety limits cannot binary-search a result.
   rpc EvaluateObservationAgainstGoal (EvaluateObservationAgainstGoalRequest) returns (EvaluateObservationAgainstGoalResponse);
+
+  // Goal achievement (source-of-truth decision, Samer and Andrew, 23 Oct 2026): dbo.Goal in Scrips.Patient owns a goal's
+  // target AND its achievementStatus. Scrips.Workflows sends the met / not-met / no-data result of a comparison here;
+  // Patient re-derives it from its OWN target (the same rule as EvaluateObservationAgainstGoal) and stores it only when
+  // they agree. A no-data never overwrites a stored status. Patient alone then projects the Goal to Aidbox (one-way).
+  // status "derive" (no goalId): Patient compares the observation itself and records its own met / not-met for the goal it
+  // names. For status maintenance outside a routing comparison; it never counts against EvaluateObservationAgainstGoal's
+  // per-observation cap. Idempotent: the same observation and status again is "unchanged". Off (CarePlanTargets:Enabled false) it answers
+  // not-recorded / feature-disabled. Same authentication and organization rule as EvaluateObservationAgainstGoal.
+  // CODES ONLY: no value crosses here.
+  rpc RecordGoalAchievement (RecordGoalAchievementRequest) returns (RecordGoalAchievementResponse);
 }
 
 // PROD-2683 - ask whether ambient recording is consented for this encounter.
@@ -1198,4 +1209,22 @@ message EvaluateObservationAgainstGoalResponse {
     string goalId=5;                  // the goal compared against; empty when none
     string carePlanId=6;              // its care plan; empty when none
     string targetKind=7;              // "patient-own" (a physician set it) | "clinic-default" (a cited, published care-model default) | "none"
+}
+
+// AUTHENTICATED, organization as for EvaluateObservationAgainstGoalRequest.
+message RecordGoalAchievementRequest {
+    string patientId=1;               // required, non-empty GUID
+    string organizationId=2;          // optional; when sent it must equal the caller's organization
+    string observationId=3;           // required, non-empty GUID: the LabObservation the result was computed from
+    string loinc=4;                   // required: the measure compared
+    string goalId=5;                  // required, non-empty GUID: the goal EvaluateObservationAgainstGoal named (empty for "derive")
+    string carePlanId=6;              // optional: its care plan
+    string status=7;                  // required: "met" | "not-met" | "no-data" | "derive"
+}
+
+// Codes only.
+message RecordGoalAchievementResponse {
+    string outcome=1;                 // "recorded" | "unchanged" | "not-recorded"
+    string reason=2;                  // why not-recorded (a code); empty otherwise
+    string achievementStatus=3;       // the FHIR goal-achievement code now stored ("achieved" | "not-achieved"); empty when none
 }
