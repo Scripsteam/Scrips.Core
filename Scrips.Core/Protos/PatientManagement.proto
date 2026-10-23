@@ -247,6 +247,9 @@ message CreateCarePlanGoal {
     string comparator=9;            // "<" | "<=" | ">=" | ">"
     string targetUnit=10;           // unit (e.g. "%", "mmol/L")
     string baselineSourceNodeId=11; // prior node supplying the baseline reading
+    // Goal targets (Samer, 23 Oct 2026): the SOURCE CITATION of this goal's default target, verbatim from the
+    // published care model (e.g. "ADA Standards of Care 2026, 6.5b"). Optional; without it the default never decides.
+    string targetSourceText=12;
 }
 
 // care-modeling — a responsible practitioner carried onto the CarePlan
@@ -288,6 +291,11 @@ message CreateCarePlanRequest {
     repeated CreateCarePlanContributor contributors=6;       // FHIR CarePlan.contributor / careTeam
     repeated CreateCarePlanAddress addresses=7;              // FHIR CarePlan.addresses (problems addressed)
     repeated CreateCarePlanSupportingInfo supportingInfo=8;  // FHIR CarePlan.supportingInfo
+    // Goal targets (Samer, 23 Oct 2026): the care-model VERSION instantiated and its publication status
+    // ("published" | "draft" | ...). With instantiatesCanonical (the definitionId) and a goal's targetSourceText,
+    // they make a goal's default target an approved clinic default. Optional; absent = not approved.
+    string definitionVersion=9;
+    string definitionStatus=10;
 }
 
 message CreateCarePlanResponse {
@@ -1159,4 +1167,5 @@ message EvaluateObservationAgainstGoalResponse {
     string safetyLimit=4;             // "breached" | "clear" | "no-data"
     string goalId=5;                  // the goal compared against; empty when none
     string carePlanId=6;              // its care plan; empty when none
+    string targetKind=7;              // "patient-own" (a physician set it) | "clinic-default" (a cited, published care-model default) | "none"
 }
