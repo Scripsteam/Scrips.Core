@@ -64,6 +64,17 @@ public interface IPracticeApi
         int pageNumber = 1,
         int pageSize = 10);
 
+    // PROD-3336: the organization comes from the token (orgId), the user from sub.
+    [Get("/api/Specialities")]
+    Task<List<OrganizationSpecialityModel>> OrganizationSpecialities([Header("Authorization")] string token);
+
+    [Get("/api/Specialities/Mine")]
+    Task<List<UserSpecialityModel>> MySpecialities([Header("Authorization")] string token);
+
+    [Get("/api/Specialities/{specialityId}/Practitioners")]
+    Task<List<SpecialityPractitionerModel>> SpecialityPractitioners(Guid specialityId,
+        [Header("Authorization")] string token);
+
     [Post("/api/Doctor/CalendarSlots2")]
     Task<List<ProviderSearchResponse>> DoctorCalendarSlots2(
         [Body] ProviderSearchRequest request,
