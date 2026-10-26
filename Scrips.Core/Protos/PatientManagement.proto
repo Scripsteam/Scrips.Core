@@ -120,20 +120,31 @@ service PatientManagement {
   // (set by the physician; the care model's default until then) and with the care model's safety limits, which apply to
   // every patient. Rule-based, no AI. CODES ONLY in the answer, never a value. FAILS CLOSED: anything uncertain is
   // "no-data", never "met". Called by Scrips.Workflows (WaitForObservation compare mode). A malformed request is the only
-  // rpc error (InvalidArgument); an unauthenticated caller or one with no organization is Unauthenticated / PermissionDenied.
-  // Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled. Calls per observation per caller are capped
-  // (no-data / rate-limited) and audited, so caller-chosen safety limits cannot binary-search a result.
+  // rpc error (InvalidArgument); a caller with no organization is PermissionDenied. Internal gRPC, no token needed (see the
+  // request). Off (CarePlanTargets:Enabled false) it answers no-data / feature-disabled. Calls per observation per
+  // organization are capped (no-data / rate-limited) and audited, so caller-chosen safety limits cannot binary-search a
+  // result.
   rpc EvaluateObservationAgainstGoal (EvaluateObservationAgainstGoalRequest) returns (EvaluateObservationAgainstGoalResponse);
 
   // Goal achievement (source-of-truth decision, Samer and Andrew, 23 Oct 2026): dbo.Goal in Scrips.Patient owns a goal's
   // target AND its achievementStatus. Scrips.Workflows sends the met / not-met / no-data result of a comparison here;
   // Patient re-derives it from its OWN target (the same rule as EvaluateObservationAgainstGoal) and stores it only when
   // they agree. A no-data never overwrites a stored status. Patient alone then projects the Goal to Aidbox (one-way).
-  // status "derive" (no goalId): Patient compares the observation itself and records its own met / not-met for the goal it
-  // names. For status maintenance outside a routing comparison; it never counts against EvaluateObservationAgainstGoal's
-  // per-observation cap. Idempotent: the same observation and status again is "unchanged". Off (CarePlanTargets:Enabled false) it answers
-  // not-recorded / feature-disabled. Same authentication and organization rule as EvaluateObservationAgainstGoal.
-  // CODES ONLY: no value crosses here.
+  // status "derive" (goalId EMPTY): for status maintenance outside a routing comparison. Patient compares the observation
+  // itself, for EVERY live goal of that patient (in that organization) that measures the LOINC: in carePlanId when sent,
+  // else in every plan. Order: care plan id, then goal id. At most 20: the first 20 in that order; any more are skipped
+  // and Patient logs a warning. Each goal is compared against ITS OWN target, so two goals on one code each get their
+  // own status (EvaluateObservationAgainstGoal's routing rule "different targets = ambiguous-target" does not apply), and
+  // each goal's met / not-met is recorded as for a claim. No such goal = not-recorded / no-goal. The answer is ONE summary:
+  // "recorded" when any goal was recorded, else "unchanged" when any was unchanged, else the FIRST goal's (in the order
+  // above) not-recorded and its reason. A recorded / unchanged summary while another goal was not recorded has reason
+  // "partial", so a failure is never hidden (each goal's own reason is in the audit). It carries NO achievementStatus
+  // (record only).
+  // Every call is audited, and a derive audits EACH goal it wrote: caller organization, patient, goal, observation,
+  // claimed status, outcome, reason. Not capped: it takes no caller-chosen safety limits, so nobody can binary-search a
+  // value through it; it only records what Patient's own target says about a stored observation. Idempotent: the same
+  // observation and status again is "unchanged". Off (CarePlanTargets:Enabled false) it answers not-recorded /
+  // feature-disabled. Same organization rule as EvaluateObservationAgainstGoal (internal gRPC, no token needed). CODES ONLY: no value crosses here.
   rpc RecordGoalAchievement (RecordGoalAchievementRequest) returns (RecordGoalAchievementResponse);
 }
 
@@ -360,6 +371,11 @@ message CreateCarePlanRequest {
     // Goal links (Samer, 23 Oct 2026): the steps the care model links to a goal (PlanDefinition.action.goalId). Optional;
     // absent = no activity links, the old behaviour. A goalSourceNodeId may name a goal added LATER by AddCarePlanGoal.
     repeated CreateCarePlanActivity activities=12;
+    // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
+    // step (AddCarePlanGoal). With reconcileGoals, a LIVE goal on one of these nodes is left untouched: never retired and
+    // never added from here, because whether the run reaches its step again decides it. So re-enrolment keeps the goal's
+    // id and history. Field 12 is held by the sub-goals change (activities). Empty = every live goal is reconciled.
+    repeated string keepSourceNodeIds=13;
 }
 
 message CreateCarePlanResponse {
@@ -1226,8 +1242,10 @@ message GoalSafetyLimit {
     string unit=4;                    // the limit's unit (UCUM)
 }
 
-// AUTHENTICATED: a bearer token is required. The organization is the CALLER's: the token's orgId claim, or (machine
-// client_credentials tokens only) the organizationid metadata header. organizationId below, when sent, must equal it.
+// INTERNAL gRPC, no token needed (Andrew, 25 Oct 2026). The organization is the CALLER's: the token's orgId claim when a
+// token carries one, else the organizationid metadata header; a token's orgId and the header disagreeing, or neither, is
+// PermissionDenied. organizationId below, when sent, must equal it (never a source of it). The security boundary is the
+// gRPC port's network exposure: Patient's gRPC port must not be reachable from outside the cluster in production.
 message EvaluateObservationAgainstGoalRequest {
     string patientId=1;               // required, non-empty GUID
     string organizationId=2;          // optional; when sent it must equal the caller's organization (never a source of it)
@@ -1249,13 +1267,15 @@ message EvaluateObservationAgainstGoalResponse {
     string targetKind=7;              // "patient-own" (a physician set it) | "clinic-default" (a cited, published care-model default) | "none"
 }
 
-// AUTHENTICATED, organization as for EvaluateObservationAgainstGoalRequest.
+// Internal gRPC; organization as for EvaluateObservationAgainstGoalRequest.
 message RecordGoalAchievementRequest {
     string patientId=1;               // required, non-empty GUID
     string organizationId=2;          // optional; when sent it must equal the caller's organization
     string observationId=3;           // required, non-empty GUID: the LabObservation the result was computed from
     string loinc=4;                   // required: the measure compared
-    string goalId=5;                  // required, non-empty GUID: the goal EvaluateObservationAgainstGoal named (empty for "derive")
+    string goalId=5;                  // met | not-met | no-data: required, non-empty GUID, the goal EvaluateObservationAgainstGoal
+                                      // named. "derive": MUST be empty (a sent goalId is InvalidArgument); Patient finds
+                                      // the goals itself, as described on the rpc.
     string carePlanId=6;              // optional: its care plan
     string status=7;                  // required: "met" | "not-met" | "no-data" | "derive"
 }
@@ -1263,6 +1283,28 @@ message RecordGoalAchievementRequest {
 // Codes only.
 message RecordGoalAchievementResponse {
     string outcome=1;                 // "recorded" | "unchanged" | "not-recorded"
-    string reason=2;                  // why not-recorded (a code); empty otherwise
-    string achievementStatus=3;       // the FHIR goal-achievement code now stored ("achieved" | "not-achieved"); empty when none
+    string reason=2;                  // why not-recorded (or partial, below); empty otherwise. One of:
+                                      //   feature-disabled (CarePlanTargets:Enabled off), store-unavailable (the status
+                                      //   columns are not deployed), invalid-status, no-data (a no-data claim, or no
+                                      //   comparable result), goal-not-found (no such goal of this patient in the caller's
+                                      //   organization), goal-mismatch (the goal is not in the carePlanId sent, or Patient's comparison names another goal),
+                                      //   status-mismatch (Patient's comparison disagrees with the claim), older-result (a
+                                      //   newer result is already stored), target-changed (the target changed while
+                                      //   recording), evaluation-error,
+                                      //   or the no-data reason of Patient's own comparison: patient-not-found,
+                                      //   org-mismatch, observation-not-found, observation-not-final, censored-value,
+                                      //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
+                                      //   bp-component-not-supported, unsigned-default-target.
+                                      // On outcome recorded / unchanged (derive over several goals only): partial, at
+                                      //   least one other goal was not recorded. Safe to retry: derive is idempotent
+                                      //   (goals already recorded answer unchanged).
+                                      // Never rate-limited (not capped).
+                                      // Transient, safe to retry: store-unavailable, evaluation-error,
+                                      //   results-unavailable, plans-unavailable. Every other code is final for this
+                                      //   request; retrying it changes nothing.
+                                      // Scrips.Workflows logs the code and does not retry: the next result for the goal's
+                                      //   LOINC derives the status again, which repairs a transient miss. Until that
+                                      //   result arrives, the goal's stored status stays out of date.
+    string achievementStatus=3;       // met | not-met | no-data claims: the FHIR goal-achievement code now stored ("achieved" |
+                                      // "not-achieved"); empty when none. "derive": always empty (record only).
 }
