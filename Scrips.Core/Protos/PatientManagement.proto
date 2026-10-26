@@ -132,11 +132,14 @@ service PatientManagement {
   // they agree. A no-data never overwrites a stored status. Patient alone then projects the Goal to Aidbox (one-way).
   // status "derive" (goalId EMPTY): for status maintenance outside a routing comparison. Patient compares the observation
   // itself, for EVERY live goal of that patient (in that organization) that measures the LOINC: in carePlanId when sent,
-  // else in every plan; at most 20. Each goal is compared against ITS OWN target, so two goals on one code each get their
+  // else in every plan. Order: care plan id, then goal id. At most 20: the first 20 in that order; any more are skipped
+  // and Patient logs a warning. Each goal is compared against ITS OWN target, so two goals on one code each get their
   // own status (EvaluateObservationAgainstGoal's routing rule "different targets = ambiguous-target" does not apply), and
   // each goal's met / not-met is recorded as for a claim. No such goal = not-recorded / no-goal. The answer is ONE summary:
-  // "recorded" when any goal was recorded, else "unchanged" when any was unchanged, else the first goal's not-recorded and
-  // its reason; it carries NO achievementStatus (record only).
+  // "recorded" when any goal was recorded, else "unchanged" when any was unchanged, else the FIRST goal's (in the order
+  // above) not-recorded and its reason. A recorded / unchanged summary while another goal was not recorded has reason
+  // "partial", so a failure is never hidden (each goal's own reason is in the audit). It carries NO achievementStatus
+  // (record only).
   // Every call is audited, and a derive audits EACH goal it wrote: caller organization, patient, goal, observation,
   // claimed status, outcome, reason. Not capped: it takes no caller-chosen safety limits, so nobody can binary-search a
   // value through it; it only records what Patient's own target says about a stored observation. Idempotent: the same
@@ -1242,7 +1245,7 @@ message RecordGoalAchievementRequest {
 // Codes only.
 message RecordGoalAchievementResponse {
     string outcome=1;                 // "recorded" | "unchanged" | "not-recorded"
-    string reason=2;                  // why not-recorded; empty otherwise. One of:
+    string reason=2;                  // why not-recorded (or partial, below); empty otherwise. One of:
                                       //   feature-disabled (CarePlanTargets:Enabled off), store-unavailable (the status
                                       //   columns are not deployed), invalid-status, no-data (a no-data claim, or no
                                       //   comparable result), goal-not-found (no such goal of this patient in the caller's
@@ -1254,6 +1257,8 @@ message RecordGoalAchievementResponse {
                                       //   org-mismatch, observation-not-found, observation-not-final, censored-value,
                                       //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
                                       //   bp-component-not-supported, unsigned-default-target.
+                                      // On outcome recorded / unchanged (derive over several goals only): partial, at
+                                      //   least one other goal was not recorded.
                                       // Never rate-limited (not capped).
                                       // Transient, safe to retry: store-unavailable, evaluation-error,
                                       //   results-unavailable, plans-unavailable. Every other code is final for this
