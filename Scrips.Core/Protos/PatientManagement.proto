@@ -128,12 +128,12 @@ service PatientManagement {
   // own status (EvaluateObservationAgainstGoal's routing rule "different targets = ambiguous-target" does not apply), and
   // each goal's met / not-met is recorded as for a claim. No such goal = not-recorded / no-goal. The answer is ONE summary:
   // "recorded" when any goal was recorded, else "unchanged" when any was unchanged, else the first goal's not-recorded and
-  // its reason; it carries NO achievementStatus (record only, so it is no comparison oracle).
+  // its reason; it carries NO achievementStatus (record only).
   // Every call is audited, and a derive audits EACH goal it wrote: caller organization, patient, goal, observation,
-  // claimed status, outcome, reason. Not capped: it takes no caller-chosen safety limits, so it cannot binary-search a value; it only
-  // records what Patient's own target says about a stored observation. Idempotent: the same observation and status again
-  // is "unchanged". Off (CarePlanTargets:Enabled false) it answers not-recorded / feature-disabled. Same organization rule
-  // as EvaluateObservationAgainstGoal (internal gRPC, no token needed). CODES ONLY: no value crosses here.
+  // claimed status, outcome, reason. Not capped: it takes no caller-chosen safety limits, so nobody can binary-search a
+  // value through it; it only records what Patient's own target says about a stored observation. Idempotent: the same
+  // observation and status again is "unchanged". Off (CarePlanTargets:Enabled false) it answers not-recorded /
+  // feature-disabled. Same organization rule as EvaluateObservationAgainstGoal (internal gRPC, no token needed). CODES ONLY: no value crosses here.
   rpc RecordGoalAchievement (RecordGoalAchievementRequest) returns (RecordGoalAchievementResponse);
 }
 
@@ -1219,7 +1219,12 @@ message RecordGoalAchievementResponse {
                                       //   org-mismatch, observation-not-found, observation-not-final, censored-value,
                                       //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
                                       //   bp-component-not-supported, unsigned-default-target.
-                                      // Never rate-limited (not capped). A consumer logs the code; none is retried.
+                                      // Never rate-limited (not capped).
+                                      // Transient, safe to retry: store-unavailable, evaluation-error,
+                                      //   results-unavailable, plans-unavailable. Every other code is final for this
+                                      //   request; retrying it changes nothing.
+                                      // Scrips.Workflows logs the code and does not retry: the next result for the goal's
+                                      //   LOINC derives the status again, which repairs a transient miss.
     string achievementStatus=3;       // met | not-met | no-data claims: the FHIR goal-achievement code now stored ("achieved" |
                                       // "not-achieved"); empty when none. "derive": always empty (record only).
 }
