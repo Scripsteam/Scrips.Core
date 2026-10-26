@@ -322,6 +322,11 @@ message CreateCarePlanRequest {
     // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added.
     // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
     bool reconcileGoals=11;
+    // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
+    // step (AddCarePlanGoal). With reconcileGoals, a LIVE goal on one of these nodes is left untouched: never retired and
+    // never added from here, because whether the run reaches its step again decides it. So re-enrolment keeps the goal's
+    // id and history. Field 12 is held by the sub-goals change (activities). Empty = every live goal is reconciled.
+    repeated string keepSourceNodeIds=13;
 }
 
 message CreateCarePlanResponse {
