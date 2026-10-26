@@ -1223,13 +1223,15 @@ message RecordGoalAchievementResponse {
                                       //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
                                       //   bp-component-not-supported, unsigned-default-target.
                                       // On outcome recorded / unchanged (derive over several goals only): partial, at
-                                      //   least one other goal was not recorded.
+                                      //   least one other goal was not recorded. Safe to retry: derive is idempotent
+                                      //   (goals already recorded answer unchanged).
                                       // Never rate-limited (not capped).
                                       // Transient, safe to retry: store-unavailable, evaluation-error,
                                       //   results-unavailable, plans-unavailable. Every other code is final for this
                                       //   request; retrying it changes nothing.
                                       // Scrips.Workflows logs the code and does not retry: the next result for the goal's
-                                      //   LOINC derives the status again, which repairs a transient miss.
+                                      //   LOINC derives the status again, which repairs a transient miss. Until that
+                                      //   result arrives, the goal's stored status stays out of date.
     string achievementStatus=3;       // met | not-met | no-data claims: the FHIR goal-achievement code now stored ("achieved" |
                                       // "not-achieved"); empty when none. "derive": always empty (record only).
 }
