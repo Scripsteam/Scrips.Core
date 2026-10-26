@@ -88,10 +88,11 @@ service PatientManagement {
 
   // Conditional goals (Samer, 23 Oct 2026, ELLMS): adds ONE goal to an existing CarePlan when the care-model run REACHES
   // that goal's step, so a goal exists for a patient only on the branch the run took (e.g. "HbA1c goal (diabetes only)"
-  // only for a diabetic patient). Called by the Workflows AddCarePlanGoal activity. Tenant-scoped like CreateCarePlan
-  // (organizationid header; the plan must be the patient's, in that org). IDEMPOTENT on (carePlanId, goal.sourceNodeId)
-  // among live goals: a repeat answers alreadyExisted and changes nothing. The citation and definition status are recorded
-  // only from the Workflows machine token, as on CreateCarePlan.
+  // only for a diabetic patient). Called by the Workflows AddCarePlanGoal activity. Internal gRPC, no token needed
+  // (Andrew, 25 Oct 2026): the organization is the caller's, as for EvaluateObservationAgainstGoalRequest (a token's orgId
+  // claim when there is one, else the organizationid metadata); the plan must be the patient's, in that org. IDEMPOTENT on
+  // (carePlanId, goal.sourceNodeId) among live goals: a repeat answers alreadyExisted and changes nothing. The citation and
+  // definition status are recorded as on CreateCarePlan.
   rpc AddCarePlanGoal(AddCarePlanGoalRequest) returns (AddCarePlanGoalResponse);
 
   // PROD-2683 / PROD-2702 - ambient recording consent and recording parts.
@@ -365,7 +366,8 @@ message CreateCarePlanRequest {
     // LIVE goals match this request's goals instead of returning it untouched. A live goal whose sourceNodeId and
     // definition (description, LOINC, comparator, value, unit) are in the request is kept; every other live goal is
     // RETIRED (FHIR Goal.lifecycleStatus "cancelled", soft-deleted, with a status-history row naming the reason): the row
-    // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added.
+    // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added. Runs only
+    // when the caller's organization (as for AddCarePlanGoal) is the patient's.
     // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
     bool reconcileGoals=11;
     // Goal links (Samer, 23 Oct 2026): the steps the care model links to a goal (PlanDefinition.action.goalId). Optional;
