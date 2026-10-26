@@ -131,12 +131,14 @@ service PatientManagement {
   // Patient re-derives it from its OWN target (the same rule as EvaluateObservationAgainstGoal) and stores it only when
   // they agree. A no-data never overwrites a stored status. Patient alone then projects the Goal to Aidbox (one-way).
   // status "derive" (goalId EMPTY): for status maintenance outside a routing comparison. Patient compares the observation
-  // itself and picks the goal EXACTLY as EvaluateObservationAgainstGoal does for the same patientId, loinc and carePlanId
-  // (the patient's live goal with a target for that LOINC, in carePlanId when sent; none = no-goal; two active plans with
-  // different targets and no carePlanId = ambiguous-target). It records its own met / not-met for that ONE goal only, and
-  // answers the outcome with NO achievementStatus (record only, so it is no comparison oracle).
-  // Every call (derive or not) is audited: caller organization, patient, goal written, observation, claimed status,
-  // outcome, reason. Not capped: it takes no caller-chosen safety limits, so it cannot binary-search a value; it only
+  // itself, for EVERY live goal of that patient (in that organization) that measures the LOINC: in carePlanId when sent,
+  // else in every plan; at most 20. Each goal is compared against ITS OWN target, so two goals on one code each get their
+  // own status (EvaluateObservationAgainstGoal's routing rule "different targets = ambiguous-target" does not apply), and
+  // each goal's met / not-met is recorded as for a claim. No such goal = not-recorded / no-goal. The answer is ONE summary:
+  // "recorded" when any goal was recorded, else "unchanged" when any was unchanged, else the first goal's not-recorded and
+  // its reason; it carries NO achievementStatus (record only, so it is no comparison oracle).
+  // Every call is audited, and a derive audits EACH goal it wrote: caller organization, patient, goal, observation,
+  // claimed status, outcome, reason. Not capped: it takes no caller-chosen safety limits, so it cannot binary-search a value; it only
   // records what Patient's own target says about a stored observation. Idempotent: the same observation and status again
   // is "unchanged". Off (CarePlanTargets:Enabled false) it answers not-recorded / feature-disabled. Same organization rule
   // as EvaluateObservationAgainstGoal (internal gRPC, no token needed). CODES ONLY: no value crosses here.
@@ -1231,8 +1233,8 @@ message RecordGoalAchievementRequest {
     string observationId=3;           // required, non-empty GUID: the LabObservation the result was computed from
     string loinc=4;                   // required: the measure compared
     string goalId=5;                  // met | not-met | no-data: required, non-empty GUID, the goal EvaluateObservationAgainstGoal
-                                      // named. "derive": MUST be empty (a sent goalId is InvalidArgument); Patient picks
-                                      // the goal itself, as described on the rpc.
+                                      // named. "derive": MUST be empty (a sent goalId is InvalidArgument); Patient finds
+                                      // the goals itself, as described on the rpc.
     string carePlanId=6;              // optional: its care plan
     string status=7;                  // required: "met" | "not-met" | "no-data" | "derive"
 }
@@ -1244,7 +1246,7 @@ message RecordGoalAchievementResponse {
                                       //   feature-disabled (CarePlanTargets:Enabled off), store-unavailable (the status
                                       //   columns are not deployed), invalid-status, no-data (a no-data claim, or no
                                       //   comparable result), goal-not-found (no such goal of this patient in the caller's
-                                      //   organization), goal-mismatch (Patient's comparison names another goal),
+                                      //   organization), goal-mismatch (the goal is not in the carePlanId sent, or Patient's comparison names another goal),
                                       //   status-mismatch (Patient's comparison disagrees with the claim), older-result (a
                                       //   newer result is already stored), target-changed (the target changed while
                                       //   recording), evaluation-error,
