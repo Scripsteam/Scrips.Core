@@ -92,7 +92,10 @@ service PatientManagement {
   // (Andrew, 25 Oct 2026): the organization is the caller's, as for EvaluateObservationAgainstGoalRequest (a token's orgId
   // claim when there is one, else the organizationid metadata); the plan must be the patient's, in that org. IDEMPOTENT on
   // (carePlanId, goal.sourceNodeId) among live goals: a repeat answers alreadyExisted and changes nothing. The citation and
-  // definition status are recorded as on CreateCarePlan.
+  // definition status are recorded as on CreateCarePlan. INTENDED: the key is the sourceNodeId only, so after re-enrolment
+  // into a newer care-model version a repeat still answers alreadyExisted and the goal keeps its ORIGINAL citation
+  // (definitionId / definitionVersion). To re-create it from the new version, a clinician retires it first (Patient's goal
+  // retire endpoint, Patient #1197); the next run that reaches the step then adds it again.
   rpc AddCarePlanGoal(AddCarePlanGoalRequest) returns (AddCarePlanGoalResponse);
 
   // PROD-2683 / PROD-2702 - ambient recording consent and recording parts.
@@ -338,7 +341,11 @@ message CreateCarePlanRequest {
     // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
     // step (AddCarePlanGoal). With reconcileGoals, a LIVE goal on one of these nodes is left untouched: never retired and
     // never added from here, because whether the run reaches its step again decides it. So re-enrolment keeps the goal's
-    // id and history. Field 12 is held by the sub-goals change (activities). Empty = every live goal is reconciled.
+    // id and history. Ignored unless reconcileGoals is true. Field 12 is held by the sub-goals change (activities). Empty =
+    // every live goal is reconciled.
+    // LIMIT (Andrew's choice, 27 Oct 2026): this contract never retires a kept goal. If the new run does not reach its step,
+    // no rpc retires it, so a kept goal stays live (with its last status) until a clinician retires it (Patient's goal
+    // retire endpoint, Patient #1197).
     repeated string keepSourceNodeIds=13;
 }
 
