@@ -86,6 +86,18 @@ service PatientManagement {
   // (separate follow-up, PROD-1307) at "Start Care Pathway". Tenant-scoped + idempotent.
   rpc CreateCarePlan(CreateCarePlanRequest) returns (CreateCarePlanResponse);
 
+  // Conditional goals (Samer, 23 Oct 2026, ELLMS): adds ONE goal to an existing CarePlan when the care-model run REACHES
+  // that goal's step, so a goal exists for a patient only on the branch the run took (e.g. "HbA1c goal (diabetes only)"
+  // only for a diabetic patient). Called by the Workflows AddCarePlanGoal activity. Internal gRPC, no token needed
+  // (Andrew, 25 Oct 2026): the organization is the caller's, as for EvaluateObservationAgainstGoalRequest (a token's orgId
+  // claim when there is one, else the organizationid metadata); the plan must be the patient's, in that org. IDEMPOTENT on
+  // (carePlanId, goal.sourceNodeId) among live goals: a repeat answers alreadyExisted and changes nothing. The citation and
+  // definition status are recorded as on CreateCarePlan. INTENDED: the key is the sourceNodeId only, so after re-enrolment
+  // into a newer care-model version a repeat still answers alreadyExisted and the goal keeps its ORIGINAL citation
+  // (definitionId / definitionVersion). To re-create it from the new version, a clinician retires it first (Patient's goal
+  // retire endpoint, Patient #1197); the next run that reaches the step then adds it again.
+  rpc AddCarePlanGoal(AddCarePlanGoalRequest) returns (AddCarePlanGoalResponse);
+
   // PROD-2683 / PROD-2702 - ambient recording consent and recording parts.
   // CheckAmbientRecordingConsent is the server-side consent gate the recorder asks before it
   // records. It FAILS CLOSED: any error is DENIED, and AMBIENT_CONSENT_UNSPECIFIED (the proto
@@ -318,6 +330,27 @@ message CreateCarePlanRequest {
     // they make a goal's default target an approved clinic default. Optional; absent = not approved.
     string definitionVersion=9;
     string definitionStatus=10;
+    // Re-enrolment (Samer, 23 Oct 2026): when the plan already exists (same patient + instantiatesCanonical), make its
+    // LIVE goals match this request's goals instead of returning it untouched. A live goal whose sourceNodeId and
+    // definition (description, LOINC, comparator, value, unit) are in the request is kept; every other live goal is
+    // RETIRED (FHIR Goal.lifecycleStatus "cancelled", soft-deleted, with a status-history row naming the reason): the row
+    // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added. Runs only
+    // when the caller's organization (as for AddCarePlanGoal) is the patient's.
+    // PHYSICIAN WINS (Andrew, 27 Oct 2026): reconcile NEVER retires a goal a physician has touched (a clinician-set
+    // achievement status, or a clinician-set target). Such a goal is left untouched, as for keepSourceNodeIds: it is not
+    // retired, and no request goal on its sourceNodeId is added beside it. It stays live until a clinician retires it
+    // (Patient's goal retire endpoint, Patient #1197).
+    // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
+    bool reconcileGoals=11;
+    // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
+    // step (AddCarePlanGoal). With reconcileGoals, a LIVE goal on one of these nodes is left untouched: never retired and
+    // never added from here, because whether the run reaches its step again decides it. So re-enrolment keeps the goal's
+    // id and history. Ignored unless reconcileGoals is true. Field 12 is held by the sub-goals change (activities). Empty =
+    // every live goal is reconciled.
+    // LIMIT (Andrew's choice, 27 Oct 2026): this contract never retires a kept goal. If the new run does not reach its step,
+    // no rpc retires it, so a kept goal stays live (with its last status) until a clinician retires it (Patient's goal
+    // retire endpoint, Patient #1197).
+    repeated string keepSourceNodeIds=13;
 }
 
 message CreateCarePlanResponse {
@@ -327,6 +360,21 @@ message CreateCarePlanResponse {
     int32 contributorCount=4;         // persisted CarePlan.contributor rows (#907)
     int32 addressCount=5;             // persisted CarePlan.addresses rows (#907)
     int32 supportingInfoCount=6;      // persisted CarePlan.supportingInfo rows (#907)
+    int32 addedGoalCount=7;           // reconcileGoals on an existing plan: goals added
+    int32 retiredGoalCount=8;         // reconcileGoals on an existing plan: live goals retired (cancelled, history kept)
+}
+
+message AddCarePlanGoalRequest {
+    string subjectPatientId=1;        // the patient (must own the plan, in the caller's organization)
+    string carePlanId=2;              // the plan InstantiateCarePlan created for this run
+    CreateCarePlanGoal goal=3;        // the goal, as on CreateCarePlan (sourceNodeId required: the idempotency key)
+    string definitionVersion=4;       // as CreateCarePlanRequest.definitionVersion
+    string definitionStatus=5;        // as CreateCarePlanRequest.definitionStatus
+}
+
+message AddCarePlanGoalResponse {
+    string goalId=1;                  // the new goal, or the live goal already on the plan for this sourceNodeId
+    bool alreadyExisted=2;            // true when a live goal with this sourceNodeId was already on the plan
 }
 
 message GetPatientsBySearchRequest{
@@ -1217,7 +1265,10 @@ message RecordGoalAchievementResponse {
                                       //   organization), goal-mismatch (the goal is not in the carePlanId sent, or Patient's comparison names another goal),
                                       //   status-mismatch (Patient's comparison disagrees with the claim), older-result (a
                                       //   newer result is already stored), target-changed (the target changed while
-                                      //   recording), evaluation-error,
+                                      //   recording), clinician-set (a physician set the goal's status; it stands until
+                                      //   the physician clears it, and no derived status replaces it; Andrew, 27 Oct 2026.
+                                      //   Re-enrolment never retires such a goal either: see reconcileGoals),
+                                      //   evaluation-error,
                                       //   or the no-data reason of Patient's own comparison: patient-not-found,
                                       //   org-mismatch, observation-not-found, observation-not-final, censored-value,
                                       //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
