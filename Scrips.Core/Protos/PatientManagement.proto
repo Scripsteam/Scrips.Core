@@ -1254,7 +1254,9 @@ message RecordGoalAchievementResponse {
                                       //   organization), goal-mismatch (the goal is not in the carePlanId sent, or Patient's comparison names another goal),
                                       //   status-mismatch (Patient's comparison disagrees with the claim), older-result (a
                                       //   newer result is already stored), target-changed (the target changed while
-                                      //   recording), evaluation-error,
+                                      //   recording), clinician-set (a physician set the goal's status; it stands until
+                                      //   the physician clears it, and no derived status replaces it; Andrew, 27 Oct 2026),
+                                      //   evaluation-error,
                                       //   or the no-data reason of Patient's own comparison: patient-not-found,
                                       //   org-mismatch, observation-not-found, observation-not-final, censored-value,
                                       //   results-unavailable, plans-unavailable, no-goal, ambiguous-target,
