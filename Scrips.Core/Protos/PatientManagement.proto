@@ -336,6 +336,10 @@ message CreateCarePlanRequest {
     // RETIRED (FHIR Goal.lifecycleStatus "cancelled", soft-deleted, with a status-history row naming the reason): the row
     // and its history are kept, it is only no longer shown or evaluated. A request goal not on the plan is added. Runs only
     // when the caller's organization (as for AddCarePlanGoal) is the patient's.
+    // PHYSICIAN WINS (Andrew, 27 Oct 2026): reconcile NEVER retires a goal a physician has touched (a clinician-set
+    // achievement status, or a clinician-set target). Such a goal is left untouched, as for keepSourceNodeIds: it is not
+    // retired, and no request goal on its sourceNodeId is added beside it. It stays live until a clinician retires it
+    // (Patient's goal retire endpoint, Patient #1197).
     // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
     bool reconcileGoals=11;
     // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
@@ -1262,7 +1266,8 @@ message RecordGoalAchievementResponse {
                                       //   status-mismatch (Patient's comparison disagrees with the claim), older-result (a
                                       //   newer result is already stored), target-changed (the target changed while
                                       //   recording), clinician-set (a physician set the goal's status; it stands until
-                                      //   the physician clears it, and no derived status replaces it; Andrew, 27 Oct 2026),
+                                      //   the physician clears it, and no derived status replaces it; Andrew, 27 Oct 2026.
+                                      //   Re-enrolment never retires such a goal either: see reconcileGoals),
                                       //   evaluation-error,
                                       //   or the no-data reason of Patient's own comparison: patient-not-found,
                                       //   org-mismatch, observation-not-found, observation-not-final, censored-value,
