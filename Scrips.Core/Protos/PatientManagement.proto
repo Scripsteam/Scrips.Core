@@ -284,6 +284,41 @@ message CreateCarePlanGoal {
     // Goal targets (Samer, 23 Oct 2026): the SOURCE CITATION of this goal's default target, verbatim from the
     // published care model (e.g. "ADA Standards of Care 2026, 6.5b"). Optional; without it the default never decides.
     string targetSourceText=12;
+    // Sub-goals (Samer, 23 Oct 2026; Workflows "subGoals"): a process goal that contributes to an outcome goal. All
+    // additive + optional; an outcome goal leaves them empty, so an older Patient and an older caller are unaffected.
+    // A sub-goal NEVER rolls up into its parent: meeting every sub-goal does not mean the parent is met.
+    string parentGoalSourceNodeId=13;  // FHIR extension goal-parent: the sourceNodeId of the outcome goal this one serves
+    string measureKind=14;             // FHIR extension goal-measure-kind: lab|vital|calculation|questionnaire|task|reported
+    int32 reviewIntervalWeeks=15;      // FHIR extension goal-review-interval, in whole weeks (0 = none authored)
+    string taskStepId=16;              // FHIR extension goal-task-step (kind task): the Elsa activity id of the step to complete
+    // Every authored target, in order (FHIR Goal.target[]). A sub-goal may carry several (a blood pressure panel gives one
+    // per component), a range, or a "Completed" concept, and its measure may be a non-LOINC data point or text only.
+    // The single-target fields 6-10 are filled ONLY when there is exactly one LOINC quantity target, as for an outcome goal.
+    repeated CreateCarePlanGoalTarget targets=17;
+}
+
+// care-modeling — one FHIR Goal.target of a sub-goal, as authored. Values are strings (precision-safe, parsed
+// patient-side, as CreateCarePlanGoal.targetValue). Exactly one of (comparator + value) | (low + high) | detailText is set.
+message CreateCarePlanGoalTarget {
+    string measureSystem=1;   // Goal.target.measure.coding[0].system: http://loinc.org or https://scrips.com/fhir/CodeSystem/care-model-data-point
+    string measureCode=2;     // Goal.target.measure.coding[0].code (empty for a described value)
+    string measureDisplay=3;  // Goal.target.measure.coding[0].display
+    string measureText=4;     // Goal.target.measure.text (a described value has only this)
+    string comparator=5;      // detailQuantity.comparator: "<" | "<=" | ">=" | ">"
+    string value=6;           // detailQuantity.value
+    string low=7;             // detailRange.low.value
+    string high=8;            // detailRange.high.value
+    string unit=9;            // the quantity / range unit
+    string detailText=10;     // detailCodeableConcept.text (a task: "Completed")
+    string dueDate=11;        // Goal.target.dueDate (ISO-8601), from the authored due weeks counted from enrolment
+}
+
+// care-modeling — one CarePlan.activity the care model links to its goals (FHIR PlanDefinition.action.goalId ->
+// CarePlan.activity.detail.goal). Workflows sends one per step of a phase whose goalId the author linked.
+message CreateCarePlanActivity {
+    string sourceActivityId=1;                // the Elsa activity id of the step (the idempotency key on the plan)
+    string phaseId=2;                         // the care-model phase (studio track) the step belongs to
+    repeated string goalSourceNodeIds=3;      // CarePlan.activity.detail.goal, by CreateCarePlanGoal.sourceNodeId
 }
 
 // care-modeling — a responsible practitioner carried onto the CarePlan
@@ -342,6 +377,9 @@ message CreateCarePlanRequest {
     // (Patient's goal retire endpoint, Patient #1197).
     // Default false = the old behaviour (an existing plan is returned untouched), so an older caller is unaffected.
     bool reconcileGoals=11;
+    // Goal links (Samer, 23 Oct 2026): the steps the care model links to a goal (PlanDefinition.action.goalId). Optional;
+    // absent = no activity links, the old behaviour. A goalSourceNodeId may name a goal added LATER by AddCarePlanGoal.
+    repeated CreateCarePlanActivity activities=12;
     // Conditional goals on re-enrolment (Andrew, 27 Oct 2026): the sourceNodeIds of the goals the run creates at their own
     // step (AddCarePlanGoal). With reconcileGoals, a LIVE goal on one of these nodes is left untouched: never retired and
     // never added from here, because whether the run reaches its step again decides it. So re-enrolment keeps the goal's
