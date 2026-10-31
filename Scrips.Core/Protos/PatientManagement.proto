@@ -747,7 +747,8 @@ message Condition{
     string isDeleted = 13;
     string createdDate = 14;
     string wasDiagnosis = 15;
-    string verificationStatus = 16;   // FHIR condition-ver-status code: "confirmed" | "entered-in-error"
+    string verificationStatus = 16;   // FHIR condition-ver-status code. Sent today: "confirmed" | "entered-in-error";
+                                      //   readers accept any FHIR code. Empty = unknown (a server without this field).
 }
 
 message GetPatientAllergyListRequest{
