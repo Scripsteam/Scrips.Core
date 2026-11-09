@@ -44,7 +44,7 @@ service PracticeManagement {
   rpc GetDoctorsByIds (GetDoctorsByIdsRequest) returns (GetDoctorsByIdsResponse);
   // PROD-3442. Read-only userId -> the doctor's active speciality codes (the profile speciality plus every
   // active DoctorSpecialities row, de-duplicated), for care-team role resolution in QuestionBank.
-  // Writes nothing. Empty DoctorId and no Specialities = the user is not a doctor.
+  // Writes nothing. Empty DoctorId, empty OrganizationId and no Specialities = the user is not a doctor.
   rpc GetDoctorSpecialityCodesByUserId (DoctorSpecialityCodesByUserIdRequest) returns (DoctorSpecialityCodesByUserIdResponse);
 
   rpc CheckPracticeAndProviderProfile (CheckPracticeAndProviderProfileRequest) returns (CheckPracticeAndProviderProfileResponse);
@@ -430,14 +430,16 @@ message DoctorSpecialityCodesByUserIdRequest{
         string UserId=1;
 }
 
-// PROD-3442. All empty when the user is not a doctor. Specialities reuse PracticeValueSetResponse
-// (code, displayName, System) as resolved by Master.
+// PROD-3442. All empty when the user is not a doctor. DoctorId and OrganizationId come from the same doctor
+// row as GetDoctorIdByUserId (first row matching the UserId), so OrganizationId is that row's organization.
+// Specialities reuse PracticeValueSetResponse (code, displayName, System) as resolved by Master.
 message DoctorSpecialityCodesByUserIdResponse{
         string DoctorId=1;
         string OrganizationId=2;
         repeated PracticeValueSetResponse Specialities=3;
 }
-message GetProvidersRequest{
+
+message GetProvidersRequest{	
 	repeated string providerIds=1;
 }
 message GetProvidersResponse{
