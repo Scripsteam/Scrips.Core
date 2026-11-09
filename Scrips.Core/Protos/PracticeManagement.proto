@@ -395,9 +395,14 @@ message DoctorDataRequest{
 // PROD-2674
 message DoctorIdByUserIdRequest{
         string UserId=1;
+        // RBAC (contract v1.1, persona P7): optional. When set, only the user's doctor row in this
+        // organization is returned (both response fields empty if there is none). When empty, the old
+        // behaviour stays: the first doctor row for the user in any organization. Callers that make an
+        // access decision must set it and must check the returned OrganizationId.
+        string OrganizationId=2;
 }
 
-// PROD-2674. Both empty when the user is not a doctor.
+// PROD-2674. Both empty when the user is not a doctor (in the requested organization, when one is set).
 message DoctorIdByUserIdResponse{
         string DoctorId=1;
         string OrganizationId=2;
