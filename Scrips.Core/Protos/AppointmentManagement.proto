@@ -114,9 +114,20 @@ message GetAppointmentParticipantsRequest {
 }
 
 message GetAppointmentParticipantsResponse{
-	string providerId = 1;
+	string providerId = 1;   // the lead (ATND); with joint visits it is never a consultant
 	string patientId = 2;
 	string isPatient = 3;
+	repeated PractitionerParticipant practitioners = 4;   // joint slice 1: every practitioner, lead first, declined included
+}
+
+// Joint slice 1 (contract A1): one practitioner of an appointment. Copied from the server proto
+// (Scrips.AppointmentScheduling API/Protos/AppointmentManagement.proto); keep the field numbers identical.
+message PractitionerParticipant {
+  string practitionerId = 1;
+  string type = 2;        // "ATND" | "CON" (consultant). The lead is the live ATND at sortOrder 0; a declined former lead is also "ATND" (sortOrder >= 1, status "declined"). Rows written before joint visits read as "ATND"
+  string required = 3;    // FHIR code: "required" | "optional" | "information-only"
+  string status = 4;      // FHIR code: "accepted" | "declined" | "tentative" | "needs-action"
+  int32 sortOrder = 5;    // display order only: 0 = the lead, then consultants, then any declined former lead. Read the role from `type` + `status`, not from sortOrder
 }
 
 message GetAppointmentCustomNoteRequest {
@@ -188,6 +199,7 @@ message GetAppointmentBasicInfoResponse{
   string tpaCompanyName = 8;
   string PolicyNo = 9;
   string sponsorId = 10;
+  repeated PractitionerParticipant practitioners = 11;   // joint slice 1: every practitioner, lead first; ProviderId = the lead
 }
 
 message FollowUpRequest{
