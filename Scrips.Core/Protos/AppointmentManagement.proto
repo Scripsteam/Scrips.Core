@@ -195,6 +195,7 @@ message FollowUpRequest{
   int32 followUpCount = 2;
   string followUpCountUnit = 3;
   bool folowUp = 4;
+  string bookedAppointmentId = 5;   // the follow-up already booked from the visit ("Book now"); empty = none (as before)
 }
 
 message FollowUpResponse{
