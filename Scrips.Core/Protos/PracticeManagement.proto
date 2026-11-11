@@ -298,6 +298,9 @@ message ApppintmentProfileProviderIdResponse{
 // The request message containing the room id.
 message GetRoomByIdRequest {
   string id = 1;
+  // Room scheduling: true also returns a closed room (IsActive false, or deleted), with inactive = true, so a booking
+  // that still points at it can show "(closed)". Default false = active rooms only, as before. Additive.
+  bool includeInactive = 2;
 }
 
 // The response message containing the room.
@@ -306,6 +309,9 @@ message GetRoomByIdResponse {
   string name = 2;
   // Room scheduling (PROD-1977): the practice (location) the room belongs to. Additive; empty from older servers.
   string practiceId = 3;
+  // Room scheduling: true when the room is closed. Only an includeInactive request can return a closed room. Additive;
+  // false (active) from older servers, which return active rooms only.
+  bool inactive = 4;
 }
 
 // The request message containing the practice id.
@@ -469,6 +475,9 @@ message GetRoomsResponse {
 // Room scheduling (PROD-1977): the practice whose rooms GetRoomsByPractice lists.
 message GetRoomsByPracticeRequest {
   string practiceId = 1;
+  // Room scheduling: true also lists the practice's inactive (closed, not deleted) rooms, with inactive = true.
+  // Default false = active rooms only, as before. Additive.
+  bool includeInactive = 2;
 }
 message GetResourceByIdRequest {
   string id = 1;

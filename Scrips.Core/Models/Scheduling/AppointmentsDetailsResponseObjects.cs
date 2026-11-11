@@ -176,6 +176,28 @@ public abstract class ListAppointmentResponseBase
     public RoomResponse Room { get; set; }
 
     /// <summary>
+    ///     Room scheduling: the room the booking had before its last room change; null when the room never changed.
+    ///     Guid.Empty = the booking had no room.
+    /// </summary>
+    public Guid? PreviousRoomId { get; set; }
+
+    /// <summary>
+    ///     The previous room (name, IsActive); null when the room never changed or the booking had no room.
+    /// </summary>
+    public RoomResponse PreviousRoom { get; set; }
+
+    /// <summary>
+    ///     When the room last changed (UTC on the wire, then the caller's time zone like the other times); null when
+    ///     it never changed.
+    /// </summary>
+    public DateTime? RoomChangedAt { get; set; }
+
+    /// <summary>
+    ///     Who changed the room (the signed-in user's id); null when it never changed or the caller was not known.
+    /// </summary>
+    public Guid? RoomChangedById { get; set; }
+
+    /// <summary>
     ///     Role of participant in the appointment
     /// </summary>
     public AppointmentType AppointmentType { get; set; }
