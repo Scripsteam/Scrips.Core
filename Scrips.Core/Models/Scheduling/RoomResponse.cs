@@ -11,4 +11,10 @@ public class RoomResponse
     /// Room Name
     /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// False when the room is closed (Practice Management: IsActive false). The apps show "(closed)" next to the
+    /// name. True by default: a room that is not known to be closed is active.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }
