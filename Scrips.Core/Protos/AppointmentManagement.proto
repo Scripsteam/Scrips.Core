@@ -118,6 +118,8 @@ message GetAppointmentParticipantsResponse{
 	string patientId = 2;
 	string isPatient = 3;
 	repeated PractitionerParticipant practitioners = 4;   // joint slice 1: every practitioner, lead first, declined included
+	string groupSessionId = 5;       // the group session this appointment is a member of; empty when it is not a group member
+	string groupSessionStatus = 6;   // that session's status ("Scheduled" | "Cancelled"); empty when not a group member
 }
 
 // Joint slice 1 (contract A1): one practitioner of an appointment. Copied from the server proto
