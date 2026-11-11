@@ -200,6 +200,7 @@ message GetAppointmentBasicInfoResponse{
   string PolicyNo = 9;
   string sponsorId = 10;
   repeated PractitionerParticipant practitioners = 11;   // joint slice 1: every practitioner, lead first; ProviderId = the lead
+  string groupSessionId = 12;   // group session note: the group session this appointment is a member of; empty = not a group member
 }
 
 message FollowUpRequest{
