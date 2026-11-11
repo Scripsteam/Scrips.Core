@@ -468,6 +468,9 @@ message GetPracticesResponse{
 }
 message GetRoomsRequest {
 	string roomIds = 1;
+  // Room scheduling: true also returns closed rooms (IsActive false, or deleted), with inactive = true. Default false
+  // = active rooms only, as before. Additive.
+  bool includeInactive = 2;
 }
 message GetRoomsResponse {
 	repeated GetRoomByIdResponse rooms=1;
