@@ -298,8 +298,9 @@ message ApppintmentProfileProviderIdResponse{
 // The request message containing the room id.
 message GetRoomByIdRequest {
   string id = 1;
-  // Room scheduling: true also returns a closed room (IsActive false, or deleted), with inactive = true, so a booking
-  // that still points at it can show "(closed)". Default false = active rooms only, as before. Additive.
+  // Room scheduling: true also returns a closed room (IsActive false, not deleted), with inactive = true, so a booking
+  // that still points at it can show "(closed)". A deleted room is never added. Default false = active rooms only, as
+  // before. Additive.
   bool includeInactive = 2;
 }
 
@@ -309,8 +310,9 @@ message GetRoomByIdResponse {
   string name = 2;
   // Room scheduling (PROD-1977): the practice (location) the room belongs to. Additive; empty from older servers.
   string practiceId = 3;
-  // Room scheduling: true when the room is closed. Only an includeInactive request can return a closed room. Additive;
-  // false (active) from older servers, which return active rooms only.
+  // Room scheduling: true when the room is closed (IsActive false). Only an includeInactive request can return a closed
+  // room. Also set on each room of GetRoomsResponse (its items are this message). Additive; false (active) from older
+  // servers, which return active rooms only.
   bool inactive = 4;
 }
 
@@ -468,8 +470,8 @@ message GetPracticesResponse{
 }
 message GetRoomsRequest {
 	string roomIds = 1;
-  // Room scheduling: true also returns closed rooms (IsActive false, or deleted), with inactive = true. Default false
-  // = active rooms only, as before. Additive.
+  // Room scheduling: true also returns closed rooms (IsActive false, not deleted), with inactive = true. A deleted
+  // room is never added. Default false = active rooms only, as before. Additive.
   bool includeInactive = 2;
 }
 message GetRoomsResponse {
@@ -478,7 +480,7 @@ message GetRoomsResponse {
 // Room scheduling (PROD-1977): the practice whose rooms GetRoomsByPractice lists.
 message GetRoomsByPracticeRequest {
   string practiceId = 1;
-  // Room scheduling: true also lists the practice's inactive (closed, not deleted) rooms, with inactive = true.
+  // Room scheduling: true also lists the practice's closed rooms (IsActive false, not deleted), with inactive = true.
   // Default false = active rooms only, as before. Additive.
   bool includeInactive = 2;
 }
