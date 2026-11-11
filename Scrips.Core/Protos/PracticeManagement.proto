@@ -55,6 +55,8 @@ service PracticeManagement {
   rpc GetPracticesList(GetPracticesListRequest) returns (GetPracticesResponse);
   rpc GetPracticesByIds (GetPracticesByIdsRequest) returns (GetPracticesByIdsResponse);
   rpc GetRooms (GetRoomsRequest) returns (GetRoomsResponse);
+  // Room scheduling (PROD-1977): a practice's active rooms (IsActive and not deleted). Additive.
+  rpc GetRoomsByPractice (GetRoomsByPracticeRequest) returns (GetRoomsResponse);
 
   // Device registry (PROD-2008). Additive; GetRoomById/GetRooms stay as they are (rooms are places).
   rpc GetResourceById (GetResourceByIdRequest) returns (GetResourceByIdResponse);
@@ -302,6 +304,8 @@ message GetRoomByIdRequest {
 message GetRoomByIdResponse {
   string id = 1;
   string name = 2;
+  // Room scheduling (PROD-1977): the practice (location) the room belongs to. Additive; empty from older servers.
+  string practiceId = 3;
 }
 
 // The request message containing the practice id.
@@ -461,6 +465,10 @@ message GetRoomsRequest {
 }
 message GetRoomsResponse {
 	repeated GetRoomByIdResponse rooms=1;
+}
+// Room scheduling (PROD-1977): the practice whose rooms GetRoomsByPractice lists.
+message GetRoomsByPracticeRequest {
+  string practiceId = 1;
 }
 message GetResourceByIdRequest {
   string id = 1;
