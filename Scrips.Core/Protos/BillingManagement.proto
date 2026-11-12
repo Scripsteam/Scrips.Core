@@ -26,6 +26,9 @@ service BillingManagement {
 	rpc GetAgreementDataByCompanyId(GetAgreementByCompanyIdRequest) returns (AgreementReponse);
 	rpc GetBillingProfiles(BillingProfileIdsRequest) returns (BillingProfilesResponse);
 	rpc GetInvoicesByAppointmentIds(GetInvoicesByAppointmentIdsRequest) returns (GetInvoicesByAppointmentIdsResponse);
+	// Internal only (Scheduling -> Billing, no ingress). Sets the provider on the appointment's DRAFT invoices;
+	// issued, paid or cancelled invoices are never changed. Idempotent.
+	rpc UpdateInvoiceProvider(UpdateInvoiceProviderRequest) returns (UpdateInvoiceProviderResponse);
 }
 
 message GetAgreementByCompanyIdRequest{
@@ -293,6 +296,19 @@ message UpdateInvoiceEncounterRequest{
 }
 message UpdateInvoiceEncounterResponse{
 	bool success = 1;
+}
+
+// A group session lead change (Scheduling) moves the member invoices to the new lead.
+message UpdateInvoiceProviderRequest{
+	string appointmentId = 1;
+	string organizationId = 2;
+	string providerId = 3;
+}
+message UpdateInvoiceProviderResponse{
+	// Draft invoices now on providerId (already on it counts too).
+	int32 updated = 1;
+	// Live invoices left alone because they are no longer Draft.
+	int32 skippedNotDraft = 2;
 }
 
 message GetCashierShiftDetail{
