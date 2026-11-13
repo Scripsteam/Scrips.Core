@@ -105,6 +105,20 @@ service PracticeManagement {
   rpc UpdateRFVInAppoinmentProfile (Common.Ids) returns (Common.Ids);
   rpc UpdateSpecialities(UpdateSpecialitiesRequest) returns (UpdateSpecialitiesResponse);
   rpc GetDoctorSpecialities(GetDoctorSpecialitiesRequest) returns (GetDoctorSpecialitiesResponse);
+
+  // Video join (VideoApplication): true only when the practitioner (AddDoctor id) belongs to the organization, is
+  // active and is not deleted. A ProviderId that is not one of the visit's own practitioners may join only then.
+  rpc IsActivePractitionerOfOrganization (IsActivePractitionerOfOrganizationRequest)
+      returns (IsActivePractitionerOfOrganizationResponse);
+}
+
+message IsActivePractitionerOfOrganizationRequest {
+    string practitionerId = 1;
+    string organizationId = 2;
+}
+
+message IsActivePractitionerOfOrganizationResponse {
+    bool active = 1;
 }
 
 message GetDoctorSpecialitiesRequest{
