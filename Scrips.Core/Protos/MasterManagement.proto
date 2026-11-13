@@ -132,6 +132,20 @@ message ErrorDetail {
     repeated string details = 3;
 }
 
+// Explainability envelope attached to every AI assertion (PROD-623 G-1 + G-5,
+// ADR-002 Unified AI Governance). Mirrors Master's REST DTO
+// (Domain/Models/AIChiefComplaint/AIExplainability.cs) so gRPC consumers get
+// the same non-black-box contract the REST clients already receive.
+message AIExplainability {
+    // Plain-English, data-referenced explanation of why the assertion was produced.
+    string reasoning = 1;
+    // FHIR-style resource references for sources touched during retrieval
+    // (e.g. "ChiefComplaint/{guid}").
+    repeated string dataSources = 2;
+    // Optional guideline citation (DHA / DOH / NICE / ADA / ACC). Empty when none applies.
+    string guidelineReference = 3;
+}
+
 message GenerateEmbeddingRequest {
     string text = 1;
 }
@@ -162,6 +176,10 @@ message SearchAndEnhanceResponse {
     string modelVersion = 1;
     repeated SimilarCase similarCases = 2;
     repeated GuidelineSnippet guidelines = 3;
+    // PROD-623 (G-1 + G-5): explainability envelope + clinician-review flag.
+    // Parity with the REST RAGSearchResult contract.
+    AIExplainability explainability = 4;
+    bool clinicianReviewRequired = 5;
     // Set when the response is partial.
     // High tag (100) intentional — reserves field numbers 4–99 for future
     // payload additions without renumbering or shifting the error envelope.
@@ -195,6 +213,13 @@ message ClinicalSuggestionsResponse {
     repeated Differential differentials = 2;
     repeated DocumentationElement documentationElements = 3;
     repeated ClinicalAlert alerts = 4;
+    // PROD-623 (G-1 + G-5): explainability envelope + clinician-review flag.
+    // Response-level aggregate: the REST contract carries these per-RAGSuggestion,
+    // but this proto flattens suggestions into typed buckets, so the envelope is
+    // aggregated (DataSources unioned, review-required set when any suggestion
+    // requires it).
+    AIExplainability explainability = 5;
+    bool clinicianReviewRequired = 6;
     // High tag (100) intentional — see SearchAndEnhanceResponse.error.
     ErrorDetail error = 100;
 }
@@ -332,6 +357,11 @@ message GenerateDocumentationResponse {
     repeated ClinicalFinding rosFindings = 16;
     repeated ClinicalFinding examFindings = 17;
     repeated ClinicalFinding riskFindings = 18;
+    // PROD-623 (G-1 + G-5): explainability envelope + clinician-review flag.
+    // The ambient-scribe SOAP is LLM-generated, so clinicianReviewRequired is
+    // always true (regulatory decision-support invariant).
+    AIExplainability explainability = 19;
+    bool clinicianReviewRequired = 20;
 
     // High tag (100) intentional — see SearchAndEnhanceResponse.error.
     ErrorDetail error = 100;
