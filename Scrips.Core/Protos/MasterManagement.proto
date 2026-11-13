@@ -179,9 +179,11 @@ message SearchAndEnhanceResponse {
     // PROD-623 (G-1 + G-5): explainability envelope + clinician-review flag.
     // Parity with the REST RAGSearchResult contract.
     AIExplainability explainability = 4;
-    bool clinicianReviewRequired = 5;
+    // optional: unset must not read as "no review needed". A client treats
+    // an unset value as review required.
+    optional bool clinicianReviewRequired = 5;
     // Set when the response is partial.
-    // High tag (100) intentional — reserves field numbers 4–99 for future
+    // High tag (100) intentional — reserves field numbers 6–99 for future
     // payload additions without renumbering or shifting the error envelope.
     ErrorDetail error = 100;
 }
@@ -219,7 +221,9 @@ message ClinicalSuggestionsResponse {
     // aggregated (DataSources unioned, review-required set when any suggestion
     // requires it).
     AIExplainability explainability = 5;
-    bool clinicianReviewRequired = 6;
+    // optional: unset must not read as "no review needed". A client treats
+    // an unset value as review required.
+    optional bool clinicianReviewRequired = 6;
     // High tag (100) intentional — see SearchAndEnhanceResponse.error.
     ErrorDetail error = 100;
 }
@@ -361,7 +365,9 @@ message GenerateDocumentationResponse {
     // The ambient-scribe SOAP is LLM-generated, so clinicianReviewRequired is
     // always true (regulatory decision-support invariant).
     AIExplainability explainability = 19;
-    bool clinicianReviewRequired = 20;
+    // optional: unset must not read as "no review needed". A client treats
+    // an unset value as review required.
+    optional bool clinicianReviewRequired = 20;
 
     // High tag (100) intentional — see SearchAndEnhanceResponse.error.
     ErrorDetail error = 100;
