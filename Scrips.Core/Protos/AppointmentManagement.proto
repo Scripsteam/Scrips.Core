@@ -51,6 +51,40 @@ service AppointmentManagement {
   rpc GetResourcesAvailability(GetResourcesAvailabilityRequest) returns (TimePeriodCollectionMessages);
   rpc GetAppointmentsListByProvider(GetAppointmentsListByProviderRequest) returns (GetAppointmentsListByProviderResponse);
   rpc GetAppointmentsSpecialityByIds(GetAppointmentsSpecialityByIdsRequest) returns (GetAppointmentsSpecialityByIdsResponse);
+  // Group sessions, shared video call (VideoApplication): one group session with its live practitioners and live
+  // member patients, read by id (a service call, no user). found = false when the session does not exist, or when
+  // group sessions are switched off (GroupSessions:Enabled). Additive.
+  rpc GetGroupSessionForVideo(GetGroupSessionForVideoRequest) returns (GetGroupSessionForVideoResponse);
+}
+
+message GetGroupSessionForVideoRequest {
+  string groupSessionId = 1;
+}
+
+message GetGroupSessionForVideoResponse {
+  bool found = 1;
+  string groupSessionId = 2;
+  string organizationId = 3;
+  google.protobuf.Timestamp start = 4;
+  google.protobuf.Timestamp end = 5;
+  string status = 6;
+  string locationId = 7;
+  repeated GroupSessionVideoPractitioner practitioners = 8;
+  repeated GroupSessionVideoPatient patients = 9;
+}
+
+// A practitioner of the session (the lead or another practitioner), not removed.
+message GroupSessionVideoPractitioner {
+  string practitionerId = 1;
+  bool isLead = 2;
+}
+
+// A member patient of the session whose appointment is still live (not Cancelled, NoShow or EnteredInError).
+message GroupSessionVideoPatient {
+  string appointmentId = 1;
+  string patientId = 2;
+  bool isRelatedPerson = 3;
+  string status = 4;
 }
 
 message GetAppointmentsSpecialityByIdsRequest{
