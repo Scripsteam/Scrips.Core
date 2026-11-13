@@ -79,7 +79,7 @@ message GroupSessionVideoPractitioner {
   bool isLead = 2;
 }
 
-// A member patient of the session whose appointment is still live (not Cancelled, NoShow or EnteredInError).
+// A member patient who may be in the call: appointment Booked, Confirmed, Arrived, CheckedIn, Seen or Fulfilled.
 message GroupSessionVideoPatient {
   string appointmentId = 1;
   string patientId = 2;
