@@ -389,6 +389,12 @@ message CreateCarePlanRequest {
     // no rpc retires it, so a kept goal stays live (with its last status) until a clinician retires it (Patient's goal
     // retire endpoint, Patient #1197).
     repeated string keepSourceNodeIds=13;
+    // Care team (PROD-3537, Andrew, 14 Nov 2026): the Identity USER id of the person who enrolled the patient (the
+    // care-model run's "care-model.enrolled-by"). Optional; empty = the old behaviour. Scrips.Patient maps it to that
+    // user's doctor (provider) id through PracticeManagement and stores it as the plan's ProviderId ONLY when the plan has
+    // none and the request sends no contributors, so the plan's care team can set a goal's achievement status
+    // (PROD-3521). A user who is not a doctor, or a failed lookup, leaves the plan with no care team (logged).
+    string enrolledByUserId=14;
 }
 
 message CreateCarePlanResponse {
