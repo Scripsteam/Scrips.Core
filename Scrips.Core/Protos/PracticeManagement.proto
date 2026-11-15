@@ -110,6 +110,32 @@ service PracticeManagement {
   // active and is not deleted. A ProviderId that is not one of the visit's own practitioners may join only then.
   rpc IsActivePractitionerOfOrganization (IsActivePractitionerOfOrganizationRequest)
       returns (IsActivePractitionerOfOrganizationResponse);
+
+  // PROD-3599: one practitioner appointment profile (visit type) by id, any kind: office or virtual, in-app or not,
+  // archived or not. Read-only. The caller sends its organization: a profile of another organization, an unknown id
+  // or a device profile answers NotFound with no data. InvalidArgument when either id is not a GUID.
+  rpc GetAppointmentProfile (GetAppointmentProfileRequest) returns (GetAppointmentProfileResponse);
+}
+
+message GetAppointmentProfileRequest {
+    string appointmentProfileId = 1;
+    string organizationId = 2;
+}
+
+message GetAppointmentProfileResponse {
+    string appointmentProfileId = 1;
+    string practitionerId = 2;
+    string practiceId = 3;
+    string organizationId = 4;
+    // The Master location id the profile is offered at.
+    string locationId = 5;
+    // True when locationId is Master's "virtual" location (a video visit); false for an office location.
+    bool isVirtual = 6;
+    // Length in minutes; 0 when the profile has no length set.
+    int32 minutesDuration = 7;
+    // Appointment type code (ROUTINE / FOLLOWUP / WALKIN).
+    string appointmentTypeId = 8;
+    bool isArchived = 9;
 }
 
 message IsActivePractitionerOfOrganizationRequest {
