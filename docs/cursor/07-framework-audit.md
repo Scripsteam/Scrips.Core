@@ -1,300 +1,66 @@
+Refreshed 2026-11-15 from origin/master @ 6fc2554. Previous version dated 2026-03-04 (see git history / backup).
+Verified against origin/master @ 6fc2554, 2026-11-15. Versions below are read from the csproj files. No `dotnet list package --outdated` or vulnerability scan was run (machine load; brief forbids builds). Newer-version and CVE statements are therefore [UNVERIFIED].
+
 # Framework Audit
 
-## RUNTIME FRAMEWORK
-
-- **Framework:** .NET 8.0 (LTS)
-  - File: Scrips.Core.csproj:4
-  - File: Scrips.Core.Application.csproj:4
-  - File: Scrips.Infrastructure.csproj:4
-  - File: Scrips.BaseDbContext.csproj:4
-  - File: Scrips.WebApi.csproj:4
-  - File: Scrips.Core.Domain.csproj:4
-- **Status:** ✅ **CURRENT** - LTS support until November 2026
-- **Note:** **FIXED** (2026-03) -- Upgraded from .NET 7.0 (which was EOL since May 2024)
-
-## WEB FRAMEWORK
-
-- **Framework:** ASP.NET Core (implicit via .NET 8.0)
-- **API Versioning:** Asp.Versioning.Mvc v8.1.0
-  - File: Scrips.Infrastructure.csproj:14, Scrips.WebApi.csproj:11
-
-## DATA ACCESS
-
-- **ORM:** Entity Framework Core v8.0.11
-  - File: Scrips.BaseDbContext.csproj:19-20
-- **Database Providers:**
-  - SQL Server: Microsoft.Data.SqlClient v5.2.2 (Scrips.BaseDbContext.csproj:18, Scrips.Infrastructure.csproj:17)
-- **Multi-Tenancy:** Finbuckle.MultiTenant.EntityFrameworkCore v6.10.0
-  - File: Scrips.BaseDbContext.csproj:28
-
-## TESTING
-
-- **Unit:** NOT FOUND - No test frameworks in scanned projects
-- **Integration:** NOT FOUND
-- **Note:** Test projects may exist outside core library
-
-## MAJOR LIBRARIES (Top 20)
-
-| Library | Version | Purpose | File:Line |
-|---------|---------|---------|-----------|
-| MediatR | 12.0.1 | CQRS pattern, request/response pipeline | Scrips.Core.Application.csproj:17 |
-| FluentValidation | 11.10.0 | Request validation | Scrips.Core.Application.csproj:14 |
-| Mapster | 7.4.0 | Object-to-object mapping | Scrips.Core.Application.csproj:16 |
-| Ardalis.Specification | 8.0.0 | Specification pattern for queries | Scrips.Core.Application.csproj:15 |
-| Dapr.Client | 1.14.0 | Distributed app runtime, pub/sub | Scrips.BaseDbContext.csproj:15 |
-| Refit | 8.0.0 | Declarative HTTP client | Scrips.Core.csproj:18 |
-| Azure.Search.Documents | 11.6.0 | Azure Cognitive Search (AI) | Scrips.Core.csproj:9 |
-| Serilog | 4.0.2 | Structured logging | Scrips.BaseDbContext.csproj:27 |
-| Newtonsoft.Json | 13.0.4 | JSON serialization | Scrips.Core.csproj:12, Scrips.BaseDbContext.csproj:26 |
-| Google.Protobuf | 3.33.5 | gRPC protocol buffers | Scrips.BaseDbContext.csproj:16 |
-| Microsoft.Extensions.Caching.Abstractions | 8.0.0 | Caching interface | Scrips.Core.Application.csproj:18 |
-| Microsoft.Extensions.Configuration.Binder | 8.0.2 | Configuration binding | Scrips.Core.Application.csproj:19 |
-| Microsoft.Extensions.Localization | 8.0.10 | Localization support | Scrips.Core.Application.csproj:20 |
-| Microsoft.Extensions.Configuration.UserSecrets | 8.0.1 | User secrets management | Scrips.BaseDbContext.csproj:21 |
-| Finbuckle.MultiTenant.EntityFrameworkCore | 6.10.0 | Multi-tenancy data isolation | Scrips.BaseDbContext.csproj:28 |
-| Asp.Versioning.Mvc | 8.1.0 | API versioning | Scrips.Infrastructure.csproj:14, Scrips.WebApi.csproj:11 |
-| Protobuf (gRPC) | 3.33.5 | gRPC client definitions (9 .proto files) | Scrips.Core.csproj:22-30 |
-| Microsoft.IdentityModel.JsonWebTokens | 7.7.1 | JWT token handling | Scrips.BaseDbContext.csproj:23 |
-| Azure.Identity | 1.17.1 | Azure managed identity | Scrips.BaseDbContext.csproj:14, Scrips.Core.csproj:8 |
-
-## PRODUCTION DEPENDENCIES
-
-### Scrips.Core Project (Core Models & API Clients)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Azure.Identity | 1.17.1 | Azure managed identity authentication |
-| Azure.Search.Documents | 11.6.0 | AI-powered chief complaint search with vector embeddings |
-| Newtonsoft.Json | 13.0.4 | JSON serialization for API responses |
-| Refit | 8.0.0 | Type-safe HTTP API clients (11 services) |
-| Protobuf Definitions | 3.33.5 | 9 gRPC service contracts compiled as clients |
-
-### Scrips.Core.Application Project (Application Layer)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| FluentValidation | 11.10.0 | Request DTO validation |
-| Ardalis.Specification | 8.0.0 | Specification pattern for complex queries |
-| Mapster | 7.4.0 | High-performance object mapping |
-| MediatR | 12.0.1 | CQRS mediator pattern |
-| Microsoft.Extensions.Caching.Abstractions | 8.0.0 | Cache service interface (not implemented) |
-| Microsoft.Extensions.Configuration.Binder | 8.0.2 | Configuration binding |
-| Microsoft.Extensions.Localization | 8.0.10 | Multi-language support |
-| Newtonsoft.Json | 13.0.4 | JSON serialization |
-
-### Scrips.BaseDbContext Project (Audit Infrastructure)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Azure.Identity | 1.17.1 | Azure managed identity authentication |
-| Dapr.Client | 1.14.0 | Pub/sub for audit log distribution |
-| Google.Protobuf | 3.33.5 | Protocol buffer support |
-| Microsoft.Data.SqlClient | 5.2.2 | SQL Server database provider |
-| Microsoft.EntityFrameworkCore | 8.0.11 | ORM for database access |
-| Microsoft.EntityFrameworkCore.Relational | 8.0.11 | Relational database support |
-| Microsoft.Extensions.Configuration.UserSecrets | 8.0.1 | Secure configuration storage |
-| Microsoft.IdentityModel.JsonWebTokens | 7.7.1 | JWT token handling |
-| Microsoft.IdentityModel.Tokens | 7.7.1 | Token validation |
-| System.IdentityModel.Tokens.Jwt | 7.7.1 | JWT token support |
-| Newtonsoft.Json | 13.0.4 | JSON serialization for audit logs |
-| Serilog | 4.0.2 | Structured logging |
-| Finbuckle.MultiTenant.EntityFrameworkCore | 6.10.0 | Multi-tenant data isolation with global filters |
-
-### Scrips.Infrastructure Project (Infrastructure Services)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Asp.Versioning.Mvc | 8.1.0 | API endpoint versioning |
-| Newtonsoft.Json | 13.0.4 | JSON serialization |
-| Serilog | 4.0.2 | Structured logging |
-| Microsoft.Data.SqlClient | 5.2.2 | SQL Server database provider |
+## Runtime framework [UPDATED]
 
-### Scrips.WebApi Project (API Base Controllers)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| MediatR | 12.0.1 | CQRS mediator pattern |
-| Asp.Versioning.Mvc | 8.1.0 | API versioning |
-| Newtonsoft.Json | 13.0.4 | JSON serialization |
-
-### Scrips.Core.Domain Project (Domain Contracts)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| NewId | 4.0.1 | ID generation |
-| Newtonsoft.Json | 13.0.4 | JSON serialization |
-
-## UPGRADE READINESS
-
-### ✅ CRITICAL Updates -- COMPLETED (2026-03)
-
-**1. .NET 7.0 → .NET 8.0 (LTS)** -- **FIXED**
-- **Previous:** .NET 7.0 (All 6 projects)
-- **Current:** .NET 8.0 LTS (All 6 projects - .csproj:4)
-- **Status:** ✅ Upgraded to .NET 8.0 LTS (support until November 2026)
-
-**2. System.Data.SqlClient → Microsoft.Data.SqlClient** -- **FIXED**
-- **Previous:** System.Data.SqlClient v4.8.5 (legacy)
-- **Current:** Microsoft.Data.SqlClient v5.2.2 consolidated across all projects
-- **Status:** ✅ Legacy provider removed
-
-**3. Microsoft.AspNetCore.Http v2.2.2** -- **FIXED**
-- **Previous:** Explicit v2.2.2 references
-- **Current:** Using framework-provided FrameworkReference with .NET 8.0
-- **Status:** ✅ Old explicit references removed
+- All six projects: `<TargetFramework>net8.0</TargetFramework>` at line 4 of each csproj. [CONFIRMED] The old text said `net7.0` and listed a ".NET 7 end of support" risk; that risk is gone (see `05-architecture.md` 7.7, [REMOVED]).
+- `ImplicitUsings` and `Nullable` are enabled in Domain, Application, BaseDbContext, Infrastructure and WebApi. `Scrips.Core.csproj` does not enable either. [CONFIRMED: csproj read] Several `Scrips.Core` files use `#nullable enable` or `string?` themselves. [CONFIRMED in samples]
+- .NET 8 is a long-term-support release. Microsoft's published end-of-support date for .NET 8 is in November 2026, which is now. [UNVERIFIED this session: the date is from memory of Microsoft's lifecycle page] [NEEDS HUMAN REVIEW: confirm the date and plan the move to .NET 10; consumers must move together because Core is a source dependency]
 
-### ✅ PREVIOUSLY RECOMMENDED Updates -- COMPLETED (2026-03)
+## Web framework [UPDATED]
 
-**4. MediatR** -- Pinned at 12.0.1
-- **Current:** 12.0.1
-- **Note:** Pinned at 12.0.1 because 12.4.1 breaks IRequestPostProcessor auto-registration on .NET 8. Do NOT upgrade.
+- ASP.NET Core via `FrameworkReference Include="Microsoft.AspNetCore.App"` in `Scrips.BaseDbContext` and `Scrips.Core.Application`. [CONFIRMED]
+- `Asp.Versioning.Mvc` 8.1.0 in Infrastructure and WebApi. API version default 1.0. [CONFIRMED: `Scrips.Infrastructure/Startup.cs:60-70`]
+- MediatR 12.0.1 in Application and WebApi. [CONFIRMED]
+- `Scrips.WebApi/VersionedApiController.cs:1` imports `Microsoft.AspNetCore.Components` for `[Route]`. `Microsoft.AspNetCore.Mvc.RouteAttribute` is the usual one; `Microsoft.AspNetCore.Components.RouteAttribute` is the Blazor attribute. [CONFIRMED import; INFERRED that the Blazor attribute is being applied; its effect on MVC routing was not tested] [NEEDS HUMAN REVIEW]
 
-**5. FluentValidation** -- **FIXED**
-- **Previous:** 11.5.1
-- **Current:** 11.10.0
-- **Note:** FluentValidation.AspNetCore (deprecated) replaced with FluentValidation + FluentValidation.DependencyInjectionExtensions
+## Data access [UPDATED]
 
-**6. Refit** -- **FIXED**
-- **Previous:** 6.3.2
-- **Current:** 8.0.0
-- **Status:** ✅ Upgraded to v8.0.0
+- EF Core 8.0.11 (`Microsoft.EntityFrameworkCore`, `.Relational`), `Microsoft.Data.SqlClient` 5.2.2. [CONFIRMED]
+- Finbuckle.MultiTenant.EntityFrameworkCore 6.10.0. [CONFIRMED]
+- Ardalis.Specification 8.0.0 (reads only; `IRepository<T>` extends `IRepositoryBase<T>` and has no implementation here). [CONFIRMED]
+- Dapper: referenced by name in `IDapperRepository` only; no Dapper package. [CONFIRMED: no Dapper in any csproj]
 
-**7. Azure.Search.Documents 11.6.0**
-- **Status:** ✅ CURRENT - Latest stable version
+## Testing [UPDATED]
 
-**8. Dapr.Client** -- **FIXED**
-- **Previous:** 1.10.0
-- **Current:** 1.14.0
-- **Status:** ✅ Upgraded
+No test project, no test package, no CI workflow in this repo. [CONFIRMED: `git ls-files`] Consumers carry tests (for example Scrips.Auditing has `UnitTests/Explain/AuditDeliveryTests.cs`). The outbox code has no test in this repo. [CONFIRMED absence]
 
-**9. Newtonsoft.Json** -- **FIXED**
-- **Previous:** 13.0.3
-- **Current:** 13.0.4
-- **Status:** ✅ Updated
+## Packages by project [UPDATED]
 
-**10. Serilog** -- **FIXED**
-- **Previous:** 2.12.0
-- **Current:** 4.0.2
-- **Status:** ✅ Upgraded
+### Scrips.Core [UPDATED]
+Azure.Identity 1.17.1, Azure.Search.Documents 11.6.0, Microsoft.Extensions.Primitives 10.0.2, Newtonsoft.Json 13.0.4, System.Diagnostics.DiagnosticSource 10.0.2, System.IO.Pipelines 8.0.0, System.Security.Cryptography.ProtectedData 9.0.6, System.Text.Encodings.Web 8.0.0, System.Text.Json 8.0.5, System.Threading.Channels 8.0.0, Refit 8.0.0. [CONFIRMED: `Scrips.Core.csproj:9-21`]
+No `Google.Protobuf`, `Grpc.Tools` or `Grpc.Net.Client` entry although the project lists nine `<Protobuf>` items. How a standalone build gets them is not visible. [CONFIRMED absence in csproj; NOT VERIFIED by build]
 
-### 🟢 UP TO DATE
+### Scrips.Core.Domain [UPDATED]
+NewId 4.0.1, Newtonsoft.Json 13.0.4, System.Diagnostics.DiagnosticSource 10.0.2; project reference to Scrips.Core. [CONFIRMED]
 
-- Microsoft.Extensions.* (8.0.x): Current for .NET 8.0
-- Microsoft.Data.SqlClient: 5.2.2 (Current)
-- Mapster: 7.4.0 (Current)
-- Ardalis.Specification: 8.0.0 (Current)
-- Finbuckle.MultiTenant: 6.10.0 (Pinned - 7.x has breaking changes)
-- Google.Protobuf: 3.33.5 (Current)
-- Microsoft.IdentityModel.*: 7.7.1 (Pinned - 8.x causes 401 auth failures)
-- Asp.Versioning.Mvc: 8.1.0 (Current)
-
-## HEALTHCARE IMPACT ANALYSIS
-
-### Patient Safety
-
-**FIXED (2026-03):**
-- **.NET 8.0 LTS:** ✅ Upgraded from .NET 7.0 -- security patches now available through November 2026
-- **Legacy SQL Client:** ✅ System.Data.SqlClient removed, consolidated to Microsoft.Data.SqlClient v5.2.2
-- **Dapr.Client:** ✅ Upgraded to 1.14.0 for better reliability
-
-**Remaining concerns:**
-- **Audit log fire-and-forget pattern:** Still present -- Dapr unavailability can lose audit logs
-- **Connection string security:** Still in plain text configuration (not yet moved to Key Vault)
-
-### Downtime Required
-
-**Planned Maintenance Window Required:**
-
-**Duration:** 2-4 hours for .NET 8 upgrade
-**Timing:** Off-peak hours (weekend or night)
-**Steps:**
-1. Deploy to staging environment first
-2. Run full integration test suite
-3. Validate multi-tenant data isolation
-4. Test PHI masking in audit logs
-5. Verify Azure Cognitive Search integration
-6. Deploy to production
-7. Monitor audit logs for 24 hours
-
-**Zero-Downtime Possible:**
-- Blue-green deployment if using microservices
-- Rolling update if containerized (Kubernetes/Docker)
-- Requires load balancer and health checks
-
-### Compliance Impact
-
-**HIPAA/UAE Compliance Requirements:**
-
-1. **Security Updates:** Running unsupported .NET 7.0 violates security best practices
-   - Audit finding: "System not receiving security patches"
-   - Recommendation: Document upgrade plan for compliance officers
-
-2. **Audit Trail Integrity:** Dapr upgrade improves audit log reliability
-   - Current: Fire-and-forget pattern (Risk #1 in architecture doc)
-   - Improved: Better retry with Dapr 1.14.0
-
-3. **Data Encryption:** Modern SQL client has better TLS/encryption support
-   - Impact: PHI in transit protection
-   - Requirement: TLS 1.2+ for all database connections
-
-### Testing Requirements
-
-**Critical Test Areas:**
-
-1. **Multi-Tenancy:** Finbuckle.MultiTenant with .NET 8
-   - Test: Tenant isolation after upgrade
-   - Risk: Cross-tenant data leakage if broken
-
-2. **Audit Logging:** MaskValueAudit attribute with EF Core 8.0.11
-   - Test: PHI masking still works
-   - Risk: PHI exposure in audit logs
-
-3. **API Compatibility:** Refit HTTP clients after upgrade
-   - Test: All 11 service integrations
-   - Risk: Broken microservice communication
-
-4. **Azure Search:** AI vector search after upgrade
-   - Test: Chief complaint search functionality
-   - Risk: Clinical decision support failure
-
-5. **JWT Authentication:** Claims extraction after upgrade
-   - Test: Multi-tenant context resolution
-   - Risk: Authorization bypass
-
-## DEPENDENCY HEALTH SUMMARY
-
-| Category | Status | Count | Risk Level |
-|----------|--------|-------|------------|
-| Critical Updates | ✅ Complete | 0 | RESOLVED |
-| Up to Date | ✅ Current | 20+ | LOW |
-| Pinned (intentional) | ✅ Stable | 3 (MediatR, Finbuckle, IdentityModel) | LOW |
-| Missing (Cache) | ⚠️ Not Impl | 1 | MEDIUM |
-
-**Overall Health:** ✅ **GOOD**
-- All critical updates completed (2026-03)
-- .NET 8.0 LTS, all packages current or intentionally pinned
-- Remaining concern: Cache implementation still missing
-
-## UPGRADE ROADMAP
-
-**Phase 1-2 -- COMPLETED (2026-03):**
-1. ✅ Upgraded .NET 7.0 → .NET 8.0 LTS (all 6 projects)
-2. ✅ Removed System.Data.SqlClient, consolidated to Microsoft.Data.SqlClient v5.2.2
-3. ✅ Removed explicit Microsoft.AspNetCore.Http references (using FrameworkReference)
-4. ✅ Updated Dapr.Client 1.10.0 → 1.14.0
-5. ✅ Updated FluentValidation 11.5.1 → 11.10.0
-6. ✅ Updated Serilog 2.12.0 → 4.0.2
-7. ✅ Updated Refit 6.3.2 → 8.0.0
-8. ✅ Updated Ardalis.Specification 6.1.0 → 8.0.0
-9. ✅ Updated Mapster 7.3.0 → 7.4.0
-10. ✅ Added Microsoft.IdentityModel.* packages pinned at 7.7.1
-11. ✅ Replaced Microsoft.AspNetCore.Mvc.Versioning with Asp.Versioning.Mvc 8.1.0
-
-**Phase 3 (Remaining - Next Quarter):**
-12. Implement cache (Redis) with encryption
-13. Add Polly retry policies to Refit clients
-14. Implement integration tests for multi-tenancy
-15. Add E2E tests for critical healthcare workflows
-
-**Estimated Remaining Effort:** 80-120 hours
-**Priority:** MEDIUM - Operational improvements
+### Scrips.Core.Application [UPDATED]
+FluentValidation 11.10.0, Ardalis.Specification 8.0.0, Mapster 7.4.0, MediatR 12.0.1, Microsoft.Extensions.Caching.Abstractions 8.0.0, Microsoft.Extensions.Configuration.Binder 10.0.2, Microsoft.Extensions.Localization 8.0.10, Newtonsoft.Json 13.0.4, System.Diagnostics.DiagnosticSource 10.0.2; references Domain and Core. [CONFIRMED]
+
+### Scrips.BaseDbContext [UPDATED]
+Azure.Identity 1.17.1, Dapr.Client 1.17.0, Google.Protobuf 3.33.5, Microsoft.CSharp 4.7.0, Microsoft.Data.SqlClient 5.2.2, EF Core and Relational 8.0.11, 13 `Microsoft.Extensions.*` packages at 10.0.2 (Configuration, Configuration.Abstractions, Configuration.Binder, DependencyInjection, DependencyInjection.Abstractions, Diagnostics, Diagnostics.Abstractions, Http, Logging, Logging.Abstractions, Options, Options.ConfigurationExtensions, Primitives) plus `Configuration.UserSecrets` 8.0.1, Microsoft.IdentityModel.JsonWebTokens, Microsoft.IdentityModel.Tokens and System.IdentityModel.Tokens.Jwt at 7.7.1, Newtonsoft.Json 13.0.4, Serilog 4.0.2, Finbuckle 6.10.0, System.Diagnostics.DiagnosticSource 10.0.2, System.IO.Pipelines 8.0.0, System.Memory 4.5.5, System.Runtime 4.3.1, System.Security.Cryptography.ProtectedData 9.0.6, System.Text.Json 8.0.5, System.Threading.Channels 8.0.0; `NoWarn NU1605`; references Core. [CONFIRMED: `Scrips.BaseDbContext.csproj:1-56`]
+
+### Scrips.Infrastructure [UPDATED]
+Asp.Versioning.Mvc 8.1.0, Newtonsoft.Json 13.0.4, Serilog 4.0.2, Microsoft.Data.SqlClient 5.2.2, System.Diagnostics.DiagnosticSource 10.0.2; references Application. [CONFIRMED]
+
+### Scrips.WebApi [UPDATED]
+MediatR 12.0.1, Asp.Versioning.Mvc 8.1.0, Newtonsoft.Json 13.0.4, System.Diagnostics.DiagnosticSource 10.0.2; references Infrastructure. [CONFIRMED]
+
+## Upgrade readiness [UPDATED]
+
+### Completed since March [UPDATED]
+- Dapr.Client 1.14.0 to 1.17.0 (commit 852a221, 2026-03-09), `Microsoft.Extensions.*` pinned at 10.0.2 (99ad97d), three System packages bumped to 10.0.2 (d0dbf45) and then reverted to 8.x (598a2f4), `Configuration.UserSecrets` held at 8.0.1 (c22643c). [CONFIRMED by `git log` on the csproj and `git diff 4d8e816 origin/master -- '*.csproj'`]
+- `NoWarn NU1605` added in Core and BaseDbContext. [CONFIRMED]
+
+### Constraints a maintainer must know [NEW]
+- The 10.0.2 and 8.x mixes are deliberate. Comments say `System.IO.Pipelines`, `System.Text.Json` and `System.Threading.Channels` must stay on 8.x because 10.x breaks Kestrel `PipeWriter.Advance()` in gRPC. (`Scrips.BaseDbContext.csproj:45`; `Scrips.Core.csproj:5`) [CONFIRMED comments; not reproduced]
+- EF Core 8.0.11 sits next to `Microsoft.Extensions.*` 10.0.2. Raising EF Core is a separate step. [INFERRED]
+- Every consumer builds Core from source, so a package bump here changes every service's build. [CONFIRMED mechanism: submodule]
+
+### Not assessed [NEW]
+Security advisories for each package; newer versions; license review. [UNVERIFIED]
+
+## Healthcare impact [UPDATED]
+Changing the audit classes changes the audit trail of every service that inherits them. Any change to `AuditLoggingHelper`, to the outbox, or to the `SaveAudit` wire format needs a consumer review (Scrips.Auditing at minimum). [INFERRED from the design; consumer review not performed]
