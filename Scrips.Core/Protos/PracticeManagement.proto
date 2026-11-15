@@ -114,6 +114,9 @@ service PracticeManagement {
   // PROD-3599: one practitioner appointment profile (visit type) by id, any kind: office or virtual, in-app or not,
   // archived or not. Read-only. The caller sends its organization: a profile of another organization, an unknown id
   // or a device profile answers NotFound with no data. InvalidArgument when either id is not a GUID.
+  // The PracticeManagement gRPC server has no caller sign-in (PROD-1603), so organizationId is the caller's own claim:
+  // the check stops mistakes, not a hostile caller. Only internal services call it, with the organization they
+  // took from their own signed-in user.
   rpc GetAppointmentProfile (GetAppointmentProfileRequest) returns (GetAppointmentProfileResponse);
 }
 
@@ -133,8 +136,8 @@ message GetAppointmentProfileResponse {
     bool isVirtual = 6;
     // Length in minutes; 0 when the profile has no length set.
     int32 minutesDuration = 7;
-    // Appointment type code (ROUTINE / FOLLOWUP / WALKIN).
-    string appointmentTypeId = 8;
+    // Appointment type code, not a GUID: ROUTINE / FOLLOWUP / WALKIN.
+    string appointmentTypeCode = 8;
     bool isArchived = 9;
 }
 
