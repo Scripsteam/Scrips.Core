@@ -96,7 +96,7 @@ Refit and proto contracts name these services: Billing, Email sender, Identity, 
 The full list with severity is in `09-technical-debt-inventory.md`. Items that the old file listed and the code no longer supports:
 
 ### 7.1 Audit log loss on Dapr failure [UPDATED]
-Legacy path unchanged: after 3 failed attempts the payload is logged and the save continues. The outbox path removes this loss for services that turn it on (10 of 20 clones call `AddAuditOutbox`; flag values per environment unknown). `AuditableBaseDbContext.cs:42-55, 112-115`.
+Legacy path unchanged: after 3 failed attempts the payload is logged and the save continues. The outbox path removes this loss for services that turn it on (10 of 20 clones call `AddAuditOutbox`; 9 of those commit a dev settings file with `Audit:UseOutbox` true; deployed values not verified). Delivery in outbox mode is at-least-once, so the consumer must deduplicate on the event id. `AuditableBaseDbContext.cs:42-55, 112-115`.
 
 ### 7.2 Cache not implemented [UPDATED]
 Still true for this repo (interface only). 7 consumer clones implement `ICacheService` themselves.

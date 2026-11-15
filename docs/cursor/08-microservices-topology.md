@@ -6,7 +6,7 @@ The old file (584 lines) described workflows, PHI flows and failure cascades of 
 
 ## Context note [UPDATED]
 
-Scrips.Core is a shared library. It is not a node in the runtime graph. It is a source dependency of the nodes. The facts below come from `.gitmodules` and the submodule commit pointer on each repo's default branch, read with `git show` / `git ls-tree` on 2026-11-15, plus `git grep` on those branches. Only the 20 repos cloned under `~/scrips-repos` were checked; other repos may embed Core too. [CONFIRMED scope]
+Scrips.Core is a shared library. It is not a node in the runtime graph. It is a source dependency of the nodes. The facts below come from `.gitmodules` and the submodule commit pointer on each repo's default branch, read with `git show` / `git ls-tree` on 2026-11-15, plus `git grep` on those branches. Only the 20 repos cloned under `~/scrips-repos` were checked; other repos may embed Core too. 19 hold a submodule pointer; Scrips.Integration.Malaffi holds a copied source tree. [CONFIRMED scope]
 
 ## 1. Repos that embed Scrips.Core [UPDATED]
 
@@ -33,14 +33,14 @@ Scrips.Core is a shared library. It is not a node in the runtime graph. It is a 
 | Scrips.Auditing | master | `Scrips.Core` | c22643c | 147 |
 | Scrips.Integration.Nabidh | master | `src/Scrips.Core` | c22643c | 147 |
 | Scrips.Reporting | master | `Scrips.Core` | c22643c | 147 |
-| Scrips.Integration.Malaffi | packages_vulnerabilities (origin HEAD of the local clone) | `src/Scrips.Core` | 2859dbb | not in the local Core clone, unknown |
+| Scrips.Integration.Malaffi | packages_vulnerabilities (origin HEAD of the local clone) | `src/Scrips.Core` | none: the entry is a copied-source tree (`040000 tree 2859dbb`), not a submodule commit | not applicable |
 
-[CONFIRMED: `.gitmodules` and `git ls-tree` on each default branch] The Malaffi row uses the branch that is origin HEAD in that clone; its master branch was not checked. [NEEDS HUMAN REVIEW]
+[CONFIRMED: `.gitmodules` and `git ls-tree` on each default branch] The Malaffi row uses the branch that is origin HEAD in that clone; its master branch was not checked. On that branch `git ls-tree origin/packages_vulnerabilities src/Scrips.Core` returns a plain tree (mode 040000), not a submodule commit (mode 160000). So Malaffi holds a copy of Core source, updated by copy, not by a pointer; commit-ancestry checks do not apply to it and its fix coverage must be read from its own source. [CONFIRMED by `git ls-tree`] The other 19 rows are submodule pointers. [NEEDS HUMAN REVIEW]
 
 Consequences:
 - Any Core change takes effect in a service only after that service bumps its pointer. A proto change that a caller needs before the callee has it is a coordination problem across repos. [INFERRED from the mechanism]
-- Outbox availability by pin (checked with `git merge-base --is-ancestor 12ee6ee <pin>`): the three repos pinned at c22643c (2026-03-09: Auditing, Integration.Nabidh, Reporting) lack the outbox. All other pins (except Malaffi, not resolvable) contain it. [CONFIRMED]
-- Fix coverage by pin: four repos that call `AddAuditOutbox` pin a Core commit that lacks the non-GUID `sub` fix (491c662, PROD-1815) and the `READ COMMITTED` drainer fix (1ba4c4f): Identity (9870a26), Persons (65984e4), Inventory (65984e4), Provider (108a11f). Their `AddAuditOutbox` call compiles against an older drainer. If their `Audit:UseOutbox` flag is on, they carry both defects the later commits fixed. The flag values are not in any repo. [CONFIRMED pins and commit ancestry; flag state UNKNOWN] [NEEDS HUMAN REVIEW: Andrew owns the service deploys]
+- Outbox availability by pin (checked with `git merge-base --is-ancestor 12ee6ee <pin>`): the three repos pinned at c22643c (2026-03-09: Auditing, Integration.Nabidh, Reporting) lack the outbox. All other pins contain it (Malaffi is a copied tree, see above). [CONFIRMED]
+- Fix coverage by pin: four repos that call `AddAuditOutbox` pin a Core commit that lacks the non-GUID `sub` fix (491c662, PROD-1815) and the `READ COMMITTED` drainer fix (1ba4c4f): Identity (9870a26), Persons (65984e4), Inventory (65984e4), Provider (108a11f). Their `AddAuditOutbox` call compiles against an older drainer. All four commit a dev settings file with `Audit:UseOutbox` true and `Audit:ScrubTerminalPayload` true: Identity `Scrips.Identity.Api/appsettings.dev.json:64-65`, Persons `API/appsettings.dev.json:14-15`, Inventory `src/Inventory.API/appsettings.dev.json:5-6`, Provider `API/appsettings.dev.json:10-11`. So on dev they are configured to run both defects, and with scrubbing on. [CONFIRMED: `git show origin/master:<file>`] Deployed values (the environment may override the file) are not verified. [NEEDS HUMAN REVIEW: Andrew owns the service deploys]
 - Organization (6d07439) and the repos pinned later have both fixes; AppointmentScheduling/Billing/Patient and later pins have all three (`200ba1d` integration-event lane too). Master (d7bd181) and Practice.Aggregator (363a8ad) lack only 1ba4c4f. [CONFIRMED]
 - Several repos embed Core under a `src/` prefix and `Scrips.Integration.Malaffi` has a copy of Core source in its tree on the checked branch (`src/Scrips.Core/Scrips.Core.Application/GlobalUsings.cs` exists there). [CONFIRMED]
 
@@ -86,7 +86,7 @@ From proto and header comments; not verified in the callers.
 ## 5. Data ownership [UPDATED]
 
 This repo defines no tables except `OutboxMessages` (one per service database). Each service owns its own tables. A service that uses the outbox needs that table in its own database; the table is not created by this repo. [CONFIRMED]
-The outbox table lives in "the context's single (shared) database" (comment `OutboxDrainerService.cs:310`). For a multi-tenant context that means one table for all tenants of that service, with `TenantId` on each row. [CONFIRMED comment; INFERRED consequence]
+The drainer opens one connection from the connection string registered in `DbContextOptions<TContext>` and the code comment says the outbox table lives in the context's single (shared) database (`OutboxDrainerService.cs:310-326`). The row's `TenantId` comes from the ambient tenant at write time and is null when there is none (`OutboxMessage.cs:22-28`). [CONFIRMED comment and code] If a service used a separate database per tenant, rows written inside a tenant's request would land in that tenant's database while the drainer reads only the registered one; whether any consumer does this was not checked. [ASSUMED risk, NOT VERIFIED] [NEEDS HUMAN REVIEW]
 
 ## 6. PHI flow [UPDATED]
 

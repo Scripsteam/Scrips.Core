@@ -47,10 +47,10 @@ Masking is per property. Primary keys are never masked (`:58`). No use of the at
 - A worker that dies leaves a row Claimed; after 5 minutes it returns to Pending without using an attempt.
 - Published rows are deleted after 7 days. Dead letters are never deleted.
 - Once a day at 02:00 UTC, dead letters are re-queued (up to 5 recovery cycles).
-- A row that exhausted all cycles keeps its metadata. Its payload is replaced by `[]` only if `Audit:ScrubTerminalPayload` is true. The default is false, and the option comment calls it a compliance decision. `[NEEDS HUMAN REVIEW]`
+- A row that exhausted all cycles keeps its metadata. Its payload is replaced by `[]` only if `Audit:ScrubTerminalPayload` is true. The default in code is false, and the option comment calls it a compliance decision. Nine of the ten services that call the wiring method commit a dev settings file with it set to true. `[CONFIRMED]` `[NEEDS HUMAN REVIEW]`
 
 ### R27. The audit event id is the CloudEvent id, so the consumer can drop duplicates [NEW]
-`[CONFIRMED: OutboxDrainerService.cs:214-218]` Whether the consumer drops duplicates in its store is not verified here.
+`[CONFIRMED: OutboxDrainerService.cs:214-218]` Delivery is at-least-once: a worker that stops after a successful publish and before it marks the row leads to a second publish (`:238-248, 269-275`). Whether the consumer drops duplicates in its store is not verified here.
 
 ### R28. Non-audit events can use the same outbox [NEW]
 `[CONFIRMED: OutboxMessage.cs:94-115]` `ForIntegrationEvent` rejects the topic `SaveAudit` and an empty topic. The stored JSON is published unchanged.

@@ -6,7 +6,7 @@ The old file (556 lines, with time estimates and a roadmap) was replaced. Effort
 
 ## Executive summary [UPDATED]
 
-49 items, grouped below. Highest value first:
+50 items, grouped below. Highest value first:
 
 1. Four services that call `AddAuditOutbox` pin a Core commit without two outbox fixes (TD-A2). Routing: the service owner (Andrew).
 2. No test or CI in the repo that every service builds from source (TD-T1, TD-A1).
@@ -33,13 +33,14 @@ Resolved since March, verified: audit publish now has retry and a payload log; t
 | TD-C11 | `PaginationFilter.PageSize` defaults to `int.MaxValue`; `PaginateBy` rewrites `PageNumber` and `PageSize` on the caller's filter object | `PaginationFilter.cs:7`; `SpecificationBuilderExtensions.PaginateBy` | Low |
 | TD-C12 | `VersionedApiController` imports `Microsoft.AspNetCore.Components` for `[Route]` (the Blazor attribute namespace); no `Microsoft.AspNetCore.Mvc` using; `ImplicitUsings` in a non-Web SDK project does not add it | `Scrips.WebApi/VersionedApiController.cs:1-6`, `Scrips.WebApi.csproj:1,5` | Unknown. Not tested [NEEDS HUMAN REVIEW] |
 | TD-C13 | Legacy path ignores the `Audit:PubSubName` option (hard-coded `"pubsub"`) | `AuditableBaseDbContext.cs:97` vs `AuditOutboxOptions.cs:12` | Low |
+| TD-C14 | Outbox delivery is at-least-once; consumers must deduplicate on `EventId`; the integration-event lane (`ForIntegrationEvent`) has no stated consumer dedupe rule | `OutboxDrainerService.cs:238-248, 269-275` | Medium [NEEDS HUMAN REVIEW] |
 
 ## 2. Architecture debt [UPDATED]
 
 | ID | Item | Evidence | Severity |
 |---|---|---|---|
 | TD-A1 | No CI workflow, no build gate, no breaking-change check for protos | `git ls-files` has no `.github` | High |
-| TD-A2 | Consumers pin old Core commits. Identity (9870a26), Persons and Inventory (65984e4), Provider (108a11f) call `AddAuditOutbox` but lack fix 491c662 (non-GUID `sub` aborts the business write) and fix 1ba4c4f (drainer `READPAST` error 650). Flag state per environment is not in any repo. | `08-microservices-topology.md` section 1; `git merge-base --is-ancestor` | High if the flag is on [UNKNOWN] |
+| TD-A2 | Consumers pin old Core commits. Identity (9870a26), Persons and Inventory (65984e4), Provider (108a11f) call `AddAuditOutbox` but lack fix 491c662 (non-GUID `sub` aborts the business write) and fix 1ba4c4f (drainer `READPAST` error 650). All four commit dev settings with `Audit:UseOutbox` true and `ScrubTerminalPayload` true (`Identity appsettings.dev.json:64-65`, `Persons :14-15`, `Inventory :5-6`, `Provider :10-11`). Deployed values not verified. | `08-microservices-topology.md` section 1; `git merge-base --is-ancestor`; `git show origin/master:<file>` | High on dev [CONFIRMED config]; other environments [UNVERIFIED] |
 | TD-A3 | Three repos (Auditing, Integration.Nabidh, Reporting) pin 2026-03-09 (c22643c) and have no outbox. Auditing is the `SaveAudit` consumer. | same | Medium |
 | TD-A4 | No `OutboxMessages` schema script in this repo; the startup validator names `OutboxMessages.sql`, which is not here | `OutboxStartupValidator.cs:60`; `git ls-files` | Medium |
 | TD-A5 | `QuestionBankManagement.proto` is not in `Scrips.Core.csproj`; the root `Protos/` folder (4 files, namespace `Scrips.Generated.Models`) is referenced by no project | `Scrips.Core.csproj:24-32` | Low |
@@ -101,7 +102,7 @@ Code facts only. Mapping to a regulation is not decided here. [NEEDS HUMAN REVIE
 | ID | Item | Evidence |
 |---|---|---|
 | TD-H1 | The inline comment ties legacy audit publish to NABIDH audit-trail compliance. The outbox path changes when and how the publish happens. Nobody has recorded that the outbox path still meets it. | `AuditableBaseDbContext.cs:58-62` |
-| TD-H2 | Scrub of terminal dead-letter payloads is off by default and gated on a compliance sign-off named PROD-1481 | `AuditOutboxOptions.cs:56-61` |
+| TD-H2 | Scrub of terminal dead-letter payloads is off by default in code and gated on a compliance sign-off named PROD-1481; 9 of 10 outbox services commit dev settings that turn it ON | `AuditOutboxOptions.cs:56-61`; dev settings listed in `02-section-7-audit-compliance.md` 4.1 |
 | TD-H3 | No tamper evidence on `LogAudit` (no hash or signature field) | `LogAudit.cs:3-14` |
 | TD-H4 | `Coding.PreferredDisplay` must not reach claims or HIE payloads; nothing in this repo enforces it | `Models/Patient/Coding.cs` |
 | TD-H5 | Ambient consent rules (fail closed, `consentNotRequired`) live in proto comments; the service enforces them or not | `PatientManagement.proto:100-105, 183-185` |

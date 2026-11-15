@@ -31,7 +31,9 @@ The old text said the code retries "1 s, 2 s, 4 s"; there are two waits. [CONFIR
 - Dead-lettered rows are never deleted. A daily pass at 02:00 UTC re-queues them, up to 5 cycles. `[CONFIRMED: OutboxDrainerService.cs:128-159; AuditOutboxOptions.cs:42-51]`
 - After the last cycle the payload can be replaced by `[]` and the row kept, only if `Audit:ScrubTerminalPayload` is true. Default false. The option comment gives the reason: UAE Federal Law 2/2019 (health-data retention, no early destruction) and a sign-off ticket (PROD-1481). `[CONFIRMED: AuditOutboxOptions.cs:56-61; OutboxDrainerService.cs:164-178]` `[NEEDS HUMAN REVIEW: legal reading and sign-off]`
 - The outbox schema script is not in this repo. `[CONFIRMED]`
-- Which services run with the flag on is not in any repo. `[UNKNOWN]` Ten of 20 local service repos call the wiring method; four of those pin a Core commit that lacks two outbox fixes (see `docs/cursor/08-microservices-topology.md`). `[CONFIRMED pins; flag state not verified]`
+- Ten of 20 local service repos call the wiring method. Nine of those commit a dev settings file with `Audit:UseOutbox` true and `Audit:ScrubTerminalPayload` true (list in `docs/cursor/02-section-7-audit-compliance.md` 4.1); Billing also commits `UseOutbox` true in its uat and prod settings files (`src/Billing.API/appsettings.uat.json:17`, `appsettings.prod.json:17`). The environment may override the files; deployed values were not verified. `[CONFIRMED files; NEEDS HUMAN REVIEW deployed state]`
+- Four of those repos (Identity, Persons, Inventory, Provider) pin a Core commit that lacks two outbox fixes (see `docs/cursor/08-microservices-topology.md`). Their committed dev settings turn the outbox and scrubbing on. `[CONFIRMED]`
+- Delivery is at-least-once: a worker that stops after a publish and before it marks the row can cause a second publish. The consumer must deduplicate on the event id. `[CONFIRMED: OutboxDrainerService.cs:238-248, 269-275]`
 
 ## 3. Multi-tenant isolation [UPDATED]
 
