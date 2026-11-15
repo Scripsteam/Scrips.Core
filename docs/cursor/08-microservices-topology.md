@@ -1,584 +1,103 @@
-# Microservices Topology - Scrips Platform
-
-## CONTEXT NOTE
-
-This topology is **inferred** from the **Scrips.Core shared library**. This is NOT a complete microservices repository but rather a core library used by multiple services. The actual microservice implementations exist in separate repositories. This document maps the discovered service integrations, dependencies, and communication patterns visible from this library's perspective.
-
----
-
-## 1. SERVICE INVENTORY
-
-| Service | Responsibility | Tech Stack | PHI? | File:Line |
-|---------|---------------|------------|------|-----------|
-| **Patient Service** | Patient demographics, insurance, guardians | .NET 7.0 + EF Core | **YES** | IPatientApi.cs:6-30 |
-| **Billing Service** | Price calculation, invoicing, payments | .NET 7.0 + EF Core | **YES** | IBillingApi.cs:6-45 |
-| **Scheduling Service** | Appointments, slots, patient flags | .NET 7.0 + EF Core | **YES** | ISchedulingApi.cs:6-31 |
-| **Email Sender Service** | Transactional email delivery | .NET 7.0 + SMTP | **YES** | IEmailSenderApi.cs:6-9 |
-| **Notifications Service** | Real-time notifications, video URLs | .NET 7.0 + SignalR | **YES** | INotificationsApi.cs:5-8 |
-| **Identity Service** | Users, authentication, tenants | .NET 7.0 + JWT | NO | IIdentityApi.cs:6-13 |
-| **Provider Service** | Provider credentials, specialties | .NET 7.0 + EF Core | NO | IProviderApi.cs:6-25 |
-| **Practice Service** | Practice setup, schedules, staff | .NET 7.0 + EF Core | NO | IPracticeApi.cs:7-96 |
-| **Organization Service** | Organization configuration | .NET 7.0 + EF Core | NO | IOrganizationApi.cs:6-19 |
-| **Person Service** | Person entity (user demographics) | .NET 7.0 + EF Core | MAYBE | IPersonApi.cs:6-11 |
-| **Master Data Service** | Lookups, AI search, ICD-10 suggestions | .NET 7.0 + Azure Cognitive Search | **YES** | IMasterApi.cs:7-25 |
-
-**Total Services:** 11 internal microservices  
-**PHI Services:** 6-7 contain Protected Health Information  
-**Technology:** All .NET 7.0 (end-of-support May 2024 - **CRITICAL UPGRADE NEEDED**)
-
----
-
-## 2. DEPENDENCY GRAPH
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     FRONTEND / API GATEWAY                    │
-│                   (Not visible in this repo)                  │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ JWT Auth
-                            ▼
-┌───────────────────────────────────────────────────────────────┐
-│                      IDENTITY SERVICE                          │
-│  - User authentication                                         │
-│  - Tenant resolution                                           │
-│  - JWT token generation                                        │
-└─────────────────┬─────────────────────────────────────────────┘
-                  │ (JWT token used by all services below)
-                  │
-    ┌─────────────┼─────────────┬──────────────┬──────────────┐
-    ▼             ▼             ▼              ▼              ▼
-┌─────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌──────────┐
-│PRACTICE │  │PROVIDER  │  │PERSON    │  │ORGANIZA-  │  │MASTER    │
-│SERVICE  │  │SERVICE   │  │SERVICE   │  │TION       │  │DATA      │
-│         │  │          │  │          │  │SERVICE    │  │SERVICE   │
-│-Setup   │  │-Licens-  │  │-User     │  │-Config    │  │-Lookups  │
-│-Schedul-│  │ ing      │  │ demographics│ -Settings │  │-AI Search│
-│es       │  │-Reason   │  │          │  │          │  │-ICD-10   │
-│-Staff   │  │ codes    │  │          │  │          │  │          │
-└────┬────┘  └─────┬────┘  └─────┬────┘  └─────┬─────┘  └────┬─────┘
-     │             │              │             │             │
-     │             │              │             │             │
-     └─────────────┴──────────────┴─────────────┴─────────────┘
-                             │
-                             │ Lookup dependencies
-                             ▼
-        ┌─────────────────────────────────────────────┐
-        │         CLINICAL WORKFLOW SERVICES           │
-        └─────────────────────────────────────────────┘
-                             │
-    ┌────────────────────────┼────────────────────────┐
-    ▼                        ▼                        ▼
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│PATIENT       │      │SCHEDULING    │      │BILLING       │
-│SERVICE       │◄─────┤SERVICE       │─────►│SERVICE       │
-│              │      │              │      │              │
-│-Demographics │      │-Appointments │      │-Price calc   │
-│-Insurance    │      │-Slots        │      │-Invoices     │
-│-Guardians    │      │-Patient flags│      │-Payments     │
-└──────┬───────┘      └──────┬───────┘      └──────┬───────┘
-       │                     │                     │
-       │                     │                     │
-       │              [Appointment Created]        │
-       │                     │                     │
-       └─────────────────────┼─────────────────────┘
-                             │
-                             │ Events
-                             ▼
-                    ┌─────────────────┐
-                    │ DAPR PUB/SUB     │
-                    │ (Redis/RabbitMQ) │
-                    └────────┬─────────┘
-                             │
-               ┌─────────────┼─────────────┐
-               ▼             ▼             ▼
-      ┌────────────┐  ┌────────────┐  ┌────────────┐
-      │EMAIL       │  │NOTIFICATIO-│  │AUDIT       │
-      │SENDER      │  │NS          │  │LOG         │
-      │SERVICE     │  │SERVICE     │  │CONSUMER    │
-      │            │  │            │  │(External)  │
-      │-Appt       │  │-SignalR    │  │            │
-      │ reminders  │  │-Video URLs │  │-Compliance │
-      │-Invoices   │  │-Push alerts│  │-Analytics  │
-      └────────────┘  └────────────┘  └────────────┘
-```
-
-### Communication Patterns
-
-**HTTP/REST (Synchronous):**
-- All services expose REST APIs (Refit interfaces)
-- JWT Bearer token authentication on all calls
-- No retry/circuit breaker configured (Risk #5)
-
-**gRPC (Synchronous, High-Performance):**
-- Alternative to REST for high-throughput operations
-- 9 proto definitions: Appointment, Billing, Identity, Master, Organization, Patient, Person, Practice, Provider
-- Binary protocol (HTTP/2) for performance
-
-**Dapr Pub/Sub (Asynchronous):**
-- Event-driven workflows
-- Fire-and-forget pattern (Risk #1 - no retry)
-- 10 topics: SaveAudit, TenantCreated, DoctorCreated, OrganizationCreated, OrganizationV1Created, OrganizationV1Updated, PracticeCreated, PracticeUpdated, PracticeActiveArchive, OrganizationSettingsCreated, OrganizationSettingsUpdated
-
-**Shared Database per Service:**
-- Each service owns its data (inferred from service separation)
-- Multi-tenancy via Finbuckle.MultiTenant
-- SQL Server primary (PostgreSQL/MySQL configurable)
-
----
-
-## 3. CRITICAL WORKFLOWS
-
-### Workflow 1: Appointment Booking
-
-**Services:** Scheduling → Practice → Provider → Patient → Billing → Email Sender
-
-**Steps:**
-1. **Scheduling Service** searches for available slots
-   - POST /api/Appointment/Slots with date, provider, specialty
-   - Receives slot list from **Practice Service** calendar
-2. **Practice Service** validates provider availability
-   - POST /api/Doctor/CalendarSlots3 with provider search
-   - Returns time slots with exam room allocation
-3. **Provider Service** retrieves reason for visit codes
-   - GET /api/ProfessionalDetails/GetProviderReasonForVisits/{providerId}
-   - Returns chief complaint dropdown options
-4. **Patient Service** retrieves patient demographics and insurance
-   - GET /api/Patients/{id} - Full patient record
-   - GET /api/Patients/{patientId}/HealthInsuranceSponsor/{sponsorId} - Insurance eligibility
-5. **Billing Service** calculates appointment price
-   - POST /api/Billing/Agreements/CalculatePrice with service codes, sponsor, provider
-   - Returns sponsor share vs patient share
-6. **Scheduling Service** creates appointment
-   - Saves to database, triggers AppointmentCreated event
-7. **Dapr Pub/Sub** distributes event
-8. **Email Sender Service** sends confirmation
-   - POST /api/Email/Send/{emailKey} with appointment details
-
-**Failure Scenarios:**
-- **If Billing Service down:** Appointment booking blocked (cannot calculate price)
-- **If Practice Service down:** No available slots, booking impossible
-- **If Patient Service down:** Cannot verify insurance, booking blocked
-- **If Email Sender Service down:** Appointment created but no confirmation sent (silent failure)
-- **If Dapr down:** Audit logs lost, no email sent (CRITICAL - Risk #1)
-
-**Data Flow Duration:** 5-10 seconds (6 synchronous HTTP calls)
-
-**PHI Exposure:** Patient name, date of birth, insurance, appointment date/time
-
----
-
-### Workflow 2: Patient Check-In
-
-**Services:** Scheduling → Patient → Billing → Notifications
-
-**Steps:**
-1. **Scheduling Service** loads appointment details
-   - GET /api/Appointment/GetById/{id}
-2. **Scheduling Service** retrieves patient flags
-   - GET /api/Appointment/PatientFlag?patientId={id}
-   - Returns VIP status, allergies, special needs (CRITICAL for clinical safety)
-3. **Patient Service** confirms demographics and insurance
-   - GET /api/Patients/{id}
-   - GET /api/Patients/{patientId}/HealthInsuranceSponsor/{sponsorId}
-4. **Billing Service** checks patient balance
-   - GET /api/Billing/Payment/AvailableBalance?patientId={id}
-   - Prompts for copay/outstanding balance payment
-5. **Notifications Service** notifies provider
-   - SignalR push to provider's device
-   - "Patient checked in - Exam Room 3"
-
-**Failure Scenarios:**
-- **If Scheduling Service down:** Cannot check in patients (complete workflow failure)
-- **If Patient Service down:** Cannot verify demographics/insurance (clinical risk)
-- **If Billing Service down:** Cannot collect copay (financial loss)
-- **If Notifications Service down:** Provider not alerted (delays care)
-- **CRITICAL: If patient flags not loaded:** Allergy/safety alerts missed (PATIENT SAFETY RISK)
-
-**Data Flow Duration:** 2-5 seconds (5 synchronous HTTP calls)
-
-**PHI Exposure:** Patient name, allergies, medical conditions, insurance, balance
-
----
-
-### Workflow 3: Invoice Generation & Claims
-
-**Services:** Billing → Scheduling → Patient → Master Data → Email Sender
-
-**Steps:**
-1. **Billing Service** retrieves appointment details
-   - Calls **Scheduling Service** for appointment (date, provider, services)
-2. **Master Data Service** provides ICD-10 code suggestions
-   - POST /api/AISearch/ClinicalSuggestions with chief complaint
-   - AI returns diagnosis code suggestions
-3. **Billing Service** calculates final charges
-   - POST /api/Billing/Agreements/CalculatePrice with finalized service codes
-4. **Patient Service** confirms insurance policy
-   - GET /api/Patients/{patientId}/HealthInsuranceSponsor/{sponsorId}
-5. **Billing Service** generates invoice
-   - Creates invoice with line items, diagnoses, charges
-   - Saves to database, triggers InvoiceCreated event
-6. **Email Sender Service** sends invoice to patient
-   - POST /api/Email/Send/{emailKey} with PDF attachment
-
-**Failure Scenarios:**
-- **If Master Data Service down:** AI suggestions unavailable (manual coding slower)
-- **If Patient Service down:** Cannot verify insurance (claim submission blocked)
-- **If Email Sender Service down:** Invoice created but not sent to patient
-- **If Billing Service down:** Cannot create invoices (revenue loss)
-
-**Data Flow Duration:** 10-15 seconds (AI processing adds latency)
-
-**PHI Exposure:** Diagnosis codes, services rendered, charges, insurance claim data
-
----
-
-### Workflow 4: AI Clinical Decision Support
-
-**Services:** Master Data → Azure Cognitive Search → Patient
-
-**Steps:**
-1. Provider enters chief complaint text
-2. **Master Data Service** converts text to vector embedding
-   - OpenAI text-embedding-ada-002 (1536 dimensions)
-3. **Azure Cognitive Search** performs vector similarity search
-   - POST to Azure Search API with embedding vector
-   - Returns top K similar cases with ICD-10 codes
-4. **Master Data Service** generates clinical suggestions (RAG pattern)
-   - POST /api/AISearch/RAGSearch with chief complaint
-   - POST /api/AISearch/ClinicalSuggestions with symptoms
-   - Returns ICD-10 codes ranked by relevance
-5. **Master Data Service** generates documentation
-   - POST /api/AISearch/GenerateDocumentation
-   - AI drafts assessment and plan based on similar cases
-6. Provider reviews and accepts/modifies suggestions
-7. **Patient Service** saves clinical note
-   - Note linked to patient encounter
-
-**Failure Scenarios:**
-- **If Azure Cognitive Search down:** AI features unavailable, fallback to manual entry
-- **If Master Data Service down:** No clinical decision support (providers work slower)
-- **If embeddings fail:** Fallback to keyword search (less accurate)
-
-**Data Flow Duration:** 3-8 seconds (Azure API latency varies)
-
-**PHI Exposure:** Chief complaint text, symptoms, clinical documentation
-
-**Clinical Safety:** AI suggestions are recommendations only, require provider review before acceptance
-
----
-
-### Workflow 5: Multi-Tenant Context Resolution
-
-**Services:** Identity → Organization → All Services
-
-**Steps:**
-1. User logs in to **Identity Service**
-   - POST /api/v1/Auth/Login with username/password
-2. **Identity Service** generates JWT token
-   - Claims: "sub" (user ID), "tenant" (tenant ID), "sa" (super admin flag)
-   - Expiration: Configurable (e.g., 8 hours)
-3. **Frontend** includes JWT in Authorization header for all requests
-4. **Each microservice** extracts tenant context
-   - ICurrentUser.GetTenantId() from JWT "tenant" claim
-   - Finbuckle.MultiTenant resolves tenant-specific database connection
-5. **EF Core** applies global query filter
-   - WHERE TenantId = {current_tenant}
-   - Prevents cross-tenant data leakage
-6. **Organization Service** provides org-specific settings
-   - GET /api/v1/OrganizationSettings/{id}
-   - Returns appointment rules, billing config, branding
-
-**Failure Scenarios:**
-- **If Identity Service down:** No logins, all users locked out (CRITICAL)
-- **If JWT expired:** User logged out mid-session
-- **If tenant claim missing:** Request rejected (403 Forbidden)
-- **CRITICAL: If global filter fails:** Cross-tenant data leakage (HIPAA violation)
-
-**Data Flow Duration:** 1-2 seconds (token validation cached)
-
-**PHI Exposure:** None (authentication data only)
-
-**Security Impact:** Single point of failure for entire platform security
-
----
-
-## 4. DATA OWNERSHIP
-
-| Entity | Owner Service | Reader Services | Write Pattern |
-|--------|--------------|-----------------|---------------|
-| **Patient** | Patient Service | Scheduling, Billing, Email Sender, Notifications | Single writer |
-| **Appointment** | Scheduling Service | Patient, Billing, Provider, Practice, Email Sender | Single writer |
-| **Invoice** | Billing Service | Patient, Email Sender | Single writer |
-| **Payment** | Billing Service | Patient | Single writer |
-| **Provider** | Provider Service | Practice, Scheduling, Billing | Single writer |
-| **Practice** | Practice Service | Scheduling, Provider, Billing | Single writer |
-| **User** | Identity Service | Person, all services (JWT) | Single writer |
-| **Tenant** | Identity Service | Organization, all services (JWT) | Single writer |
-| **Organization** | Organization Service | Practice, Identity | Single writer |
-| **Person** | Person Service | Identity, Notifications | Single writer |
-| **Chief Complaint (Indexed)** | Master Data Service | None (search only) | Batch writer |
-| **Audit Logs** | All Services | External audit consumer | Multiple writers |
-
-**Pattern:** Single-writer, multiple-reader per entity  
-**Consistency:** Eventual consistency via Dapr events  
-**Conflicts:** Prevented by service ownership boundaries
-
----
-
-## 5. MESSAGING TOPOLOGY
-
-| Topic | Producer | Consumers | Purpose | File:Line |
-|-------|----------|-----------|---------|-----------|
-| **SaveAudit** | All Services | External Audit Consumer | Entity change tracking | AuditableBaseDbContext.cs:61 |
-| **TenantCreated** | Identity Service | Email Sender, Audit | New tenant onboarding | Topics.cs:5 |
-| **DoctorCreated** | Provider Service | Email Sender, Notifications | Provider registration | Topics.cs:7 |
-| **OrganizationCreated** | Organization Service | Email Sender, Identity | Org setup workflow | Topics.cs:9 |
-| **OrganizationV1Created** | Organization Service | Email Sender, Identity | Org setup (versioned) | Topics.cs:10 |
-| **OrganizationV1Updated** | Organization Service | Cache invalidation | Org settings changed | Topics.cs:11 |
-| **PracticeCreated** | Practice Service | Email Sender, Provider | Practice registration | Topics.cs:13 |
-| **PracticeUpdated** | Practice Service | Scheduling (reload), Cache | Practice config changed | Topics.cs:14 |
-| **PracticeActiveArchive** | Practice Service | Scheduling (disable slots) | Practice archived | Topics.cs:15 |
-| **OrganizationSettingsCreated** | Organization Service | All Services (reload config) | Settings initialized | Topics.cs:17 |
-| **OrganizationSettingsUpdated** | Organization Service | All Services (reload config) | Settings changed | Topics.cs:18 |
-
-**Messaging Platform:** Dapr Pub/Sub (Redis, RabbitMQ, or Azure Service Bus - configured externally)  
-**Reliability:** Fire-and-forget (NO RETRY - Risk #1)  
-**Ordering:** No guaranteed order (Dapr default)  
-**Audit Events:** Published on every entity Create/Update/Delete
-
-**CRITICAL RISK:** Audit log loss if Dapr unavailable - no retry mechanism implemented
-
----
-
-## 6. PHI FLOW MAP
-
-### Services with PHI
-
-**CRITICAL PHI (Direct Patient Data):**
-1. **Patient Service** - Full patient demographics, insurance, guardians
-2. **Scheduling Service** - Appointments (patient linkage), patient flags (allergies, conditions)
-3. **Billing Service** - Invoices (diagnosis codes), payments (patient linkage)
-4. **Master Data Service** - Chief complaints (clinical text), AI-generated documentation
-5. **Email Sender Service** - All emails contain patient names, appointment details
-
-**HIGH PHI (Indirect Patient Data):**
-6. **Notifications Service** - Video conference URLs (appointment linkage)
-7. **Person Service** - User demographics (if person is patient)
-
-**LOW PHI (No Direct Patient Data):**
-- Identity, Provider, Practice, Organization Services
-
-### PHI Flow Diagram
-
-```
-[Patient Service] ─────PHI: Name, DOB, MRN────────► [Scheduling Service]
-       │                                                      │
-       │                                                      │
-       │                                                      ▼
-       │                                          [Email Sender Service]
-       │                                           PHI: Name, Appt Date
-       │
-       └────PHI: Insurance, Diagnosis────► [Billing Service]
-                                                     │
-                                                     │
-                                                     ▼
-                                          [Master Data Service]
-                                           PHI: Chief Complaint
-                                                     │
-                                                     ▼
-                                          [Azure Cognitive Search]
-                                           PHI: Indexed Clinical Text
-```
-
-### Encryption
-
-**In Transit (TLS/HTTPS):**
-- **Required:** TLS 1.2+ for all HTTP/REST and gRPC calls
-- **Configured:** Infrastructure level (not enforced in code - Risk #2)
-- **JWT Tokens:** Transmitted via HTTPS Authorization header
-- **Status:** ⚠️ NOT ENFORCED in code - relies on infrastructure
-
-**At Rest (Database):**
-- **Recommended:** SQL Server Transparent Data Encryption (TDE)
-- **Configured:** NOT ENFORCED in code (DatabaseSettings.cs:6 - plain connection string)
-- **PHI Tables:** Patient, Appointment, Invoice, Claim, ClinicalNote
-- **Status:** ⚠️ NOT ENFORCED - requires DBA configuration
-
-**At Rest (Azure Cognitive Search):**
-- **Configured:** Azure encryption at rest (automatic)
-- **Status:** ✅ ENABLED by default
-
-**Audit Logs (Dapr/Message Queue):**
-- **PHI Masking:** `[MaskValueAudit]` attribute replaces sensitive fields with "*"
-- **File:** MaskValueAuditAttribute.cs:13, AuditLoggingHelper.cs:56,60,68
-- **Status:** ✅ IMPLEMENTED but requires manual attribute application
-- **Risk:** PHI exposure if attributes not applied to all sensitive properties
-
-**Email Content:**
-- **Status:** ⚠️ UNKNOWN - depends on email service configuration
-- **Requirement:** Email service must be HIPAA-compliant
-- **Recommendation:** Use encrypted email gateway or secure patient portal links
-
----
-
-## 7. RISKS
-
-### Single Points of Failure
-
-**1. Identity Service Down**
-- **Impact:** Complete platform unavailable (no logins, JWT validation fails)
-- **Affected Workflows:** ALL
-- **Mitigation:** High availability deployment, database replication
-- **SLA Target:** 99.95% uptime (4.38 hours downtime/year max)
-
-**2. Dapr Pub/Sub Down**
-- **Impact:** Audit logs lost (fire-and-forget pattern - Risk #1), no email notifications
-- **Affected Workflows:** Audit logging, email reminders, event-driven workflows
-- **Healthcare Risk:** **CRITICAL** - Lost audit logs create compliance violations
-- **Mitigation:** Implement retry with exponential backoff or local queue fallback
-- **Current Status:** ⚠️ **NOT MITIGATED**
-
-**3. Patient Service Down**
-- **Impact:** Cannot load patient demographics, insurance verification fails, appointments blocked
-- **Affected Workflows:** Appointment booking, check-in, billing
-- **Healthcare Risk:** **HIGH** - Patient care workflows disrupted
-- **Mitigation:** Read replicas, circuit breaker with cached data
-
-**4. Billing Service Down**
-- **Impact:** Cannot calculate prices, appointment booking blocked, invoices unavailable
-- **Affected Workflows:** Appointment booking (price required), check-in (copay), invoicing
-- **Financial Risk:** **HIGH** - Revenue loss
-- **Mitigation:** Cached price agreements, allow booking with pending price
-
-**5. Scheduling Service Down**
-- **Impact:** Cannot book appointments, no patient check-in
-- **Affected Workflows:** Appointment booking, check-in, provider schedule
-- **Healthcare Risk:** **HIGH** - Patient access to care blocked
-- **Mitigation:** Read replicas, degraded mode (manual scheduling fallback)
-
-**6. Master Data Service Down**
-- **Impact:** AI clinical decision support unavailable, lookups fail (gender, marital status)
-- **Affected Workflows:** Clinical documentation, appointment booking (dropdown data)
-- **Healthcare Risk:** **MEDIUM** - Providers work slower without AI
-- **Mitigation:** Cached lookup data, AI features degrade gracefully
-
-**7. Azure Cognitive Search Down**
-- **Impact:** AI vector search unavailable, fallback to keyword search
-- **Affected Workflows:** Chief complaint search, ICD-10 suggestions
-- **Healthcare Risk:** **LOW** - Manual coding still possible
-- **Mitigation:** Keyword search fallback, cached frequent searches
-
-**8. SQL Server Database Down**
-- **Impact:** Complete platform unavailable (all services depend on database)
-- **Affected Workflows:** ALL
-- **Healthcare Risk:** **CRITICAL** - Patient care stopped
-- **Mitigation:** SQL Server Always On Availability Groups, automatic failover
-- **SLA Target:** 99.99% uptime (52 minutes downtime/year max)
-
-### Cascading Failure Risks
-
-**Scenario: Billing Service Overload**
-- Billing Service slow → Appointment booking times out → Scheduling Service requests pile up → Database connection pool exhausted → All services fail
-- **Mitigation:** Circuit breaker (Polly), bulkhead isolation, rate limiting, timeout policies
-- **Current Status:** ⚠️ **NOT IMPLEMENTED** (Risk #5)
-
-**Scenario: Database Connection Leak**
-- One service leaks connections → Connection pool exhausted → All services cannot connect → Complete outage
-- **Mitigation:** Connection pool monitoring, automatic connection recycling, alerting
-- **Current Status:** ⚠️ NOT VISIBLE in core library
-
-**Scenario: Audit Log Explosion**
-- High-frequency entity changes → Dapr message queue overwhelmed → Backpressure → Database writes slow → Cascading timeout
-- **Mitigation:** Batch audit log publishing, queue size limits, backpressure handling
-- **Current Status:** ⚠️ NOT IMPLEMENTED
-
-### Multi-Tenancy Isolation Risks
-
-**Cross-Tenant Data Leakage**
-- **Cause:** Global query filter failure, JWT "tenant" claim missing/spoofed
-- **Impact:** **CRITICAL** - HIPAA violation, patient privacy breach, legal liability
-- **Mitigation:** Defense-in-depth (JWT validation + global filter + row-level security)
-- **Test Requirements:** Automated tests for tenant isolation in every service
-- **Current Status:** ⚠️ NOT VISIBLE in core library (must audit consuming services)
-
-### Healthcare Compliance Risks
-
-**Audit Log Loss (Risk #1)**
-- **Cause:** Dapr fire-and-forget pattern (AuditableBaseDbContext.cs:61)
-- **Impact:** Compliance violations (HIPAA, UAE regulations require complete audit trail)
-- **Severity:** **CRITICAL**
-- **Fix:** Implement retry with local queue fallback
-
-**Unencrypted PHI in Transit (Risk #2)**
-- **Cause:** TLS not enforced in code, relies on infrastructure
-- **Impact:** PHI exposure if misconfigured
-- **Severity:** **HIGH**
-- **Fix:** Enforce HTTPS in code, reject non-TLS connections
-
-**Connection String Exposure (Risk #3)**
-- **Cause:** Database credentials in plain text (DatabaseSettings.cs:6)
-- **Impact:** Database compromise if config file leaked
-- **Severity:** **HIGH**
-- **Fix:** Move to Azure Key Vault or environment variables
-
-**PHI in Plain Text Logs (Risk #6)**
-- **Cause:** `[MaskValueAudit]` attribute not universally applied
-- **Impact:** PHI exposure in audit logs
-- **Severity:** **MEDIUM**
-- **Fix:** Audit attribute usage, enforce via unit tests
-
-**No Retry Policies (Risk #5)**
-- **Cause:** Refit clients have no retry/circuit breaker
-- **Impact:** Transient failures break workflows
-- **Severity:** **MEDIUM**
-- **Fix:** Implement Polly retry policies (exponential backoff, 3 attempts)
-
-### Performance Bottlenecks
-
-**No Distributed Cache**
-- **Cause:** ICacheService.cs interface only, no implementation
-- **Impact:** Repeated database queries, slow response times
-- **Severity:** **MEDIUM**
-- **Fix:** Implement Redis with TLS encryption
-
-**N+1 Query Problem**
-- **Cause:** Entity Framework lazy loading (documented in Section 8.2)
-- **Impact:** Slow queries, database overload
-- **Severity:** **MEDIUM**
-- **Fix:** Use Include() for eager loading, projections
-
-**No Request Throttling**
-- **Cause:** No rate limiting visible
-- **Impact:** Denial-of-service vulnerability
-- **Severity:** **MEDIUM**
-- **Fix:** Implement API rate limiting per tenant/user
-
----
-
-## SUMMARY
-
-**Platform Architecture:** Event-driven microservices with HTTP/REST primary, gRPC alternative, Dapr Pub/Sub messaging  
-**Total Services:** 11 internal microservices  
-**PHI Services:** 6-7 contain Protected Health Information  
-**Technology:** .NET 7.0 (⚠️ END OF SUPPORT - critical upgrade needed)  
-**Database:** SQL Server (PostgreSQL/MySQL configurable)  
-**Messaging:** Dapr Pub/Sub (fire-and-forget, no retry)  
-**AI:** Azure Cognitive Search with OpenAI embeddings  
-**Multi-Tenancy:** Finbuckle.MultiTenant with JWT claims  
-
-**Critical Risks:**
-1. Audit log loss (Dapr fire-and-forget)
-2. No retry/circuit breaker policies
-3. .NET 7.0 end-of-support
-4. Connection string security
-5. Single points of failure (Identity, Database)
-
-**Recommended Immediate Actions:**
-1. Upgrade .NET 7.0 → .NET 8 (all services)
-2. Implement audit log retry mechanism
-3. Add Polly retry policies to all Refit clients
-4. Implement distributed Redis cache
-5. Deploy Identity and Database with high availability
-6. Add automated multi-tenancy isolation tests
-7. Move connection strings to Azure Key Vault
-8. Implement comprehensive monitoring and alerting
+Refreshed 2026-11-15 from origin/master @ 6fc2554. Previous version dated 2026-03-04 (see git history / backup).
+Verified against origin/master @ 6fc2554, 2026-11-15. Confidence tags: [CONFIRMED] read in code or git this session, [INFERRED], [ASSUMED], [NEEDS HUMAN REVIEW].
+The old file (584 lines) described workflows, PHI flows and failure cascades of the whole platform. Those cannot be verified from this repo, so they are removed. What remains is what this repo and the submodule pointers of other repos prove.
+
+# Microservices Topology
+
+## Context note [UPDATED]
+
+Scrips.Core is a shared library. It is not a node in the runtime graph. It is a source dependency of the nodes. The facts below come from `.gitmodules` and the submodule commit pointer on each repo's default branch, read with `git show` / `git ls-tree` on 2026-11-15, plus `git grep` on those branches. Only the 20 repos cloned under `~/scrips-repos` were checked; other repos may embed Core too. [CONFIRMED scope]
+
+## 1. Repos that embed Scrips.Core [UPDATED]
+
+"Behind" = commits on Core origin/master (6fc2554) that the pinned commit lacks, from `git rev-list --count <pin>..origin/master` in the Core clone.
+
+| Repo | Default branch | Submodule path | Pinned Core commit | Behind |
+|---|---|---|---|---|
+| Scrips.Patient | master | `Scrips.Core` | 4268a91 | 1 |
+| Scrips.Workflows | master | `Scrips.Core` | 4268a91 | 1 |
+| Scrips.VideoApplication | master | `Scrips.Core` | f63d897 | 3 |
+| Scrips.PracticeManagement | master | `src/Scrips.Core` | 02f2e28 | 4 |
+| Scrips.AppointmentScheduling | master | `Scrips.Core` | c758646 | 5 |
+| Scrips.Billing | master | `src/Scrips.Core` | c758646 | 5 |
+| Scrips.Notifications | master | `Scrips.Core` | def46c5 | 7 |
+| Scrips.QuestionBank | master | `Scrips.Core` | 5d28a54 | 11 |
+| Scrips.Organization | master | `Scrips.Core` | 6d07439 | 48 |
+| Scrips.Master | master | `Scrips.Core` | d7bd181 | 54 |
+| Scrips.Practice.Aggregator | master | `src/Scrips.Core` | 363a8ad | 82 |
+| Scrips.EClaim | master | `Scrips.Core` | 108a11f | 116 |
+| Scrips.Provider | master | `src/Scrips.Core` | 108a11f | 116 |
+| Scrips.Identity | master | `Scrips.Core` | 9870a26 | 118 |
+| Scrips.Inventory | master | `src/Scrips.Core` | 65984e4 | 120 |
+| Scrips.Persons | master | `Scrips.Core` | 65984e4 | 120 |
+| Scrips.Auditing | master | `Scrips.Core` | c22643c | 147 |
+| Scrips.Integration.Nabidh | master | `src/Scrips.Core` | c22643c | 147 |
+| Scrips.Reporting | master | `Scrips.Core` | c22643c | 147 |
+| Scrips.Integration.Malaffi | packages_vulnerabilities (origin HEAD of the local clone) | `src/Scrips.Core` | 2859dbb | not in the local Core clone, unknown |
+
+[CONFIRMED: `.gitmodules` and `git ls-tree` on each default branch] The Malaffi row uses the branch that is origin HEAD in that clone; its master branch was not checked. [NEEDS HUMAN REVIEW]
+
+Consequences:
+- Any Core change takes effect in a service only after that service bumps its pointer. A proto change that a caller needs before the callee has it is a coordination problem across repos. [INFERRED from the mechanism]
+- Outbox availability by pin (checked with `git merge-base --is-ancestor 12ee6ee <pin>`): the three repos pinned at c22643c (2026-03-09: Auditing, Integration.Nabidh, Reporting) lack the outbox. All other pins (except Malaffi, not resolvable) contain it. [CONFIRMED]
+- Fix coverage by pin: four repos that call `AddAuditOutbox` pin a Core commit that lacks the non-GUID `sub` fix (491c662, PROD-1815) and the `READ COMMITTED` drainer fix (1ba4c4f): Identity (9870a26), Persons (65984e4), Inventory (65984e4), Provider (108a11f). Their `AddAuditOutbox` call compiles against an older drainer. If their `Audit:UseOutbox` flag is on, they carry both defects the later commits fixed. The flag values are not in any repo. [CONFIRMED pins and commit ancestry; flag state UNKNOWN] [NEEDS HUMAN REVIEW: Andrew owns the service deploys]
+- Organization (6d07439) and the repos pinned later have both fixes; AppointmentScheduling/Billing/Patient and later pins have all three (`200ba1d` integration-event lane too). Master (d7bd181) and Practice.Aggregator (363a8ad) lack only 1ba4c4f. [CONFIRMED]
+- Several repos embed Core under a `src/` prefix and `Scrips.Integration.Malaffi` has a copy of Core source in its tree on the checked branch (`src/Scrips.Core/Scrips.Core.Application/GlobalUsings.cs` exists there). [CONFIRMED]
+
+## 2. Which parts each repo uses (sampled) [NEW]
+
+Measured with `git grep` on each default branch, 2026-11-15, counting `.cs` files that match. Submodule content is not searched by `git grep`.
+
+| Feature | Repos with a match |
+|---|---|
+| `AuditableBaseDbContext` or `AuditableMultiTenantBaseDbContext` | AppointmentScheduling (4), Billing (2), Identity (2), Integration.Malaffi (2), Inventory (1), Organization (5), Patient (10), Persons (1), PracticeManagement (1), Provider (1), QuestionBank (4) |
+| `AddAuditOutbox` | AppointmentScheduling, Billing, Identity, Inventory, Organization, Patient, Persons, PracticeManagement, Provider, QuestionBank (10 repos) |
+| `OutboxMessage.ForIntegrationEvent` | Patient (11 files) |
+| `[MaskValueAudit]` | Integration.Malaffi (2), Patient (2), QuestionBank (1) |
+| a class implementing `ICacheService` | Billing (2), Organization (3), Patient (1), Persons (2), PracticeManagement (1), VideoApplication (1), Workflows (2) |
+| `Scrips.Core.HttpApiClients` namespace | AppointmentScheduling (4), Identity (9), Integration.Malaffi (10), Patient (6), Practice.Aggregator (33) |
+| `Scrips.Core.Domain` namespace | Inventory (12 files), Integration.Malaffi (13 files) |
+
+[CONFIRMED by grep] Not a full inventory: dynamic use, other branches, and repos that are not cloned are not covered.
+
+## 3. Service dependency edges named in this repo [UPDATED]
+
+From proto and header comments; not verified in the callers.
+
+| Caller | Callee | Contract |
+|---|---|---|
+| Scrips.Workflows | Scrips.Patient | `CreateCarePlan`, `AddCarePlanGoal`, `EvaluateObservationAgainstGoal`, `RecordGoalAchievement`, `FindPatientsByPhone` |
+| Scrips.VideoApplication | Scrips.Patient | `RecordAmbientTranscriptCorrections` |
+| Scrips.VideoApplication | Scrips.Master | `SearchAndEnhance` (ambient consumer) |
+| Scrips.AppointmentScheduling | Scrips.Billing | `UpdateInvoiceProvider` |
+| Scrips.Patient | Scrips.QuestionBank | `FreezeEncounterResponse`, `RecordSignSnapshot`, `GetEncounterNarrative`, `GetUnansweredRequiredItems` |
+| Scrips.AppointmentScheduling and others | Scrips.PracticeManagement | resource, presence, room, doctor rpcs |
+| every audited service | Scrips.Auditing | topic `SaveAudit` via Dapr `pubsub` |
+
+[CONFIRMED comments at `PatientManagement.proto:82-86, 110-121, 122-152`; `BillingManagement.proto:29-31`; `QuestionBankManagement.proto:6-8`; `MasterManagement.proto:166-169`]
+
+## 4. Messaging topology [UPDATED]
+
+- Pub/sub component: `pubsub`. [CONFIRMED]
+- `SaveAudit`: producers are services using the auditable contexts; consumer is Scrips.Auditing (`TopicSubscription` at `AuditingServer.cs:41-52`). [CONFIRMED]
+- `Topics.cs` names: Identity references `TenantCreated` (2 files); Organization and PracticeManagement reference the Organization*, OrganizationV1*, Practice* and OrganizationSettings* names (1 file each per name; PracticeManagement has 2 for `PracticeActiveArchive`). `DoctorCreated` has no reference in any of the 20 clones. [CONFIRMED by grep; publisher or subscriber role not checked]
+- `Scrips.AppointmentScheduling` references `Topics.AppointmentStatusChangedForAutomation` and `Scrips.Patient` references `Topics.SaveAudit`, `Topics.RunRequested` and others; these names are not in Core's `Topics.cs`, so those repos have their own `Topics` classes. [CONFIRMED: grep output; Core's `Topics.cs` has 10 other names]
+
+## 5. Data ownership [UPDATED]
+
+This repo defines no tables except `OutboxMessages` (one per service database). Each service owns its own tables. A service that uses the outbox needs that table in its own database; the table is not created by this repo. [CONFIRMED]
+The outbox table lives in "the context's single (shared) database" (comment `OutboxDrainerService.cs:310`). For a multi-tenant context that means one table for all tenants of that service, with `TenantId` on each row. [CONFIRMED comment; INFERRED consequence]
+
+## 6. PHI flow [UPDATED]
+
+Only the facts this repo shows:
+- Audit payloads (`OldValue`, `NewValue`) leave a service on `SaveAudit` and, in outbox mode, rest in `OutboxMessages` of the service database until purged (7 days after publish by default; never for dead letters unless scrub is on). [CONFIRMED]
+- Protos and DTOs for patients, encounters, appointments, invoices and ambient transcripts carry PHI. [CONFIRMED]
+- A whole-platform PHI map cannot be built from this repo. [NEEDS HUMAN REVIEW]
+
+## 7. Risks [UPDATED]
+
+- Stale pins (section 1): 7 repos are 116 or more commits behind. [CONFIRMED]
+- A contract change is source-visible only to repos that bump. No CI in this repo checks that consumers still build. [CONFIRMED absence]
+- Single point of drift: the audit classes exist in two copies (`AuditableBaseDbContext`, `AuditableMultiTenantBaseDbContext`) that differ only by tenant handling. A fix applied to one can miss the other. [CONFIRMED by reading both]
+- Old text's cascading-failure, bottleneck and multi-tenancy-isolation lists are [REMOVED]: they described the platform, not this repo, and were not re-verifiable here.
