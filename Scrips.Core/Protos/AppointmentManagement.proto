@@ -536,6 +536,10 @@ message Appointment {
   google.protobuf.Timestamp start = 16;
   google.protobuf.Timestamp end = 17;
   Speciality speciality = 18;
+  // 19 is cancellationNote in Scheduling's copy (PROD-2998); not copied here yet.
+  // PROD-3645 (additive), copied from Scheduling: Appointments.GroupSessionId, the group session this appointment is a
+  // member of. Empty when it is not in a group session. Set by GetAppointmentById only; the list RPCs leave it empty.
+  string groupSessionId = 20;
 }
 
 message RealTimeUpdateRequest{
