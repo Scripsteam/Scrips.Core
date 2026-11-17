@@ -139,6 +139,10 @@ message GetAppointmentProfileResponse {
     // Appointment type code, not a GUID: ROUTINE / FOLLOWUP / WALKIN.
     string appointmentTypeCode = 8;
     bool isArchived = 9;
+    // True when the patient app may book this profile (PracticeManagement AppointmentProfile.InAppBooking).
+    // The patient app offers only ROUTINE + inAppBooking + not archived; WhatsApp booking uses the same set.
+    // An older PracticeManagement that does not send it reads as false: callers refuse, they never assume true.
+    bool inAppBooking = 10;
 }
 
 message IsActivePractitionerOfOrganizationRequest {
