@@ -143,6 +143,19 @@ message GetAppointmentProfileResponse {
     // The patient app offers only ROUTINE + inAppBooking + not archived; WhatsApp booking uses the same set.
     // An older PracticeManagement that does not send it reads as false: callers refuse, they never assume true.
     bool inAppBooking = 10;
+    // PROD-3638 (additive): what a server-side booking needs to build the same appointment the patient app builds. Empty when the profile has none.
+    // The visit type's display name.
+    string profileName = 11;
+    // The calendar colour of the visit type.
+    string color = 12;
+    // The reason code id of the visit type (AppointmentProfile.ReasonCodeId).
+    string reasonCodeId = 13;
+    // The room the profile books into; empty when none.
+    string roomId = 14;
+    // The billing profile the invoice at booking is made from; empty when the visit type has none.
+    string billingProfileId = 15;
+    // The speciality of the visit type; empty when none.
+    string specialityId = 16;
 }
 
 message IsActivePractitionerOfOrganizationRequest {
