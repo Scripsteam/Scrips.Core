@@ -120,6 +120,11 @@ service PatientManagement {
   // (e.g. a parent and child): the caller must not guess between them.
   rpc FindPatientsByPhone (FindPatientsByPhoneRequest) returns (FindPatientsByPhoneResponse);
 
+  // Front-desk identity check (WhatsApp, 20 Nov 2026). Compares what the sender typed with the registered record, SERVER SIDE, and answers
+  // yes or no only. The record never leaves Patient. matched is false for every failure alike (wrong value, unknown patient, a patient of another
+  // organization, no value on record, empty input) so the answer never says which part was wrong or that a record exists.
+  rpc VerifyPatientIdentity (VerifyPatientIdentityRequest) returns (VerifyPatientIdentityResponse);
+
   // Patient-specific goal targets (2026-10-22): compares ONE received observation with the patient's OWN goal target
   // (set by the physician; the care model's default until then) and with the care model's safety limits, which apply to
   // every patient. Rule-based, no AI. CODES ONLY in the answer, never a value. FAILS CLOSED: anything uncertain is
@@ -1331,4 +1336,16 @@ message RecordGoalAchievementResponse {
                                       //   result arrives, the goal's stored status stays out of date.
     string achievementStatus=3;       // met | not-met | no-data claims: the FHIR goal-achievement code now stored ("achieved" |
                                       // "not-achieved"); empty when none. "derive": always empty (record only).
+}
+
+// Exactly one of date_of_birth (yyyy-MM-dd) or email must be set; both set or neither is matched=false. PHI in the request: never logged.
+message VerifyPatientIdentityRequest {
+    string organization_id = 1;   // required, non-empty GUID: the patient must belong to it
+    string patient_id = 2;        // required, from FindPatientsByPhone
+    string date_of_birth = 3;     // yyyy-MM-dd, compared with the registered date of birth
+    string email = 4;             // compared case-insensitively with the registered email
+}
+
+message VerifyPatientIdentityResponse {
+    bool matched = 1;
 }
