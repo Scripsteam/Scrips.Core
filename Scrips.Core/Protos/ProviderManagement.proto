@@ -12,7 +12,8 @@ service ProviderManagement{
   rpc GetSpecialityNameByIds (Common.Ids) returns (SpecialityNamesResponse);
   // WhatsApp front desk (21 Nov 2026): the PUBLIC professional profile of up to 20 practitioners, as short display lines the practitioner wrote or entered in
   // Professional Details and Educational Details (bio, languages, qualifications, residencies, fellowships, achievements, work experience). Read-only. Never
-  // licence number, date of birth, email, phone or signature. An unknown id is simply absent from the answer.
+  // licence number, date of birth, email, phone or signature. An unknown id is simply absent from the answer. Org-scoped: only practitioners with an
+  // active role in organization_id are returned; a missing or invalid organization_id returns nothing.
   rpc GetPractitionerPublicProfiles (GetPractitionerPublicProfilesRequest) returns (GetPractitionerPublicProfilesResponse);
 }
 
@@ -73,6 +74,7 @@ message GetPractitionerLicenceNoByIdsResponse{
 
 message GetPractitionerPublicProfilesRequest {
 	repeated string practitioner_ids = 1;   // at most 20 are read; non-guid values are ignored
+	string organization_id = 2;             // required: the caller's organisation; a practitioner outside it is left out
 }
 // Every list holds at most 5 short lines (each at most 160 characters); bio at most 600 characters. Empty = nothing on file.
 message PractitionerPublicProfile {
