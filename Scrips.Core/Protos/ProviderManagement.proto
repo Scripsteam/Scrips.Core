@@ -10,6 +10,10 @@ service ProviderManagement{
   rpc GetPractitionerLicenceNo (GetPractitionerLicenceNoRequest) returns (GetPractitionerLicenceNoResponse);
   rpc GetPractitionerLicenceNoByIds (GetPractitionerLicenceNoByIdsRequest) returns (GetPractitionerLicenceNoByIdsResponse);
   rpc GetSpecialityNameByIds (Common.Ids) returns (SpecialityNamesResponse);
+  // WhatsApp front desk (21 Nov 2026): the PUBLIC professional profile of up to 20 practitioners, as short display lines the practitioner wrote or entered in
+  // Professional Details and Educational Details (bio, languages, qualifications, residencies, fellowships, achievements, work experience). Read-only. Never
+  // licence number, date of birth, email, phone or signature. An unknown id is simply absent from the answer.
+  rpc GetPractitionerPublicProfiles (GetPractitionerPublicProfilesRequest) returns (GetPractitionerPublicProfilesResponse);
 }
 
 message SpecialityName
@@ -65,4 +69,22 @@ message GetPractitionerLicenceNoByIdResponse{
 }
 message GetPractitionerLicenceNoByIdsResponse{
 	repeated GetPractitionerLicenceNoByIdResponse providers=1;
+}
+
+message GetPractitionerPublicProfilesRequest {
+	repeated string practitioner_ids = 1;   // at most 20 are read; non-guid values are ignored
+}
+// Every list holds at most 5 short lines (each at most 160 characters); bio at most 600 characters. Empty = nothing on file.
+message PractitionerPublicProfile {
+	string practitioner_id = 1;
+	string bio = 2;                          // Professional Details, "professional statement"
+	repeated string languages = 3;
+	repeated string qualifications = 4;      // e.g. "MBBS, Cairo University (2010)"
+	repeated string residencies = 5;
+	repeated string fellowships = 6;
+	repeated string achievements = 7;
+	repeated string work_experiences = 8;
+}
+message GetPractitionerPublicProfilesResponse {
+	repeated PractitionerPublicProfile profiles = 1;
 }
