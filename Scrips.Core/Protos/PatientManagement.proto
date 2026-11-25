@@ -107,6 +107,16 @@ service PatientManagement {
   rpc BeginAmbientRecordingPart (BeginAmbientRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
   rpc CompleteAmbientRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
 
+  // Ambient in video calls (25 Nov 2026): a patient's answer, in the call, to the note-taker's request to record.
+  // INTERNAL: Video is the only caller. One row per answer (approve | decline | withdraw); nothing is updated or
+  // removed. The latest answer of each participant decides. Video asks every patient in the call and lets the
+  // note-taker record only when every present patient's latest answer is approve. CODES AND IDS ONLY: no names.
+  rpc RecordAmbientInCallConsent (RecordAmbientInCallConsentRequest) returns (RecordAmbientInCallConsentResponse);
+  // The latest answer of each PATIENT on one encounter in one Zoom session, in this organization. Keyed by patient,
+  // not by join key: a patient who rejoins with a new key is still one patient, so a withdraw on the new key wins
+  // over an approve on the old one. An answer from an earlier call on the same encounter never counts.
+  rpc ListAmbientInCallConsent (ListAmbientInCallConsentRequest) returns (ListAmbientInCallConsentResponse);
+
   // PROD-3195: Video records the corrections its corrector made to the
   // ambient transcript, in the domains medication | diagnosis | order | text. INTERNAL: Video is the only caller. The result is per segment; one stale or
   // refused segment never fails the others. A malformed request is the only rpc error (InvalidArgument).
@@ -188,6 +198,11 @@ message BeginAmbientRecordingPartRequest {
     string consentRecordId = 6;
     // True when the caller runs with AmbientScribe:Consent:Required=false. Old clients send false.
     bool consentNotRequired = 7;
+    // Where the audio comes from: mic (the practitioner app's microphone) | call (the note-taker in a video call).
+    // Empty from old clients = mic. Patient refuses any other value (refusalReason invalid-audio-source).
+    // consentRecordId (field 6) holds the same stored ambient-recording consent for both sources: the in-call
+    // answers are a confirmation at the time of the call, not a replacement for the stored consent.
+    string audioSource = 8;
 }
 
 message BeginAmbientRecordingPartResponse {
@@ -211,6 +226,60 @@ message CompleteAmbientRecordingPartRequest {
 
 message CompleteAmbientRecordingPartResponse {
     bool ok = 1;
+}
+
+// Ambient in video calls - one in-call answer. All ids are GUID strings except participantKey.
+message RecordAmbientInCallConsentRequest {
+    string organizationId = 1;
+    string encounterId = 2;
+    // The patient the answer is for: Video maps the participant's join key to this patient.
+    string patientId = 3;
+    // The opaque join key Zoom knows the participant by (Zoom user_key, at most 36 characters). Never a Scrips id.
+    string participantKey = 4;
+    // approve | decline | withdraw
+    string answer = 5;
+    // The version of the prompt text the patient saw, e.g. in-call-v1. 1-32 characters.
+    string consentTextVersion = 6;
+    // The language of the prompt the patient saw: en | ar
+    string language = 7;
+    // The Zoom session the answer was given in (Session_<appointmentId> or Group_<id>). At most 64 characters.
+    string videoSessionId = 8;
+}
+
+message RecordAmbientInCallConsentResponse {
+    bool recorded = 1;
+    string answerId = 2;
+    // Empty when recorded. Otherwise: invalid | org-mismatch | encounter-not-found | patient-mismatch |
+    // store-unavailable | error. Video treats any refusal as "not approved".
+    string refusalReason = 3;
+}
+
+message ListAmbientInCallConsentRequest {
+    string organizationId = 1;
+    string encounterId = 2;
+    // Required: only answers given in this Zoom session count. Empty gives ok = false with refusalReason invalid,
+    // so Video treats every patient as "not approved".
+    string videoSessionId = 3;
+}
+
+message AmbientInCallConsentAnswer {
+    string answerId = 1;
+    string patientId = 2;
+    string participantKey = 3;
+    string answer = 4;
+    string consentTextVersion = 5;
+    string language = 6;
+    string videoSessionId = 7;
+    // ISO-8601 UTC, the server's clock when the answer was stored.
+    string answeredAtUtc = 8;
+}
+
+message ListAmbientInCallConsentResponse {
+    // false = the list could not be read; Video then treats every participant as "not approved".
+    bool ok = 1;
+    string refusalReason = 2;
+    // The latest answer of each patient in the session, newest first. participantKey is the key of that answer.
+    repeated AmbientInCallConsentAnswer answers = 3;
 }
 
 // PROD-3195 - one correction or flag the corrector made. start_index and length are in UTF-16 code units
