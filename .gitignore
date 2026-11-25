@@ -432,3 +432,5 @@ FodyWeavers.xsd
 .DS_Store
 
 .idea/
+# Generated security audit reports: never commit (may contain secrets)
+audit-report*.md
