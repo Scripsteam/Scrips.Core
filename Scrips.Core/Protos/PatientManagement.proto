@@ -257,7 +257,8 @@ message RecordAmbientInCallConsentResponse {
 message ListAmbientInCallConsentRequest {
     string organizationId = 1;
     string encounterId = 2;
-    // Required: only answers given in this Zoom session count.
+    // Required: only answers given in this Zoom session count. Empty gives ok = false with refusalReason invalid,
+    // so Video treats every patient as "not approved".
     string videoSessionId = 3;
 }
 
