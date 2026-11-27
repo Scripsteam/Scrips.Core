@@ -354,7 +354,8 @@ message AmbientGroupTranscriptSegment {
     int32 sequence = 2;
     // lead | practitioner | nurse | patient | guest | unknown (contract v1.2 R2); never a name.
     string speakerRole = 3;
-    // "s" + 1-4 digits (s1, s2, ...), stable for the recording; never a name or a join key. Patient rejects any other form.
+    // Empty (no known speaker), or "s" + 1-4 digits (s1, s2, ...), stable for the recording; never a name or a join key.
+    // Patient rejects any other form.
     string speakerRef = 4;
     // Set only when the speaker is a group member (a patient line); empty otherwise.
     string memberEncounterId = 5;
