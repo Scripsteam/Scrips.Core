@@ -128,6 +128,8 @@ service PatientManagement {
   // stored ambient consent is granted; any member refused = not accepted (refusalReason). Retention is the longest of
   // the members'. CODES AND IDS ONLY: no names, no text other than the transcript itself.
   rpc BeginAmbientGroupRecordingPart (BeginAmbientGroupRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
+  // Reuses CompleteAmbientRecordingPartRequest, which carries no encounter field: partId is the id Begin returned for
+  // a GROUP part, so it names a row of the group store only (never a one-to-one part).
   rpc CompleteAmbientGroupRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
   // The full transcript of one group recording, written once after Stop. Each segment is a finalized line; a line
   // with a memberEncounterId was said by that member. Re-sending the same segments is a no-op (unique per segment).
@@ -352,6 +354,7 @@ message AmbientGroupTranscriptSegment {
     int32 sequence = 2;
     // lead | practitioner | nurse | patient | guest | unknown (contract v1.2 R2); never a name.
     string speakerRole = 3;
+    // "s" + 1-4 digits (s1, s2, ...), stable for the recording; never a name or a join key. Patient rejects any other form.
     string speakerRef = 4;
     // Set only when the speaker is a group member (a patient line); empty otherwise.
     string memberEncounterId = 5;
