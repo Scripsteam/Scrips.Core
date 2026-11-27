@@ -122,6 +122,19 @@ service PatientManagement {
   // refused segment never fails the others. A malformed request is the only rpc error (InvalidArgument).
   rpc RecordAmbientTranscriptCorrections (RecordAmbientTranscriptCorrectionsRequest) returns (RecordAmbientTranscriptCorrectionsResponse);
 
+  // Ambient in video calls V6 (Andrew, 27 Nov 2026): a GROUP call's recording and full transcript are stored ONCE, per
+  // group session, for clinicians only, never under a member's chart. INTERNAL: Video is the only caller.
+  // Begin checks that every member is in that group session (Scheduling) and this organization, and that each member's
+  // stored ambient consent is granted; any member refused = not accepted (refusalReason). Retention is the longest of
+  // the members'. CODES AND IDS ONLY: no names, no text other than the transcript itself.
+  rpc BeginAmbientGroupRecordingPart (BeginAmbientGroupRecordingPartRequest) returns (BeginAmbientRecordingPartResponse);
+  // Reuses CompleteAmbientRecordingPartRequest, which carries no encounter field: partId is the id Begin returned for
+  // a GROUP part, so it names a row of the group store only (never a one-to-one part).
+  rpc CompleteAmbientGroupRecordingPart (CompleteAmbientRecordingPartRequest) returns (CompleteAmbientRecordingPartResponse);
+  // The full transcript of one group recording, written once after Stop. Each segment is a finalized line; a line
+  // with a memberEncounterId was said by that member. Re-sending the same segments is a no-op (unique per segment).
+  rpc SaveAmbientGroupTranscript (SaveAmbientGroupTranscriptRequest) returns (SaveAmbientGroupTranscriptResponse);
+
   // PROD-2901 - exact, organization-scoped phone -> patient lookup for an inbound WhatsApp sender, so
   // free text can reach the automation waiting on that patient. Cluster-internal: called by
   // Scrips.Workflows only. It returns patient ids and nothing else (no names, no phone numbers).
@@ -317,6 +330,55 @@ message TranscriptCorrectionSegment {
     // The segment's position in the session transcript (0-based). Used as the Sequence of a new original;
     // an existing original keeps its Sequence.
     int32 sequence = 6;
+}
+
+// V6: one member of a group call at the recording's start (their own appointment's encounter).
+message AmbientGroupRecordingMember {
+    string encounterId = 1;
+    string patientId = 2;
+}
+
+message BeginAmbientGroupRecordingPartRequest {
+    string organizationId = 1;
+    string groupSessionId = 2;
+    string userId = 3;
+    // The client's key for this recording (1-32 of [A-Za-z0-9_-]); parts of one recording share it.
+    string recordingKey = 4;
+    string videoSessionId = 5;
+    string audioSource = 6;
+    repeated AmbientGroupRecordingMember members = 7;
+}
+
+message AmbientGroupTranscriptSegment {
+    string segmentId = 1;
+    int32 sequence = 2;
+    // lead | practitioner | nurse | patient | guest | unknown (contract v1.2 R2); never a name.
+    string speakerRole = 3;
+    // Empty (no known speaker), or "s" + 1-4 digits (s1, s2, ...), stable for the recording; never a name or a join key.
+    // Patient rejects any other form.
+    string speakerRef = 4;
+    // Set only when the speaker is a group member (a patient line); empty otherwise.
+    string memberEncounterId = 5;
+    string text = 6;
+    string translation = 7;
+    string language = 8;
+    int64 offsetMs = 9;
+    int64 durationMs = 10;
+}
+
+message SaveAmbientGroupTranscriptRequest {
+    string organizationId = 1;
+    string groupSessionId = 2;
+    string recordingKey = 3;
+    string userId = 4;
+    repeated AmbientGroupTranscriptSegment segments = 5;
+}
+
+message SaveAmbientGroupTranscriptResponse {
+    bool ok = 1;
+    int32 saved = 2;
+    // invalid | not-found | org-mismatch | store-unavailable | ...
+    string refusalReason = 3;
 }
 
 message RecordAmbientTranscriptCorrectionsRequest {
