@@ -1144,6 +1144,9 @@ message GetPatientByIdResponse {
   // PROD-3822: the user (Identity) linked to this patient row, or empty when none. Lets a service check that an
   // appointment's patient is the calling patient-app user.
   string userId=45;
+  // PROD-3822: the user (Identity) linked to this patient's guardian record (minors only), or empty when none. Lets a
+  // service check that an appointment's patient is the calling guardian's dependant.
+  string guardianUserId=46;
 }
 
 message PatientEducationResponse
