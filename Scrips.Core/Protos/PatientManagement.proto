@@ -1141,6 +1141,9 @@ message GetPatientByIdResponse {
   PatientEducationResponse education=42;
   PatientOccupationResponse occupation=43;
   string LanguageDisplay=44;
+  // PROD-3822: the user (Identity) linked to this patient row, or empty when none. Lets a service check that an
+  // appointment's patient is the calling patient-app user.
+  string userId=45;
 }
 
 message PatientEducationResponse
